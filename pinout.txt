@@ -1,0 +1,60 @@
+64MB SDRAM (2 * K4S561632) - 57 linii
+	SDCK, SDCKE, RAS, CAS, SDWE, SDCS
+	A0/NBS0, A1/NBS2, NBS1, NBS3, A2-A11, SDA10, A13, A14, A16/BA0, A17/BA1
+	D0 - D31
+	
+DataFlash 256kB (AT45DB021D) - 5 linii
+	MISO, MOSI, SPCK, NPCS0, NRST
+
+Ethernet 10/100Mbit (STE100P - kamami.pl) - 19 linii
+	ETXEN, ETXCK, ETX0-3, ETXER,
+	ERXDV, ERXCK, ERX0-3, ERXER,
+	ECOL, ECRS/ECRSDV, EMDC, EMDIO, 
+	PC4 do MDINT
+
+USB Host - 2 linie
+	HDMA, HDPA
+
+USB Device - 2 do 4 linii
+	DDP, DDM (+2 do sygnalizacji gotowości portu - zewnętrzny pullup)
+
+SD/MMC (12 linii)
+	MCDA0-3, MCCDA, MCCK (6 z General Purpose IO - MCI B jest zajęty przez Ethernet)
+
+LCD module (SSD1906) - 41 linii
+	A1-A17
+	D0-D15
+	A18 do M/R#
+	BUSCLK (?)
+	NRST, NWAIT, NRD, NWR0, NWR1, NCS3
+
+Audio DAC - 6 linii
+	XTI/MCLK (PCK0 - programmable clock)
+	LRCIN (TF0), DIN (TD0), BCLK (TK0) do Digital Audio Interface
+	SDI (TWD), SCLK (TWCK) do Control Interface
+
+USART
+
+Bluetooth module
+
+EEPROM?
+
+JTAG
+
+Buttons
+
+LEDs
+
+
+VLSI VS1011
+
+
+18 GND
+2 GNDPLL
+1 GNDOSC
+
+2 VDDPLL
+7 VDDIOM
+6 VDDIOP
+5 VDDCORE
+1 VDDOSC
