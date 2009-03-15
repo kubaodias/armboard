@@ -1,0 +1,116 @@
+\documentclass{beamer}
+\usepackage[polish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[OT4]{fontenc}
+\usepackage{graphics}
+
+\usetheme{Berlin}
+\useinnertheme{rounded}
+\useoutertheme{infolines}
+
+\newenvironment{ramka}{\begin{frame}}
+{
+		\end{frame}
+}
+\begin{document}
+	\title[Embedded Linux]{Konstrukcja platformy sprzętowej dla potrzeb wbudowanego systemu Linux}
+	\author{Jakub Odias}
+	
+	\begin{frame}
+		\titlepage
+		\begin{figure}[b]
+			\includegraphics[scale=0.15]{tux.png} 
+		\end{figure}
+	\end{frame}
+	
+	\section{Wstęp}
+	\begin{ramka}
+		\frametitle{Agenda}
+		\tableofcontents
+	\end{ramka} 
+	
+	\subsection{Embedded Linux}
+	\begin{ramka}
+		\frametitle{Embedded Linux}
+		\begin{block}{Co to jest wbudowany Linux?}
+			\begin{itemize}
+				\item<2-> System przystosowany specjalnie dla potrzeb urządzeń posiadających ograniczone zasoby
+				\item<3-> Jądro jest znacznie okrojone w stosunku do tych używanych na serwerach czy desktopach
+				\item<4-> Posiada aplikacje zoptymalizowane do konkretnych celów
+			\end{itemize}
+		\end{block}
+
+	\end{ramka} 
+	
+	\subsection{Przykładowe zastosowania}
+	\begin{ramka}
+		\frametitle{Przykładowe zastosowania}
+		\begin{block}{Przykładowe zastosowania}
+		\begin{itemize}
+				\item<2->Urządzenia przenośne
+				\item<3-> Switche i routery sieciowe
+				\item<4-> Kamery internetowe, dyski twarde, punkty informacji itp.
+			\end{itemize}
+			\begin{figure}[b]
+		\includegraphics[scale=0.25]{devices.jpg} 
+		\end{figure}
+		\end{block}
+	\end{ramka} 
+	
+	\subsection{Temat projektu}
+	\begin{ramka}
+		\frametitle{Temat projektu}
+		\begin{block}{Platforma sprzętowa dla potrzeb wbudowanego systemu Linux}
+			\begin{itemize}
+			\item<1->Celem projektu jest stworzenie platformy sprzętowej umożliwiającej podłączenie sieci Ethernet, wyświetlacza graficznego LCD, urządzeń USB oraz kart pamięci SD/MMC.\\
+			\item<2->Płytka będzie docelowo wykorzystana jako multimedialne urządzenie umożliwiające odtwarzanie utworów muzycznych. Interfejs użytkownika będzie dostępny za pomocą sieci Ethernet lub łącza Bluetooth.
+			\end{itemize}
+		\end{block}
+	\end{ramka} 
+	
+	\section{Hardware}
+	\begin{ramka}
+		\frametitle{Hardware}
+		\begin{block}{Mikrokontroler z rodziny ARM - Atmel AT91RM9200}
+			\begin{itemize}
+				\item<2-> 200MIPS @ 180MHz, Memory Management Unit
+				\item<3-> EBI - wsparcie dla pamięci SDRAM, Compact Flash, NAND flash
+				\item<4-> Ethernet 10/100 Mbps
+				\item<5-> Działa jako host i urządzenie USB
+				\item<6-> Interfejs dla kart SD/MMC
+				\item<7-> SPI, 4*USART, TWI, RTC
+			\end{itemize}
+		\end{block}
+	\end{ramka} 
+	
+	\begin{ramka}
+		\frametitle{Hardware}
+		\begin{itemize}
+			\item<1-> 64MB SDRAM
+			\item<1-> 256kB pamięci Serial Dataflash (bootloader)
+			\item<1-> 2 złącza kart pamięci SD/MMC
+			\item<1-> Kontroler LCD SSD1906 + wyświetlacz z Sony PSP
+			\item<1-> Przetwornik audio
+			\item<1-> Ethernet
+			\item<1-> Host i urządzenie USB
+			\item<1-> Moduł Bluetooth BTM222
+			\item<1-> JTAG, UART
+		\end{itemize}
+	\end{ramka} 
+	
+	\section{Software}
+	\begin{ramka}
+		\frametitle{Linux}
+		\begin{itemize}
+			\item<1-> kernel
+		\end{itemize}
+	\end{ramka} 
+	
+	\section*{Podsumowanie}
+	\begin{ramka}
+		\begin{center}
+			\textbf{\Large{Dziękuję za uwagę}}
+		\end{center}
+	\end{ramka}
+
+\end{document}
