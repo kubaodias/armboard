@@ -268,6 +268,7 @@ UsedLibrary="/opt/eagle-5.1.0/lbr/zetex.lbr"
 UsedLibrary="/home/odi/eagle/lbr/ste100p.lbr"
 UsedLibrary="/home/odi/eagle/lbr/mylib.lbr"
 UsedLibrary="/home/odi/eagle/lbr/sd_mmc_card_connector.lbr"
+UsedLibrary="/home/odi/eagle/lbr/con-pulse.lbr"
 
 [Win_1]
 Type="Control Panel"
