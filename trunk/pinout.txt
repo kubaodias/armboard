@@ -6,6 +6,9 @@
 DataFlash 256kB (AT45DB021D) - 5 linii
 	MISO, MOSI, SPCK, NPCS0, NRST
 
+EEPROM (AT93C66) - SPI, 4 linie
+	MISO, MOSI, SPCK, NPCS2
+
 Ethernet 10/100Mbit (STE100P - kamami.pl) - 19 linii
 	ETXEN, ETXCK, ETX0-3, ETXER,
 	ERXDV, ERXCK, ERX0-3, ERXER,
@@ -18,8 +21,10 @@ USB Host - 2 linie
 USB Device - 2 do 4 linii
 	DDP, DDM (+2 do sygnalizacji gotowości portu - zewnętrzny pullup)
 
-SD/MMC (12 linii)
-	MCDA0-3, MCCDA, MCCK (6 z General Purpose IO - MCI B jest zajęty przez Ethernet)
+SD/MMC A (12 linii)
+	MCDA0-3, MCCDA, MCCK
+SD/MMC B (4 linie)
+	MISO, MOSI, SPCK, NPCS1
 
 LCD module (SSD1906) - 41 linii
 	A1-A17
@@ -37,8 +42,6 @@ USART
 
 Bluetooth module
 
-EEPROM?
-
 JTAG
 
 Buttons
@@ -48,13 +51,10 @@ LEDs
 
 VLSI VS1011
 
+not connected pins:
+PB[6..11]
+PB[27..29]
+PC[0..5]
+PC[10..15]
 
-18 GND
-2 GNDPLL
-1 GNDOSC
 
-2 VDDPLL
-7 VDDIOM
-6 VDDIOP
-5 VDDCORE
-1 VDDOSC
