@@ -272,7 +272,7 @@ UsedLibrary="/mnt/work/Dyplom/eagle/lbr/con-pulse.lbr"
 
 [Win_1]
 Type="Control Panel"
-Loc="-1 49 1268 766"
+Loc="-160 175 1109 892"
 State=1
 Number=0
 
