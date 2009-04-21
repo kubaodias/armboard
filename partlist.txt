@@ -1,0 +1,89 @@
+Część elektroniczna	Sklep		Szt.		Cena jedn.	Cena
+-----------------------------------------------------------------------------
+AT91RM9200		seguro		1/1		59.90		59.90
+K4S561632J		kamami		2/2		10.88		21.76
+AT45DB041D		kamami		1/1		3.76		3.76
+AT93C66			seguro		1/1		1.07		1.07
+STE100P			kamami		1/1		17.72		17.72
+LM3940IMP-3.3		seguro		1/1		3.23		3.23
+LM1117MP-1.8		tme		1/1		6.99		6.99
+DS1818			seguro		1/1		3.23		3.23
+SSD1906			maritex		1/1		19.90		19.90
+BTM-222			kamami		1/1		65.90		65.90
+MAX3232CSE		posiadam	0+1/1		-		-
+
+Kwarc 32.768kHz		!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Kwarc 18.432MHz		tme		1/1		2.77		2.77
+Kwarc 25MHz		tme		1/1		2.53		2.53
+
+Kondensator 100nF	tme		53+20/100	0.023		2.30
+Kondensator 10pF	posiadam	6/6		-		-
+Kondensator 680pF	seguro		1/10		0.62		0.62
+Kondensator 470pF	seguro		1/10		0.62		0.62
+Kondensator 4.7nF	seguro		1/10		0.62		0.62
+Kondensator 5.6nF	seguro		1/10		0.62		0.62
+Kondensator 22pF	seguro		2/10		0.62		0.62
+Kondensator 47pF	seguro		2/10		0.62		1.24
+Kondensator 470nF	seguro		1/10		1.46		1.46
+Kondensator 4.7uF	seguro		0+2/10		5.86		5.86
+Kond. elektr. 10uF/25V	seguro		6+1/6 (1 mam)	0.41		2.46
+Kond. elektr. 47uF/16V	seguro		2+3/5		0.43		2.15
+Kond. tant. 100uF/16V	seguro		1/1		3.59		3.59
+Kond. tant. 10uF/16V	seguro		2/2		0.66		1.32
+
+Rezystor 0 (zworka)	seguro		3+1/10		0.52		0.52
+Rezystor 27		seguro		2/10		0.52		0.52
+Rezystor 49.9/1%	tme		2/100		0.026		2.60
+Rezystor 100		seguro		1/10		0.52		0.52
+Rezystor 220		seguro		1/10		0.52		0.52
+Rezystor 330		seguro		3/10		0.52		0.52
+Rezystor 390		seguro		1+1/10		0.52		0.52
+Rezystor 560		seguro		1/10		0.52		0.52
+Rezystor 1k		seguro		5/10		0.52		0.52
+Rezystor 1.27k		!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Rezystor 1.96k		!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Rezystor 4.7k		seguro		0+6/10		0.52		0.52
+Rezystor 10k		posiadam	5+14/19		-		-
+Rezystor 10k/1%		seguro		2/10		0.52		0.52
+Rezystor 15k		seguro		2/10		0.52		0.52
+Rezystor 47k		seguro		1/10		0.52		0.52
+
+
+Dioda P6SMB6,8A SMD	seguro		1/1		0.68		0.68
+Bezpiecznik BSMD1206	tme		1/5		1.32		6.60		
+Bezpiecznik BSMD-0.25A	tme		1/2		2.41		4.82
+LCBA-601		tme		2/10		0.29		2.90
+Dioda czerw. LG-170UR	seguro		2/2		0.48		0.96
+Dioda żółta LG-170Y	seguro		2+1/3		0.48		1.44
+Dioda zielona LG-170G	seguro		1/1		0.48		0.48
+
+DC Power Jack 2.0mm	seguro		1/1		0.78		0.78
+Złącze SD/MMC		seguro		1/1		4.98		4.98
+Ethernet J0011D21BNL	kamami		1/1		13.93		13.93
+Złącze kątowe IDC 16pin	tme		2/2		1.69		3.38
+Złącze proste IDC 16pin	seguro		1/1		0.85		0.85
+Listwa PLHTD40S-GC	maritex		2/2		1.60		3.20
+Listwa PBHD40S-CV	maritex		2/2		2.55		5.10
+Listwa PBHTD40SPP	maritex		2/2		2.65		5.30
+USBA-G-SMD		tme		1/1		2.53		2.53
+Gniazdo D-SUB DBR09F	seguro		2/1(1 mam)	2.05		2.05
+Obudowa ABS-77		tme		1/1		6.49		6.49
+Przycisk DTSM-62N	posiadam	5/5		-		-
+El. dyst. 6.4mm RI-LCBSB-4-01A tme	4/10		0.89		8.90
+-----------------------------------------------------------------------------
+Oznaczenie sztuk:
+ile potrzeba + na dodatkowej plytce / ile jest w zestawie
+
+
+Do tego:
+elementy dystansujące
+taśma do programatora + jtag
+
+taśma ffc
+TLV320DAC23		texas		1/2	sample
+dławiki do DAC w maritex
+
+Mam:
+kwarc 16MHz
+MAX3232CSE * 2
+MAX232ACSE * 3
