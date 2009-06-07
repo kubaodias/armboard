@@ -8,7 +8,7 @@
 //* intellectual property rights of others.
 //*----------------------------------------------------------------------------
 //* File Name           : main.c
-//* Object              : 
+//* Object              :
 //* Creation            : HIi   10/10/2003
 //*----------------------------------------------------------------------------
 #include <AT91RM9200.h>
@@ -47,7 +47,7 @@ const char *menu_dataflash = {
   "4: Clear bootloader section in Dataflash\n\r"
 };
 
-//* Globales variables 
+//* Globales variables
 char message[40];
 volatile char XmodemComplete = 0;
 unsigned int StTick;
@@ -62,7 +62,7 @@ AT91S_SvcTempo 		svcTempo; 	 // Link to a AT91S_Tempo object
 
 //*--------------------------------------------------------------------------------------
 //* Function Name       : GetTickCount()
-//* Object              : Return the number of systimer tick 
+//* Object              : Return the number of systimer tick
 //* Input Parameters    :
 //* Output Parameters   :
 //*--------------------------------------------------------------------------------------
@@ -80,7 +80,7 @@ unsigned int GetTickCount(void)
 //*--------------------------------------------------------------------------------------
 void AT91_XmodemComplete(AT91S_PipeStatus status, void *pVoid)
 {
-  // stop the Xmodem tempo 
+  // stop the Xmodem tempo
   svcXmodem.tempo.Stop(&(svcXmodem.tempo));
   XmodemComplete = 1;
 }
@@ -96,10 +96,10 @@ void XmodemProtocol(AT91S_PipeStatus status, void *pVoid)
 {
   AT91PS_SBuffer pSBuffer = (AT91PS_SBuffer) xmodemPipe.pBuffer->pChild;
   AT91PS_USART   pUsart     = svcXmodem.pUsart;
-  
+
   if (pSBuffer->szRdBuffer == 0) {
-    // Start a tempo to wait the Xmodem protocol complete		
-    svcXmodem.tempo.Start(&(svcXmodem.tempo), 10, 0, AT91_XmodemComplete, pUsart);								
+    // Start a tempo to wait the Xmodem protocol complete
+    svcXmodem.tempo.Start(&(svcXmodem.tempo), 10, 0, AT91_XmodemComplete, pUsart);
   }
 }
 
@@ -117,25 +117,25 @@ void AT91F_ST_Handler(void)
 {
   volatile unsigned int csr = *AT91C_DBGU_CSR;
   unsigned int error;
-  
+
   /* ========== Systimer interrupt ============== */
   if (AT91C_BASE_ST->ST_SR & 0x01) {
     StTick++;
     ctlTempo.CtlTempoTick(&ctlTempo);
     return;
   }
-  
+
   error = AT91F_US_Error((AT91PS_USART)AT91C_BASE_DBGU);
   if (csr & error) {
     // Stop previous Xmodem transmition
     *(AT91C_DBGU_CR) = AT91C_US_RSTSTA;
     AT91F_US_DisableIt((AT91PS_USART)AT91C_BASE_DBGU, AT91C_US_ENDRX);
     AT91F_US_EnableIt((AT91PS_USART)AT91C_BASE_DBGU, AT91C_US_RXRDY);
-    
+
   }
-  
-  else if (csr & (AT91C_US_TXRDY | AT91C_US_ENDTX | AT91C_US_TXEMPTY | 
-		  AT91C_US_RXRDY | AT91C_US_ENDRX | AT91C_US_TIMEOUT | 
+
+  else if (csr & (AT91C_US_TXRDY | AT91C_US_ENDTX | AT91C_US_TXEMPTY |
+		  AT91C_US_RXRDY | AT91C_US_ENDRX | AT91C_US_TIMEOUT |
 		  AT91C_US_RXBUFF)) {
     if ( !(svcXmodem.eot) )
       svcXmodem.Handler(&svcXmodem, csr);
@@ -145,41 +145,41 @@ void AT91F_ST_Handler(void)
 
 //*-----------------------------------------------------------------------------
 //* Function Name       : AT91F_DisplayMenu()
-//* Object              : 
-//* Input Parameters    : 
-//* Return value		: 
+//* Object              :
+//* Input Parameters    :
+//* Return value		:
 //*-----------------------------------------------------------------------------
 void AT91F_DisplayMenu(void)
 {
-  printf("\n\rATMEL LOADER %s %s %s\n\r", AT91C_VERSION, __DATE__, __TIME__);
-  printf(menu_separ);	
+  printf("\n\rLAB bootloader %s %s %s\n\r", AT91C_VERSION, __DATE__, __TIME__);
+  printf(menu_separ);
   AT91F_DataflashPrintInfo();
-  printf(menu_separ);	
-  printf(menu_dataflash);			
-  printf(menu_separ);	
-}	
+  printf(menu_separ);
+  printf(menu_dataflash);
+  printf(menu_separ);
+}
 
 //*-----------------------------------------------------------------------------
 //* Function Name       : AsciiToHex()
 //* Object              : ascii to hexa conversion
-//* Input Parameters    : 
-//* Return value		: 
+//* Input Parameters    :
+//* Return value		:
 //*-----------------------------------------------------------------------------
 unsigned int AsciiToHex(char *s, unsigned int *val)
 {
   int n;
-  
+
   *val=0;
-  
+
   if(s[0] == '0' && ((s[1] == 'x') || (s[1] == 'X')))
     s+=2;
-  n = 0;	
+  n = 0;
   while((n < 8) && (s[n] !=0))
     {
       *val <<= 4;
       if ( (s[n] >= '0') && (s[n] <='9'))
 	*val += (s[n] - '0');
-      else	
+      else
 	if ((s[n] >= 'a') && (s[n] <='f'))
 	  *val += (s[n] - 0x57);
 	else
@@ -189,16 +189,16 @@ unsigned int AsciiToHex(char *s, unsigned int *val)
 	    return 0;
       n++;
     }
-  
-  return 1;				
+
+  return 1;
 }
 
 
 //*-----------------------------------------------------------------------------
 //* Function Name       : AT91F_MemoryDisplay()
 //* Object              : Display the content of the dataflash
-//* Input Parameters    : 
-//* Return value		: 
+//* Input Parameters    :
+//* Return value		:
 //*-----------------------------------------------------------------------------
 int AT91F_MemoryDisplay(unsigned int addr, unsigned int size, unsigned int length)
 {
@@ -208,21 +208,21 @@ int AT91F_MemoryDisplay(unsigned int addr, unsigned int size, unsigned int lengt
   unsigned short 	*usp;
   unsigned char 	*ucp;
   char linebuf[DISP_LINE_LEN];
-  
+
   nbytes = length * size;
   do
     {
       uip = (unsigned int *)linebuf;
       usp = (unsigned short *)linebuf;
       ucp = (unsigned char *)linebuf;
-      
+
       printf("%08x:", addr);
       linebytes = (nbytes > DISP_LINE_LEN)?DISP_LINE_LEN:nbytes;
-      
+
       read_dataflash(addr, (linebytes/size)*size, linebuf);
       for (i=0; i<linebytes; i+= size)
         {
-	  if (size == 4) 
+	  if (size == 4)
 	    printf(" %08x", *uip++);
 	  else if (size == 2)
 	    printf(" %04x", *usp++);
@@ -255,17 +255,17 @@ int AT91F_MemoryDisplay(unsigned int addr, unsigned int size, unsigned int lengt
 void AT91F_SetPLL(void)
 {
   volatile int tmp = 0;
-  
+
   AT91PS_PMC pPmc = AT91C_BASE_PMC;
   AT91PS_CKGR pCkgr = AT91C_BASE_CKGR;
-  
+
   pPmc->PMC_IDR = 0xFFFFFFFF;
-  
+
   //* -Setup the PLL A
   pCkgr->CKGR_PLLAR = AT91C_PLLA_VALUE;
-  
+
   while(!(pPmc->PMC_SR & AT91C_PMC_MCKRDY) && (tmp++ < DELAY_MAIN_FREQ));
-  
+
   //* - Commuting Master Clock from PLLB to PLLA/3
   pPmc->PMC_MCKR = AT91C_PLLA_MCK;
 }
@@ -280,11 +280,11 @@ void AT91F_SetPLL(void)
 static void AT91F_ResetRegisters(void)
 {
   volatile int i = 0;
-  
+
   //* set the PIOs in input
   *AT91C_PIOA_ODR = 0xFFFFFFFF;	/* Disables all the output pins */
   *AT91C_PIOA_PER = 0xFFFFFFFF;	/* Enables the PIO to control all the pins */
-  
+
   AT91F_AIC_DisableIt (AT91C_BASE_AIC, AT91C_ID_SYS);
 
   /* close all peripheral clocks */
@@ -292,17 +292,17 @@ static void AT91F_ResetRegisters(void)
 
   //* Disable core interrupts and set supervisor mode
   __asm__ ("msr CPSR_c, #0xDF"); //* ARM_MODE_SYS(0x1F) | I_BIT(0x80) | F_BIT(0x40)
-  
+
   //* Clear all the interrupts
   *AT91C_AIC_ICCR = 0xffffffff;
-  
+
   /* read the AIC_IVR and AIC_FVR */
   i = *AT91C_AIC_IVR;
   i = *AT91C_AIC_FVR;
-  
+
   /* write the end of interrupt control register */
   *AT91C_AIC_EOICR	= 0;
-  
+
   AT91F_SetPLL();
 }
 
@@ -329,10 +329,10 @@ int main(void)
   AT91PS_Buffer  		pXmBuffer;
   AT91PS_SvcComm 		pSvcXmodem;
   AT91S_SvcTempo 		svcUbootTempo; 	 // Link to a AT91S_Tempo object
-  
-  unsigned int AddressToDownload, SizeToDownload;	
+
+  unsigned int AddressToDownload, SizeToDownload;
   unsigned int DeviceAddress = 0;
-  volatile int i = 0;	
+  volatile int i = 0;
   char command = 0;
   unsigned int crc1 = 0, crc2 = 0;
   volatile int device;
@@ -340,31 +340,31 @@ int main(void)
 
   stdin = fopen(0, at91_dbgu_getc);
   stdout = fopen(at91_dbgu_putc, 0);
-  
+
   pAT91 = AT91C_ROM_BOOT_ADDRESS;
-  
+
   // Tempo Initialisation
   pAT91->OpenCtlTempo(&ctlTempo, (void *) &(pAT91->SYSTIMER_DESC));
   ctlTempo.CtlTempoStart((void *) &(pAT91->SYSTIMER_DESC));
-  
+
   // Attach the tempo to a tempo controler
   ctlTempo.CtlTempoCreate(&ctlTempo, &svcUbootTempo);
-  
+
   //	Xmodem Initialisation
   pXmBuffer     = pAT91->OpenSBuffer(&sXmBuffer);
   pSvcXmodem = pAT91->OpenSvcXmodem(&svcXmodem, (AT91PS_USART)AT91C_BASE_DBGU, &ctlTempo);
   pAT91->OpenPipe(&xmodemPipe, pSvcXmodem, pXmBuffer);
-  
+
   //* System Timer initialization
   AT91F_AIC_ConfigureIt (
 			 AT91C_BASE_AIC,                        // AIC base address
 			 AT91C_ID_SYS,                          // System peripheral ID
 			 AT91C_AIC_PRIOR_HIGHEST,               // Max priority
 			 AT91C_AIC_SRCTYPE_INT_LEVEL_SENSITIVE, // Level sensitive
-			 AT91F_ST_ASM_Handler );						
+			 AT91F_ST_ASM_Handler );
   //* Enable ST interrupt
   AT91F_AIC_EnableIt(AT91C_BASE_AIC, AT91C_ID_SYS);
-  
+
   //	DataFlash on SPI Configuration
   AT91F_DataflashInit ();
 
@@ -376,7 +376,7 @@ int main(void)
 
   // stop tempo
   svcUbootTempo.Stop(&svcUbootTempo);
-  
+
   while(1)
     {
       while(command == 0)
@@ -384,12 +384,12 @@ int main(void)
 	  AddressToDownload = AT91C_DOWNLOAD_BASE_ADDRESS;
 	  SizeToDownload = AT91C_DOWNLOAD_MAX_SIZE;
 	  DeviceAddress = 0;
-	  
+
 	  AT91F_DisplayMenu();
 	  message[0] = 0;
 	  message[2] = 0;
 	  AT91F_ReadLine("Enter: ", message);
-	  
+
 	  command = message[0];
 	  if(command == '1' || command == '2')
 	    if(AsciiToHex(&message[2], &DeviceAddress) == 0)
@@ -397,27 +397,12 @@ int main(void)
 
 	  switch(command)
 	    {
-	    case '1':					
+	    case '1':
 	      printf("Download Dataflash [0x%x]\n\r", DeviceAddress);
-	      
-	      switch(DeviceAddress & 0xFF000000)
-		{
-		case CFG_DATAFLASH_LOGIC_ADDR_CS0:
-		  device = 0;
-		  break;
-		  
-		case CFG_DATAFLASH_LOGIC_ADDR_CS3:
-		  device = 1;
-		  break;
-		  
-		default:
-		  command = 0;
-		  break;
-		}
 	      break;
-	      
+
 	    case '2':
-	      do 
+	      do
 		{
 		  AT91F_MemoryDisplay(DeviceAddress, 4, 64);
 		  AT91F_ReadLine ((char *)0, message);
@@ -426,7 +411,7 @@ int main(void)
 	      while(message[0] == '\0');
 	      command = 0;
 	      break;
-	      
+
 	    case '3':
 	      AT91F_StartUboot(0, (void *)0);
 	      command = 0;
@@ -446,43 +431,43 @@ int main(void)
 	      break;
 	    }
 	}
-      
-      xmodemPipe.Read(&xmodemPipe, (char *)AddressToDownload, SizeToDownload, XmodemProtocol, 0);	
+
+      xmodemPipe.Read(&xmodemPipe, (char *)AddressToDownload, SizeToDownload, XmodemProtocol, 0);
       while(XmodemComplete !=1);
-      SizeToDownload = (unsigned int)(svcXmodem.pData) - (unsigned int)AddressToDownload;	
-      
+      SizeToDownload = (unsigned int)(svcXmodem.pData) - (unsigned int)AddressToDownload;
+
       // Modification of vector 6
       NbPage = 0;
-      i = dataflash_info[device].Device.pages_number;
+      i = dataflash_info.Device.pages_number;
       while(i >>= 1)
 	NbPage++;
-      i = (SizeToDownload / 512) + 1 + (NbPage << 13) + (dataflash_info[device].Device.pages_size << 17);
+      i = (SizeToDownload / 512) + 1 + (NbPage << 13) + (dataflash_info.Device.pages_size << 17);
       *(int *)(AddressToDownload + AT91C_OFFSET_VECT6) = i;
-      
+
       printf("\n\rModification of Arm Vector 6 :%x\n\r", i);
-      
+
       printf("\n\rWrite %d bytes in DataFlash [0x%x]\n\r",SizeToDownload, DeviceAddress);
       crc1 = 0;
       pAT91->CRC32((const unsigned char *)AddressToDownload, SizeToDownload , &crc1);
-      
+
       // write the dataflash
       write_dataflash (DeviceAddress, AddressToDownload, SizeToDownload);
       // clear the buffer before read
       for(i=0; i < SizeToDownload; i++)
 	*(unsigned char *)(AddressToDownload + i) = 0;
-      
+
       //* Read dataflash page in TestBuffer
       read_dataflash (DeviceAddress, SizeToDownload, (char *)(AddressToDownload));
-      
-      printf("Verify Dataflash: ");	
+
+      printf("Verify Dataflash: ");
       crc2 = 0;
-      
+
       pAT91->CRC32((const unsigned char *)AddressToDownload, SizeToDownload , &crc2);
       if (crc1 != crc2)
-	printf("Failed\n\r");	
+	printf("Failed\n\r");
       else
-	printf("OK\n\r");	
-      
+	printf("OK\n\r");
+
       command = 0;
       XmodemComplete = 0;
       AT91F_WaitKeyPressed();

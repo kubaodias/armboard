@@ -18,11 +18,6 @@
 #ifndef _DataFlash_h
 #define _DataFlash_h
 
-#define CFG_MAX_DATAFLASH_BANKS 	2
-#define CFG_DATAFLASH_LOGIC_ADDR_CS0	0xC0000000
-#define CFG_DATAFLASH_LOGIC_ADDR_CS3	0xD0000000
-
-
 typedef struct {
 	unsigned long base;		/* logical base address for a bank */
 	unsigned long size;		/* total bank size */
@@ -42,15 +37,15 @@ typedef unsigned int AT91S_DataFlashStatus;
 /*---------------------------------------------*/
 typedef struct _AT91S_DataflashDesc {
 	unsigned char 			*tx_cmd_pt;
-	unsigned int 			tx_cmd_size;
+	unsigned int 				tx_cmd_size;
 	unsigned char 			*rx_cmd_pt;
-	unsigned int 			rx_cmd_size;
+	unsigned int 				rx_cmd_size;
 	unsigned char 			*tx_data_pt;
-	unsigned int 			tx_data_size;
+	unsigned int 				tx_data_size;
 	unsigned char 			*rx_data_pt;
-	unsigned int 			rx_data_size;
-	volatile unsigned char 	state;
-	volatile unsigned char 	DataFlash_state;
+	unsigned int 				rx_data_size;
+	volatile unsigned char state;
+	volatile unsigned char DataFlash_state;
 	unsigned char 			command[8];
 } AT91S_DataflashDesc, *AT91PS_DataflashDesc;
 
@@ -62,7 +57,6 @@ typedef struct _AT91S_Dataflash {
 	int pages_size;				/* dataflash page size */
 	int page_offset;			/* page offset in command */
 	int byte_mask;				/* byte mask in command */
-	int cs;
 } AT91S_DataflashFeatures, *AT91PS_DataflashFeatures;
 
 
@@ -79,7 +73,6 @@ typedef struct _AT91S_DATAFLASH_INFO {
 
 	AT91S_DataflashDesc 	Desc;
 	AT91S_DataflashFeatures Device; /* Pointer on a dataflash features array */
-	unsigned long 			logical_address;
 	unsigned int 			id;			/* device id */
 } AT91S_DATAFLASH_INFO, *AT91PS_DATAFLASH_INFO;
 
@@ -87,10 +80,12 @@ typedef struct _AT91S_DATAFLASH_INFO {
 /*-------------------------------------------------------------------------------------------------*/
 
 #define AT45DB041		0x1c
+/*
 #define AT45DB161		0x2c
 #define AT45DB321		0x34
 #define AT45DB642		0x3c
 #define AT45DB128		0x10
+*/
 
 #define AT91C_DATAFLASH_TIMEOUT		20000	/* For AT91F_DataFlashWaitReady */
 
@@ -151,17 +146,16 @@ typedef struct _AT91S_DATAFLASH_INFO {
 
 /*-------------------------------------------------------------------------------------------------*/
 
-extern AT91S_DATAFLASH_INFO dataflash_info[CFG_MAX_DATAFLASH_BANKS];
+extern AT91S_DATAFLASH_INFO dataflash_info;
 
-extern void AT91F_SpiInit (void);
-extern int AT91F_DataflashProbe (int i, AT91PS_DataflashDesc pDesc);
-extern int AT91F_DataFlashRead (AT91PS_DataFlash, unsigned long , unsigned long, char *);				
+extern void AT91F_SpiInit(void);
+extern int AT91F_DataflashProbe(AT91PS_DataflashDesc pDesc);
+extern int AT91F_DataFlashRead(AT91PS_DataFlash, unsigned long , unsigned long, char *);
 extern AT91S_DataFlashStatus AT91F_DataFlashWrite(AT91PS_DataFlash ,unsigned char *, int, int);
-extern int AT91F_DataflashInit (void);
+extern int AT91F_DataflashInit(void);
 extern void AT91F_DataflashPrintInfo(void);
-extern int addr_dataflash (unsigned long addr);
-extern int read_dataflash (unsigned long addr, unsigned long size, char *result);
-extern int write_dataflash (unsigned long addr_dest, unsigned int addr_src, unsigned int size);
+extern int read_dataflash(unsigned long addr, unsigned long size, char *result);
+extern int write_dataflash(unsigned long addr_dst, unsigned int addr_src, unsigned int size);
 
 
 #endif

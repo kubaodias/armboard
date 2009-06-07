@@ -27,7 +27,7 @@
 
 #define AT91C_OFFSET_VECT6              0x14        //* Offset for ARM vector 6
 
-#define AT91C_VERSION   "VER 1.01"
+#define AT91C_VERSION   "VER 1.0"
 // Global variables and functions definition
 extern unsigned int GetTickCount(void);
 #endif
