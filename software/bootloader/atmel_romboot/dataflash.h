@@ -18,7 +18,10 @@
 #ifndef _DataFlash_h
 #define _DataFlash_h
 
+#define CFG_MAX_DATAFLASH_BANKS 	2
 #define CFG_DATAFLASH_LOGIC_ADDR_CS0	0xC0000000
+#define CFG_DATAFLASH_LOGIC_ADDR_CS3	0xD0000000
+
 
 typedef struct {
 	unsigned long base;		/* logical base address for a bank */
@@ -89,12 +92,12 @@ typedef struct _AT91S_DATAFLASH_INFO {
 #define AT45DB642		0x3c
 #define AT45DB128		0x10
 
-#define AT91C_DATAFLASH_TIMEOUT			20000	/* For AT91F_DataFlashWaitReady */
+#define AT91C_DATAFLASH_TIMEOUT		20000	/* For AT91F_DataFlashWaitReady */
 
 /* DataFlash return value */
-#define AT91C_DATAFLASH_BUSY				0x00
-#define AT91C_DATAFLASH_OK					0x01
-#define AT91C_DATAFLASH_ERROR				0x02
+#define AT91C_DATAFLASH_BUSY			0x00
+#define AT91C_DATAFLASH_OK				0x01
+#define AT91C_DATAFLASH_ERROR			0x02
 #define AT91C_DATAFLASH_MEMORY_OVERFLOW	0x03
 #define AT91C_DATAFLASH_BAD_COMMAND		0x04
 #define AT91C_DATAFLASH_BAD_ADDRESS		0x05
@@ -114,7 +117,7 @@ typedef struct _AT91S_DATAFLASH_INFO {
 
 /* READ COMMANDS */
 #define DB_CONTINUOUS_ARRAY_READ	0xE8	/* Continuous array read */
-#define DB_BURST_ARRAY_READ		0xE8	/* Burst array read */
+#define DB_BURST_ARRAY_READ			0xE8	/* Burst array read */
 #define DB_PAGE_READ				0xD2	/* Main memory page read */
 #define DB_BUF1_READ				0xD4	/* Buffer 1 read */
 #define DB_BUF2_READ				0xD6	/* Buffer 2 read */
@@ -148,11 +151,11 @@ typedef struct _AT91S_DATAFLASH_INFO {
 
 /*-------------------------------------------------------------------------------------------------*/
 
-extern AT91S_DATAFLASH_INFO dataflash_info;
+extern AT91S_DATAFLASH_INFO dataflash_info[CFG_MAX_DATAFLASH_BANKS];
 
 extern void AT91F_SpiInit (void);
-extern int AT91F_DataflashProbe (AT91PS_DataflashDesc pDesc);
-extern int AT91F_DataFlashRead (AT91PS_DataFlash, unsigned long , unsigned long, char *);
+extern int AT91F_DataflashProbe (int i, AT91PS_DataflashDesc pDesc);
+extern int AT91F_DataFlashRead (AT91PS_DataFlash, unsigned long , unsigned long, char *);				
 extern AT91S_DataFlashStatus AT91F_DataFlashWrite(AT91PS_DataFlash ,unsigned char *, int, int);
 extern int AT91F_DataflashInit (void);
 extern void AT91F_DataflashPrintInfo(void);
