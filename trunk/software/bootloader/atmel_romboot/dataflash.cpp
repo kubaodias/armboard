@@ -53,8 +53,9 @@ void AT91F_DataflashPrintInfo(void)
 	switch (dataflash_info.id)
 	{
 		case AT45DB041:
-			printf ("AT45DB041\n\r");
-			printf ("Number of pages: %6d\n\rpage size: %6d\n\r",
+			printf ("Device:            AT45DB041\n\r");
+			printf ("Number of pages:   %d\n\r"
+					"Page size:         %d\n\r",
 					(unsigned int) dataflash_info.Device.pages_number,
 					(unsigned int) dataflash_info.Device.pages_size);
 			break;
