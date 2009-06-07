@@ -16,7 +16,7 @@ int puts(const char *str);
 int putc(int c);
 int putchar(int c);
 int getc();
- 
+
 int fputs(const char *str, FILE *fp);
 int fputc(int c, FILE *fp);
 int fgetc(FILE *fp);
