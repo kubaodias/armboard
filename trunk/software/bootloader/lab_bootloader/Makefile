@@ -2,7 +2,7 @@
 # *   Makefile for Linux ARM Board bootloader			        *
 # *                                                             *
 # *                                                             *
-# *   Kuba Odias, 24.05.2009	                                *
+# *   Kuba Odias, 07.06.2009	                                *
 # ***************************************************************
 
 NAME=lab_bootloader
@@ -24,7 +24,7 @@ OD=$(CROSS)objdump
 SZ=$(CROSS)size
 NM=$(CROSS)nm
 
-CFLAGS  = -Iinclude -c -fno-common -Os -g
+CFLAGS  = -Iinclude -c -fno-common -Os -g -march=armv4t -mtune=arm920t
 #AFLAGS  = -ahls -mapcs-32 -Iinclude
 AFLAGS  = -c -Iinclude
 LFLAGS  = -T elf32-littlearm.lds -Ttext 0

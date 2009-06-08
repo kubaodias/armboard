@@ -22,15 +22,6 @@
 #define AT91C_UBOOT_SIZE 128*1024
 #define AT91C_UBOOT_DATAFLASH_ADDR 0x00008000
 
-// crystal= 18.432MHz
-#define AT91C_PLLA_VALUE 0x2026BE04 // -> 179.712MHz
-#define AT91C_PLLA_MCK 0x0000202
-
-// crystal= 20.000MHz
-// #define AT91C_PLLA_VALUE 0x2023BE04 // -> 180MHz
-// #define AT91C_PLLA_MCK 0x0000202
-
-#define DELAY_MAIN_FREQ	1000
 #define DISP_LINE_LEN 16
 
 //* prototypes
@@ -254,31 +245,6 @@ int AT91F_MemoryDisplay(unsigned int addr, unsigned int size, unsigned int lengt
 
 
 //*--------------------------------------------------------------------------------------
-//* Function Name       : AT91F_SetPLL
-//* Object              : Set the PLLA to 180Mhz and Master clock to 60 Mhz
-//* Input Parameters    :
-//* Output Parameters   :
-//*--------------------------------------------------------------------------------------
-void AT91F_SetPLL(void)
-{
-	volatile int tmp = 0;
-
-	AT91PS_PMC pPmc = AT91C_BASE_PMC;
-	AT91PS_CKGR pCkgr = AT91C_BASE_CKGR;
-
-	pPmc->PMC_IDR = 0xFFFFFFFF;
-
-	//* -Setup the PLL A
-	pCkgr->CKGR_PLLAR = AT91C_PLLA_VALUE;
-
-	while(!(pPmc->PMC_SR & AT91C_PMC_MCKRDY) && (tmp++ < DELAY_MAIN_FREQ));
-
-	//* - Commuting Master Clock from PLLB to PLLA/3
-	pPmc->PMC_MCKR = AT91C_PLLA_MCK;
-}
-
-
-//*--------------------------------------------------------------------------------------
 //* Function Name       : AT91F_ResetRegisters
 //* Object              : Restore the initial state to registers
 //* Input Parameters    :
@@ -310,18 +276,18 @@ static void AT91F_ResetRegisters(void)
 	/* write the end of interrupt control register */
 	*AT91C_AIC_EOICR	= 0;
 
-	AT91F_SetPLL();
+	//AT91F_SetPLL();
 }
 
 void AT91F_StartUboot(unsigned int dummy, void *pvoid)
 {
 	printf("Load U-BOOT from dataflash[%x] to SDRAM[%x]\n\r", AT91C_UBOOT_DATAFLASH_ADDR, AT91C_UBOOT_ADDR);
 	read_dataflash(AT91C_UBOOT_DATAFLASH_ADDR, AT91C_UBOOT_SIZE, (char *)(AT91C_UBOOT_ADDR));
-	printf("Set PLLA to 180Mhz and Master clock to 60Mhz and start U-BOOT\n\r");
+	// printf("Set PLLA to 180Mhz and Master clock to 60Mhz and start U-BOOT\n\r");
+	printf("Start U-BOOT...\n\r");
 	// Reset registers
-	AT91F_ResetRegisters();
+	// AT91F_ResetRegisters();
 	Jump(AT91C_UBOOT_ADDR);
-	while(1);
 }
 
 
@@ -349,6 +315,15 @@ int main(void)
 	stdout = fopen(at91_dbgu_putc, 0);
 
 	pAT91 = AT91C_ROM_BOOT_ADDRESS;
+
+	/*{
+		AT91F_DataflashInit ();
+		for(i = (int *)0x20000000; i < (int *)0x20004000; i++)
+			*i = 0;
+		write_dataflash(0x00000000, 0x20000000, 0x4000);
+		printf("Bootsector cleared\n\r");
+		AT91F_WaitKeyPressed();
+	}*/
 
 	// Tempo Initialisation
 	pAT91->OpenCtlTempo(&ctlTempo, (void *) &(pAT91->SYSTIMER_DESC));
@@ -461,8 +436,8 @@ int main(void)
 					printf("\n\r");
 					printf(menu_separ);
 					printf("%s %s\n\r", AT91C_NAME, AT91C_VERSION);
-					printf("  Based on AT91RM9200-Loader gcc port\n\r");
-					printf("  (http://www.open-research.org.uk/ARMuC/At91rm9200_Booting.html)\n\r");
+					printf("Based on AT91RM9200-Loader gcc port\n\r");
+					printf("(http://www.open-research.org.uk/ARMuC/At91rm9200_Booting.html)\n\r");
 					printf("Modified by Kuba Odias, %s, %s\n\r", __DATE__, __TIME__);
 					printf(menu_separ);
 					AT91F_WaitKeyPressed();
