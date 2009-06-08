@@ -16,6 +16,15 @@
 #include <AT91RM9200.h>
 #include <lib_AT91RM9200.h>
 
+
+// crystal= 18.432MHz
+// MULA = 38, DIVA = 4, (MULA + 1) / DIV = 9.75
+#define AT91C_PLLA_VALUE 0x2026BE04 // -> 179.712MHz
+#define AT91C_PLLB_VALUE 0x10483E0E
+#define AT91C_PLLA_MCK 0x0000202
+
+#define DELAY_MAIN_FREQ	1000
+
 //*----------------------------------------------------------------------------
 //* \fn    AT91F_DBGU_Printk
 //* \brief This function is used to send a string through the DBGU channel (Very low level debugging)
@@ -33,7 +42,7 @@ void AT91F_DBGU_Printk(
 //* \fn    AT91F_DataAbort
 //* \brief This function reports an Abort
 //*----------------------------------------------------------------------------
-void AT91F_SpuriousHandler() 
+void AT91F_SpuriousHandler()
 {
 	AT91F_DBGU_Printk("-F- Spurious Interrupt detected\n\r");
 	while (1);
@@ -44,7 +53,7 @@ void AT91F_SpuriousHandler()
 //* \fn    AT91F_DataAbort
 //* \brief This function reports an Abort
 //*----------------------------------------------------------------------------
-void AT91F_DataAbort() 
+void AT91F_DataAbort()
 {
 	AT91F_DBGU_Printk("-F- Data Abort detected\n\r");
 	while (1);
@@ -64,7 +73,7 @@ void AT91F_FetchAbort()
 //* \fn    AT91F_Undef
 //* \brief This function reports an Abort
 //*----------------------------------------------------------------------------
-void AT91F_Undef() 
+void AT91F_Undef()
 {
 	AT91F_DBGU_Printk("-F- Undef detected\n\r");
 	while (1);
@@ -74,12 +83,40 @@ void AT91F_Undef()
 //* \fn    AT91F_UndefHandler
 //* \brief This function reports that no handler have been set for current IT
 //*----------------------------------------------------------------------------
-void AT91F_UndefHandler() 
+void AT91F_UndefHandler()
 {
 	AT91F_DBGU_Printk("-F- Undef detected\n\r");
 	while (1);
 }
 
+//*--------------------------------------------------------------------------------------
+//* Function Name       : AT91F_SetPLL
+//* Object              : Set the PLLA to 180Mhz and Master clock to 60 Mhz
+//* Input Parameters    :
+//* Output Parameters   :
+//*--------------------------------------------------------------------------------------
+void AT91F_SetPLL(void)
+{
+	volatile int tmp = 0;
+
+	AT91PS_PMC pPmc = AT91C_BASE_PMC;
+	AT91PS_CKGR pCkgr = AT91C_BASE_CKGR;
+
+	pPmc->PMC_IDR = 0xFFFFFFFF;
+
+	// Setup the PLL A
+	pCkgr->CKGR_PLLAR = AT91C_PLLA_VALUE;
+	while(!(pPmc->PMC_SR & AT91C_PMC_LOCKA) && (tmp++ < DELAY_MAIN_FREQ));
+
+	tmp = 0;
+
+	// Setup the PLL B
+	pCkgr->CKGR_PLLBR = AT91C_PLLB_VALUE;
+	while(!(pPmc->PMC_SR & AT91C_PMC_LOCKB) && (tmp++ < DELAY_MAIN_FREQ));
+
+	// Commuting Master Clock from PLLB to PLLA/3
+	pPmc->PMC_MCKR = AT91C_PLLA_MCK;
+}
 
 //*--------------------------------------------------------------------------------------
 //* Function Name       : AT91F_InitSdram
@@ -90,48 +127,59 @@ void AT91F_UndefHandler()
 void AT91F_InitSdram()
 {
 	int *pRegister;
-	
-	//* Configure PIOC as peripheral (D16/D31)
-	
+	AT91PS_SDRC pSdrc = AT91C_BASE_SDRC;
+
+	//  Configure PIOC as peripheral (D16/D31)
 	AT91F_PIO_CfgPeriph(
-						 AT91C_BASE_PIOC, // PIO controller base address
-						 0xFFFF0030,
-						 0
-						);
-	
-	//*Init SDRAM
-	pRegister = (int *)0xFFFFFF98;
-	*pRegister = 0x2188c155; 
-	pRegister = (int *)0xFFFFFF90;
-	*pRegister = 0x2; 
+		 AT91C_BASE_PIOC, // PIO controller base address
+		 0xFFFF0000,
+		 0
+		);
+
+	// Init SDRAM
+	// was: 0x2188c155 - 9 columns, 12 rows, 4 banks, 2 cycles of CAS latency, 2 TWR
+	// 8 TRC, 1 TRP, 1 TRCD, 8 TRAS, 4 TXSR
+	// dlharmon - 0x2188A159 - 4 TRC, 2 TWR, 2 CAS, 4 banks, 13 rows, 9 columns
+	// my config is the same as in dlharmon
+	pSdrc->SDRC_CR = 0x2188A159;
+
+	// all banks precharge
+	pSdrc->SDRC_MR = AT91C_SDRC_MODE_PRCGALL_CMD;
+
 	pRegister = (int *)0x20000000;
-	*pRegister = 0; 
-	pRegister = (int *)0xFFFFFF90;
-	*pRegister = 0x4; 
+	*pRegister = 0;
+
+	// refresh
+	pSdrc->SDRC_MR = AT91C_SDRC_MODE_RFSH_CMD;
+
 	pRegister = (int *)0x20000000;
-	*pRegister = 0; 
-	*pRegister = 0; 
-	*pRegister = 0; 
-	*pRegister = 0; 
-	*pRegister = 0; 
-	*pRegister = 0; 
-	*pRegister = 0; 
-	*pRegister = 0; 
-	pRegister = (int *)0xFFFFFF90;
-	*pRegister = 0x3; 
+	*pRegister = 0;
+	*pRegister = 0;
+	*pRegister = 0;
+	*pRegister = 0;
+	*pRegister = 0;
+	*pRegister = 0;
+	*pRegister = 0;
+	*pRegister = 0;
+
+	// load mode register
+	pSdrc->SDRC_MR = AT91C_SDRC_MODE_LMR_CMD;
+
 	pRegister = (int *)0x20000080;
-	*pRegister = 0; 
+	*pRegister = 0;
 
-	pRegister = (int *)0xFFFFFF94;
-	*pRegister = 0x2e0; 
+	// romboot - 0x2e0
+	// dlharmon - 0x1c0
+	pSdrc->SDRC_TR = 0x1c0;
+
 	pRegister = (int *)0x20000000;
-	*pRegister = 0; 
+	*pRegister = 0;
 
-	pRegister = (int *)0xFFFFFF90;
-	*pRegister = 0x00; 
+	// normal mode
+	pSdrc->SDRC_MR = AT91C_SDRC_MODE_NORMAL_CMD;
+
 	pRegister = (int *)0x20000000;
-	*pRegister = 0; 
-
+	*pRegister = 0;
 }
 
 
@@ -141,18 +189,12 @@ void AT91F_InitSdram()
 //*----------------------------------------------------------------------------
 void AT91F_InitMemories()
 {
-	int *pEbi = (int *)0xFFFFFF60;
+	AT91PS_EBI pEbi = AT91C_BASE_EBI;
 
-//* Setup MEMC to support all connected memories (CS0 = FLASH; CS1=SDRAM)
-	pEbi  = (int *)0xFFFFFF60;
-	*pEbi = 0x00000002;
+	// Setup MEMC to support all connected memories (CS1=SDRAM)
+	pEbi->EBI_CSA = AT91C_EBI_CS1A_SDRAMC;
 
-//* CS0 cs for flash
-	pEbi  = (int *)0xFFFFFF70;
-	*pEbi = 0x00003284;
-	
 	AT91F_InitSdram();
-
 }
 
 
@@ -172,7 +214,7 @@ extern "C" void AT91F_LowLevelInit(void)
 		AT91F_SpuriousHandler,   // AIC spurious handler
 		0);                      // Protect mode
 
-	// Perform 8 End Of Interrupt Command to make sure AIC will not Lock out nIRQ 
+	// Perform 8 End Of Interrupt Command to make sure AIC will not Lock out nIRQ
 	AT91F_AIC_AcknowledgeIt(AT91C_BASE_AIC);
 	AT91F_AIC_AcknowledgeIt(AT91C_BASE_AIC);
 	AT91F_AIC_AcknowledgeIt(AT91C_BASE_AIC);
@@ -186,9 +228,11 @@ extern "C" void AT91F_LowLevelInit(void)
 	AT91F_AIC_SetExceptionVector((unsigned int *)0x10, AT91F_DataAbort);
 	AT91F_AIC_SetExceptionVector((unsigned int *)0x4, AT91F_Undef);
 
-	//Initialize SDRAM and Flash
+	// Initialize PLL
+	// AT91F_SetPLL();
+	// Initialize SDRAM
 	AT91F_InitMemories();
-	
+
 	// Open PIO for DBGU
 	AT91F_DBGU_CfgPIO();
 
@@ -204,7 +248,7 @@ extern "C" void AT91F_LowLevelInit(void)
 	AT91F_US_EnableTx((AT91PS_USART)AT91C_BASE_DBGU);
 	// Enable Receiver
 	AT91F_US_EnableRx((AT91PS_USART)AT91C_BASE_DBGU);
-	
+
 	// AT91F_DBGU_Printk("\n\rAT91F_LowLevelInit(): Debug channel initialized\n\r");
 }
 

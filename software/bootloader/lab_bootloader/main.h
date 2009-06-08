@@ -17,7 +17,7 @@
 #ifndef main_h
 #define main_h
 
-#include    "embedded_services.h"
+#include "embedded_services.h"
 
 #define AT91C_MASTER_CLOCK              48000000
 #define AT91C_BAUD_RATE                 115200
