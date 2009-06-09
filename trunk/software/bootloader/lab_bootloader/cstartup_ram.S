@@ -1,11 +1,9 @@
-#include <AT91RM9200_inc.h>
-		
 /*---------------------------
 ARM Core Mode and Status Bits
 ---------------------------*/
 .section start
 	.text
-			
+
 #define ARM_MODE_USER   0x10
 #define ARM_MODE_FIQ    0x11
 #define ARM_MODE_IRQ    0x12
@@ -70,7 +68,7 @@ reset:
 #define UND_STACK_SIZE  0x04
 #define SVC_STACK_SIZE  0x10
 #define USER_STACK_SIZE 0x400
-	
+
                 ldr     r0,= MEMEND
 
 /*- Set up Supervisor Mode and set Supervisor Mode Stack*/
@@ -128,12 +126,12 @@ reset:
 - _start function must be supported. This makes the code not position-
 - independent. A Branch with link would generate errors
 ----------------------------------------------------------------------------*/
-	
+
 /*- Branch to _start by interworking*/
 		ldr     r4, = main
 	        mov     lr, pc
 	        bx      r4
-	
+
 /*-----------------------------------------------------------------------------
 - Loop for ever
 ---------------

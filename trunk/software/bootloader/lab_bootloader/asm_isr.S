@@ -17,13 +17,13 @@
    AT91F_ASM_SPI_Handler
    ---------------------
       Handler called by the AIC
-        
+
       Save context
         Call C handler
     Restore context
    ----------------------------------------------------------------------------- */
-		
-.global AT91F_ST_ASM_Handler  
+
+.global AT91F_ST_ASM_Handler
 
 AT91F_ST_ASM_Handler:
 /*  Adjust and save LR_irq in IRQ stack */
@@ -45,7 +45,7 @@ AT91F_ST_ASM_Handler:
 	bic         r0, r0, #I_BIT
 	orr         r0, r0, #ARM_MODE_SYS
 	msr         CPSR_c, r0
- 
+
 /* Save scratch/used registers and LR in User Stack */
 	stmfd       sp!, { r1-r3, r12, r14}
 
