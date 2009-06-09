@@ -15,15 +15,7 @@
 
 #include <AT91RM9200.h>
 #include <lib_AT91RM9200.h>
-
-
-// crystal= 18.432MHz
-// MULA = 38, DIVA = 4, (MULA + 1) / DIV = 9.75
-#define AT91C_PLLA_VALUE 0x2026BE04 // -> 179.712MHz
-#define AT91C_PLLB_VALUE 0x10483E0E
-#define AT91C_PLLA_MCK 0x0000202
-
-#define DELAY_MAIN_FREQ	1000
+#include "main.h"
 
 //*----------------------------------------------------------------------------
 //* \fn    AT91F_DBGU_Printk
@@ -97,25 +89,31 @@ void AT91F_UndefHandler()
 //*--------------------------------------------------------------------------------------
 void AT91F_SetPLL(void)
 {
-	volatile int tmp = 0;
+	volatile int tmp;
 
 	AT91PS_PMC pPmc = AT91C_BASE_PMC;
 	AT91PS_CKGR pCkgr = AT91C_BASE_CKGR;
 
 	pPmc->PMC_IDR = 0xFFFFFFFF;
 
+	// MCK = SLCK = PCK
+	pPmc->PMC_MCKR = AT91C_PMC_CSS_SLOW_CLK | AT91C_PMC_PRES_CLK | AT91C_PMC_MDIV_1;
+
+	// main oscillator enable, wait 255 cycles
+	pCkgr->CKGR_MOR = AT91C_CKGR_MOSCEN | AT91C_CKGR_OSCOUNT;
+
 	// Setup the PLL A
 	pCkgr->CKGR_PLLAR = AT91C_PLLA_VALUE;
-	while(!(pPmc->PMC_SR & AT91C_PMC_LOCKA) && (tmp++ < DELAY_MAIN_FREQ));
-
 	tmp = 0;
+	while(!(pPmc->PMC_SR & AT91C_PMC_LOCKA) && (tmp++ < DELAY_MAIN_FREQ));
 
 	// Setup the PLL B
 	pCkgr->CKGR_PLLBR = AT91C_PLLB_VALUE;
+	tmp = 0;
 	while(!(pPmc->PMC_SR & AT91C_PMC_LOCKB) && (tmp++ < DELAY_MAIN_FREQ));
 
-	// Commuting Master Clock from PLLB to PLLA/3
-	pPmc->PMC_MCKR = AT91C_PLLA_MCK;
+	// MCK is a PLLA clock, processor clock is 3 times faster
+	pPmc->PMC_MCKR = AT91C_PMC_CSS_PLLA_CLK | AT91C_PMC_MDIV_3;
 }
 
 //*--------------------------------------------------------------------------------------
@@ -229,7 +227,8 @@ extern "C" void AT91F_LowLevelInit(void)
 	AT91F_AIC_SetExceptionVector((unsigned int *)0x4, AT91F_Undef);
 
 	// Initialize PLL
-	// AT91F_SetPLL();
+	AT91F_SetPLL();
+
 	// Initialize SDRAM
 	AT91F_InitMemories();
 
@@ -239,9 +238,9 @@ extern "C" void AT91F_LowLevelInit(void)
 	// Configure DBGU
 	AT91F_US_Configure (
 		(AT91PS_USART) AT91C_BASE_DBGU,          // DBGU base address
-		48000000,             // 48 MHz
-		AT91C_US_ASYNC_MODE,        // mode Register to be programmed
-		115200 ,              // baudrate to be programmed
+		AT91C_MASTER_CLOCK,   // 60 MHz
+		AT91C_US_ASYNC_MODE,  // mode Register to be programmed
+		AT91C_BAUD_RATE ,     // baudrate to be programmed
 		0);                   // timeguard to be programmed
 
 	// Enable Transmitter

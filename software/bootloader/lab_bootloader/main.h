@@ -19,7 +19,14 @@
 
 #include "embedded_services.h"
 
-#define AT91C_MASTER_CLOCK              48000000
+// crystal= 18.432MHz
+// MULA = 38, DIVA = 4, (MULA + 1) / DIV = 9.75
+#define AT91C_PLLA_VALUE 				  0x2026BE04 // -> 179.712MHz
+#define AT91C_PLLB_VALUE 				  0x10483E0E
+
+#define DELAY_MAIN_FREQ				  1000
+
+#define AT91C_MASTER_CLOCK              60000000
 #define AT91C_BAUD_RATE                 115200
 
 #define AT91C_DOWNLOAD_BASE_ADDRESS     0x20000000
@@ -29,6 +36,7 @@
 
 #define AT91C_NAME		  "LAB bootloader"
 #define AT91C_VERSION   "1.0"
+
 // Global variables and functions definition
 extern unsigned int GetTickCount(void);
 #endif

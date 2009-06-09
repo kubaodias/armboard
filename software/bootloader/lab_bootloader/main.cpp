@@ -33,12 +33,15 @@ const char *menu_separ = "*----------------------------------------*\n\r";
 
 const char *menu_dataflash =
 {
-	"1. Download data to dataflash [addr]\n\r"
-	"2. Read data from dataflash [addr]\n\r"
-	"3. Start U-BOOT\n\r"
-	"4. Clear bootloader section in Dataflash\n\r"
-	"5. Dataflash info\n\r"
-	"6. Bootloader info\n\r"
+	// TODO: change menu item 1
+	// "1. Download data to dataflash [addr]\n\r"
+	"1. Download data to SDRAM [addr]\n\r"
+	"2. Read data from memory [addr]\n\r"
+	"3. Read data from dataflash [addr]\n\r"
+	"4. Start U-BOOT\n\r"
+	"5. Clear bootloader section in Dataflash\n\r"
+	"6. Dataflash info\n\r"
+	"7. Bootloader info\n\r"
 };
 
 //* Globales variables
@@ -188,7 +191,6 @@ unsigned int AsciiToHex(char *s, unsigned int *val)
 	return 1;
 }
 
-
 //*-----------------------------------------------------------------------------
 //* Function Name       : AT91F_MemoryDisplay()
 //* Object              : Display the content of the dataflash
@@ -196,6 +198,63 @@ unsigned int AsciiToHex(char *s, unsigned int *val)
 //* Return value		:
 //*-----------------------------------------------------------------------------
 int AT91F_MemoryDisplay(unsigned int addr, unsigned int size, unsigned int length)
+{
+	unsigned long	i, nbytes, linebytes;
+	char	*cp;
+	unsigned int 	*uip;
+	unsigned short 	*usp;
+	unsigned char 	*ucp;
+	char linebuf[DISP_LINE_LEN];
+
+	nbytes = length * size;
+	do
+	{
+		uip = (unsigned int *)linebuf;
+		usp = (unsigned short *)linebuf;
+		ucp = (unsigned char *)linebuf;
+
+		printf("%08x:", addr);
+		linebytes = (nbytes > DISP_LINE_LEN)?DISP_LINE_LEN:nbytes;
+
+		for (i = 0; i < (linebytes/size)*size; i++)
+		{
+			linebuf[i] = *((char *)(addr + i));
+		}
+		for (i=0; i<linebytes; i+= size)
+		{
+			if (size == 4)
+				printf(" %08x", *uip++);
+			else if (size == 2)
+				printf(" %04x", *usp++);
+			else
+				printf(" %02x", *ucp++);
+			addr += size;
+		}
+		printf("    ");
+		cp = linebuf;
+		for (i=0; i<linebytes; i++)
+		{
+			if ((*cp < 0x20) || (*cp > 0x7e))
+				printf("..");
+			else
+				printf("%c ", *cp);
+			cp++;
+		}
+		printf("\n\r");
+		nbytes -= linebytes;
+	}
+	while (nbytes > 0);
+
+	return 0;
+}
+
+//*-----------------------------------------------------------------------------
+//* Function Name       : AT91F_DataflashMemoryDisplay()
+//* Object              : Display the content of the dataflash
+//* Input Parameters    :
+//* Return value		:
+//*-----------------------------------------------------------------------------
+int AT91F_DataflashMemoryDisplay(unsigned int addr, unsigned int size, unsigned int length)
 {
 	unsigned long	i, nbytes, linebytes;
 	char	*cp;
@@ -281,8 +340,9 @@ static void AT91F_ResetRegisters(void)
 
 void AT91F_StartUboot(unsigned int dummy, void *pvoid)
 {
-	printf("Load U-BOOT from dataflash[%x] to SDRAM[%x]\n\r", AT91C_UBOOT_DATAFLASH_ADDR, AT91C_UBOOT_ADDR);
-	read_dataflash(AT91C_UBOOT_DATAFLASH_ADDR, AT91C_UBOOT_SIZE, (char *)(AT91C_UBOOT_ADDR));
+	// TODO: uncomment
+	/* printf("Load U-BOOT from dataflash[%x] to SDRAM[%x]\n\r", AT91C_UBOOT_DATAFLASH_ADDR, AT91C_UBOOT_ADDR);
+	read_dataflash(AT91C_UBOOT_DATAFLASH_ADDR, AT91C_UBOOT_SIZE, (char *)(AT91C_UBOOT_ADDR)); */
 	// printf("Set PLLA to 180Mhz and Master clock to 60Mhz and start U-BOOT\n\r");
 	printf("Start U-BOOT...\n\r");
 	// Reset registers
@@ -315,15 +375,6 @@ int main(void)
 	stdout = fopen(at91_dbgu_putc, 0);
 
 	pAT91 = AT91C_ROM_BOOT_ADDRESS;
-
-	/*{
-		AT91F_DataflashInit ();
-		for(i = (int *)0x20000000; i < (int *)0x20004000; i++)
-			*i = 0;
-		write_dataflash(0x00000000, 0x20000000, 0x4000);
-		printf("Bootsector cleared\n\r");
-		AT91F_WaitKeyPressed();
-	}*/
 
 	// Tempo Initialisation
 	pAT91->OpenCtlTempo(&ctlTempo, (void *) &(pAT91->SYSTIMER_DESC));
@@ -372,21 +423,40 @@ int main(void)
 			message[2] = 0;
 			AT91F_ReadLine("Enter: ", message);
 
+			// TODO: change download_address to dataflash_address
+			download_address = 0;
 			command = message[0];
+				if(command == '1' || command == '2')
+					if(AsciiToHex(&message[2], &download_address) == 0)
+						command = 0;
+			// TODO: uncomment
+			/*command = message[0];
 			if(command == '1' || command == '2')
 				if(AsciiToHex(&message[2], &dataflash_address) == 0)
-					command = 0;
+					command = 0;*/
 
 			switch(command)
 			{
 				case '1':
-					printf("Download Dataflash [0x%x]\n\r", dataflash_address);
+					printf("Please send data by xmodem... ", download_address);
+					//printf("Download Dataflash [0x%x]\n\r", dataflash_address);
 					break;
 
 				case '2':
 					do
 					{
-						AT91F_MemoryDisplay(dataflash_address, 4, 64);
+						AT91F_MemoryDisplay(download_address, 4, 64);
+						AT91F_ReadLine ((char *)0, message);
+						download_address += 0x100;
+					}
+					while(message[0] == '\0');
+					command = 0;
+					break;
+
+				case '3':
+					do
+					{
+						AT91F_DataflashMemoryDisplay(dataflash_address, 4, 64);
 						AT91F_ReadLine ((char *)0, message);
 						dataflash_address += 0x100;
 					}
@@ -394,13 +464,13 @@ int main(void)
 					command = 0;
 					break;
 
-				case '3':
+				case '4':
 					AT91F_StartUboot(0, (void *)0);
 					command = 0;
 					break;
 
 				// clear bootsector
-				case '4':
+				case '5':
 					int *i;
 					AT91F_ReadLine ("\n\rAre you sure you want to erase LAB bootloader from dataflash? (y/n) ",
 							message);
@@ -422,7 +492,7 @@ int main(void)
 					break;
 
 				// Dataflash info
-				case '5':
+				case '6':
 					printf("\n\r");
 					printf(menu_separ);
 					AT91F_DataflashPrintInfo();
@@ -432,7 +502,7 @@ int main(void)
 					break;
 
 				// Bootloader info
-				case '6':
+				case '7':
 					printf("\n\r");
 					printf(menu_separ);
 					printf("%s %s\n\r", AT91C_NAME, AT91C_VERSION);
@@ -453,40 +523,46 @@ int main(void)
 		xmodemPipe.Read(&xmodemPipe, (char *)download_address, download_size, XmodemProtocol, 0);
 		while(XmodemComplete !=1);
 		download_size = (unsigned int)(svcXmodem.pData) - (unsigned int)download_address;
+		printf("Downloaded %d bytes to [0x%x]\n\r", download_size, download_address);
 
-		// Modification of vector 6
-		NbPage = 0;
-		i = dataflash_info.Device.pages_number;
-		while(i >>= 1)
-			NbPage++;
-		i = (download_size / 512) + 1 + (NbPage << 13) + (dataflash_info.Device.pages_size << 17);
-		*(int *)(download_address + AT91C_OFFSET_VECT6) = i;
-		printf("\n\rModification of Arm Vector 6 :%x\n\r", i);
+		// ask user if really write dataflash
+		AT91F_ReadLine ("Are you sure you want to write dataflash? (y/n) ", message);
+		if(message[0] == 'Y' || message[0] == 'y')
+		{
+			// Modification of vector 6
+			NbPage = 0;
+			i = dataflash_info.Device.pages_number;
+			while(i >>= 1)
+				NbPage++;
+			i = (download_size / 512) + 1 + (NbPage << 13) + (dataflash_info.Device.pages_size << 17);
+			*(int *)(download_address + AT91C_OFFSET_VECT6) = i;
+			printf("\n\rModification of Arm Vector 6 :%x\n\r", i);
 
-		printf("\n\rWrite %d bytes in DataFlash [0x%x]\n\r",download_size, dataflash_address);
-		crc1 = 0;
-		pAT91->CRC32((const unsigned char *)download_address, download_size , &crc1);
+			printf("\n\rWrite %d bytes in DataFlash [0x%x]\n\r",download_size, dataflash_address);
+			crc1 = 0;
+			pAT91->CRC32((const unsigned char *)download_address, download_size , &crc1);
 
-		// write the dataflash
-		write_dataflash (dataflash_address, download_address, download_size);
-		// clear the buffer before read
-		for(i=0; i < download_size; i++)
-			*(unsigned char *)(download_address + i) = 0;
+			// write the dataflash
+			write_dataflash (dataflash_address, download_address, download_size);
+			// clear the buffer before read
+			for(i=0; i < download_size; i++)
+				*(unsigned char *)(download_address + i) = 0;
 
-		//* Read dataflash page in TestBuffer
-		read_dataflash (dataflash_address, download_size, (char *)(download_address));
+			//* Read dataflash page in TestBuffer
+			read_dataflash (dataflash_address, download_size, (char *)(download_address));
 
-		printf("Verify Dataflash: ");
-		crc2 = 0;
+			printf("Verify Dataflash: ");
+			crc2 = 0;
 
-		pAT91->CRC32((const unsigned char *)download_address, download_size , &crc2);
-		if (crc1 != crc2)
-			printf("Failed\n\r");
-		else
-			printf("OK\n\r");
+			pAT91->CRC32((const unsigned char *)download_address, download_size , &crc2);
+			if (crc1 != crc2)
+				printf("Failed\n\r");
+			else
+				printf("OK\n\r");
 
+			AT91F_WaitKeyPressed();
+		}
 		command = 0;
 		XmodemComplete = 0;
-		AT91F_WaitKeyPressed();
     }
 }

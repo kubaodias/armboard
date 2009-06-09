@@ -18,11 +18,11 @@
 AT91S_DATAFLASH_INFO dataflash_info;
 static AT91S_DataFlash DataFlashInst;
 
-int AT91F_DataflashInit (void)
+int AT91F_DataflashInit(void)
 {
 	int dfcode;
 
-	AT91F_SpiInit ();
+	AT91F_SpiInit();
 
 	dataflash_info.Desc.state = IDLE;
 	dataflash_info.id = 0;
