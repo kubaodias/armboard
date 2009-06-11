@@ -82,21 +82,25 @@ void AT91F_UndefHandler()
 }
 
 //*--------------------------------------------------------------------------------------
-//* Function Name       : AT91F_SetPLL
+//* Function Name       : AT91F_SetClocks
 //* Object              : Set the PLLA to 180Mhz and Master clock to 60 Mhz
 //* Input Parameters    :
 //* Output Parameters   :
 //*--------------------------------------------------------------------------------------
-void AT91F_SetPLL(void)
+void AT91F_SetClocks(void)
 {
 	volatile int tmp;
 
 	AT91PS_PMC pPmc = AT91C_BASE_PMC;
 	AT91PS_CKGR pCkgr = AT91C_BASE_CKGR;
 
+	// disable all interrupts from PMC
 	pPmc->PMC_IDR = 0xFFFFFFFF;
 
-	// MCK = SLCK = PCK
+	// disable all clocks except for processor clock
+	pPmc->PMC_SCDR = 0xFFFFFFFE;
+
+	// MCK = SLCK = processor clock
 	pPmc->PMC_MCKR = AT91C_PMC_CSS_SLOW_CLK | AT91C_PMC_PRES_CLK | AT91C_PMC_MDIV_1;
 
 	// main oscillator enable, wait 255 cycles
@@ -112,8 +116,8 @@ void AT91F_SetPLL(void)
 	tmp = 0;
 	while(!(pPmc->PMC_SR & AT91C_PMC_LOCKB) && (tmp++ < DELAY_MAIN_FREQ));
 
-	// MCK is a PLLA clock, processor clock is 3 times faster
-	pPmc->PMC_MCKR = AT91C_PMC_CSS_PLLA_CLK | AT91C_PMC_MDIV_3;
+	// processor clock is a PLLA clock, MCK is 3 timer slower
+	pPmc->PMC_MCKR = AT91C_PMC_CSS_PLLA_CLK | AT91C_PMC_PRES_CLK | AT91C_PMC_MDIV_3;
 }
 
 //*--------------------------------------------------------------------------------------
@@ -226,8 +230,8 @@ extern "C" void AT91F_LowLevelInit(void)
 	AT91F_AIC_SetExceptionVector((unsigned int *)0x10, AT91F_DataAbort);
 	AT91F_AIC_SetExceptionVector((unsigned int *)0x4, AT91F_Undef);
 
-	// Initialize PLL
-	AT91F_SetPLL();
+	// Initialize clocks and PLL
+	AT91F_SetClocks();
 
 	// Initialize SDRAM
 	AT91F_InitMemories();

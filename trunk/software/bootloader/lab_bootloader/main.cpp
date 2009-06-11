@@ -33,15 +33,14 @@ const char *menu_separ = "*----------------------------------------*\n\r";
 
 const char *menu_dataflash =
 {
-	// TODO: change menu item 1
-	// "1. Download data to dataflash [addr]\n\r"
-	"1. Download data to SDRAM [addr]\n\r"
+	"1. Download data to dataflash [addr]\n\r"
 	"2. Read data from memory [addr]\n\r"
 	"3. Read data from dataflash [addr]\n\r"
 	"4. Start U-BOOT\n\r"
 	"5. Clear bootloader section in Dataflash\n\r"
-	"6. Dataflash info\n\r"
-	"7. Bootloader info\n\r"
+	"6. Memory test [number]\n\r"
+	"7. Dataflash info\n\r"
+	"8. Bootloader info\n\r"
 };
 
 //* Globales variables
@@ -313,10 +312,6 @@ static void AT91F_ResetRegisters(void)
 {
 	volatile int i = 0;
 
-	//* set the PIOs in input
-	*AT91C_PIOA_ODR = 0xFFFFFFFF;	/* Disables all the output pins */
-	*AT91C_PIOA_PER = 0xFFFFFFFF;	/* Enables the PIO to control all the pins */
-
 	AT91F_AIC_DisableIt (AT91C_BASE_AIC, AT91C_ID_SYS);
 
 	/* close all peripheral clocks */
@@ -334,20 +329,121 @@ static void AT91F_ResetRegisters(void)
 
 	/* write the end of interrupt control register */
 	*AT91C_AIC_EOICR	= 0;
-
-	//AT91F_SetPLL();
 }
 
 void AT91F_StartUboot(unsigned int dummy, void *pvoid)
 {
-	// TODO: uncomment
-	/* printf("Load U-BOOT from dataflash[%x] to SDRAM[%x]\n\r", AT91C_UBOOT_DATAFLASH_ADDR, AT91C_UBOOT_ADDR);
-	read_dataflash(AT91C_UBOOT_DATAFLASH_ADDR, AT91C_UBOOT_SIZE, (char *)(AT91C_UBOOT_ADDR)); */
-	// printf("Set PLLA to 180Mhz and Master clock to 60Mhz and start U-BOOT\n\r");
+	printf("Load U-BOOT from dataflash[0x%x] to SDRAM[0x%x]\n\r", AT91C_UBOOT_DATAFLASH_ADDR, AT91C_UBOOT_ADDR);
+	read_dataflash(AT91C_UBOOT_DATAFLASH_ADDR, AT91C_UBOOT_SIZE, (char *)(AT91C_UBOOT_ADDR));
 	printf("Start U-BOOT...\n\r");
 	// Reset registers
-	// AT91F_ResetRegisters();
+	AT91F_ResetRegisters();
 	Jump(AT91C_UBOOT_ADDR);
+}
+
+void memory_test(unsigned int pattern_number)
+{
+	static const unsigned int bitpattern[] =
+	{
+			/*0x00000001,	/* single bit */
+			/*0x00000003,	/* two adjacent bits */
+			/*0x00000007,	/* three adjacent bits */
+			/*0x0000000F,	/* four adjacent bits */
+			/*0x00000005,	/* two non-adjacent bits */
+			/*0x00000015,	/* three non-adjacent bits */
+			/*0x00000055,	/* four non-adjacent bits */
+			/*0xaaaaaaaa,	/* alternating 1/0 */
+			0x00000000,
+			0x11111111,
+			0x33333333,
+			0x55555555,
+			0x0f0f0f0f,
+			0x00ff00ff,
+	};
+	int i;
+	unsigned int pattern, addr, val, incr, readback;
+	unsigned int start_addr = AT91C_SDRAM_BASE_ADDRESS;
+	unsigned int end_addr = AT91C_SDRAM_BASE_ADDRESS + AT91C_SDRAM_SIZE;
+	char test_result;
+
+	int pattern_count = sizeof(bitpattern) / sizeof(unsigned int);
+
+	if (pattern_number > pattern_count)
+	{
+		printf("Unsupported test %d\n\r", pattern);
+		return;
+	}
+
+	if (pattern_number == 0)
+	{
+		printf("Performing full memory test\n\r");
+		for (i = 1; i <= pattern_count; i++)
+		{
+			memory_test(i);
+		}
+
+		// return from test
+		return;
+	}
+
+	// select proper bit pattern
+	pattern = bitpattern[pattern_number - 1];
+
+	printf ("* Memory test number %d: \n\r", pattern_number);
+	incr = 1;
+
+	// for each pattern do 2 tests with different variations
+	for (i = 0; i < 2; i++)
+	{
+		printf("  - testing pattern 0x%8x", pattern);
+
+		test_result = 0;
+
+		for (addr = start_addr, val = pattern; addr < end_addr; addr+=4)
+		{
+			*(unsigned int *)addr = val;
+			val  += incr;
+		}
+
+		for (addr=start_addr, val = pattern; addr < end_addr; addr+=4)
+		{
+			readback = *(unsigned int *)addr;
+			if (readback != val)
+			{
+				// if this is the first error
+				if (test_result == 0)
+				{
+					printf(": FAILED");
+				}
+				printf ("\n\r    !!! Memory error at 0x%x: "
+					"found 0x%x, expected 0x%x !!!",
+					addr, readback, val);
+				test_result = 1;
+			}
+			val += incr;
+		}
+
+		if (test_result == 0)
+		{
+			printf(": OK\n\r");
+		}
+		else
+			printf("\n\r");
+
+		/*
+		 * Flip the pattern each time to make lots of zeros and
+		 * then, the next time, lots of ones.  We decrement
+		 * the "negative" patterns and increment the "positive"
+		 * patterns to preserve this feature.
+		 */
+		if(pattern & 0x80000000) {
+			pattern = -pattern;	/* complement & increment */
+		}
+		else {
+			pattern = ~pattern;
+		}
+		incr = -incr;
+	}
 }
 
 
@@ -364,7 +460,7 @@ int main(void)
 	AT91S_SvcTempo 		svcUbootTempo; 	 // Link to a AT91S_Tempo object
 
 	unsigned int download_address, download_size;
-	unsigned int dataflash_address = 0;
+	unsigned int arg = 0;
 	volatile int i = 0;
 	char command = 0;
 	unsigned int crc1 = 0, crc2 = 0;
@@ -416,38 +512,30 @@ int main(void)
 		{
 			download_address = AT91C_DOWNLOAD_BASE_ADDRESS;
 			download_size = AT91C_DOWNLOAD_MAX_SIZE;
-			dataflash_address = 0;
+			arg = 0;
 
 			AT91F_DisplayMenu();
 			message[0] = 0;
 			message[2] = 0;
 			AT91F_ReadLine("Enter: ", message);
 
-			// TODO: change download_address to dataflash_address
-			download_address = 0;
 			command = message[0];
-				if(command == '1' || command == '2')
-					if(AsciiToHex(&message[2], &download_address) == 0)
-						command = 0;
-			// TODO: uncomment
-			/*command = message[0];
-			if(command == '1' || command == '2')
-				if(AsciiToHex(&message[2], &dataflash_address) == 0)
-					command = 0;*/
+			if(command == '1' || command == '2' || command == '3' || command == '6')
+				if(AsciiToHex(&message[2], &arg) == 0)
+					command = 0;
 
 			switch(command)
 			{
 				case '1':
-					printf("Please send data by xmodem... ", download_address);
-					//printf("Download Dataflash [0x%x]\n\r", dataflash_address);
+					printf("Please send data by xmodem... ");
 					break;
 
 				case '2':
 					do
 					{
-						AT91F_MemoryDisplay(download_address, 4, 64);
+						AT91F_MemoryDisplay(arg, 4, 64);
 						AT91F_ReadLine ((char *)0, message);
-						download_address += 0x100;
+						arg += 0x100;
 					}
 					while(message[0] == '\0');
 					command = 0;
@@ -456,9 +544,9 @@ int main(void)
 				case '3':
 					do
 					{
-						AT91F_DataflashMemoryDisplay(dataflash_address, 4, 64);
+						AT91F_DataflashMemoryDisplay(arg, 4, 64);
 						AT91F_ReadLine ((char *)0, message);
-						dataflash_address += 0x100;
+						arg += 0x100;
 					}
 					while(message[0] == '\0');
 					command = 0;
@@ -476,9 +564,9 @@ int main(void)
 							message);
 					if(message[0] == 'Y' || message[0] == 'y')
 					{
-						for(i = (int *)0x20000000; i < (int *)0x20004000; i++)
+						for(i = (int *)AT91C_SDRAM_BASE_ADDRESS; i < (int *)(AT91C_SDRAM_BASE_ADDRESS + AT91C_ISRAM_SIZE); i++)
 							*i = 0;
-						write_dataflash(0x00000000, 0x20000000, 0x4000);
+						write_dataflash(0x00000000, AT91C_SDRAM_BASE_ADDRESS, AT91C_ISRAM_SIZE);
 						printf("Bootsector cleared\n\r");
 						AT91F_WaitKeyPressed();
 					}
@@ -491,8 +579,16 @@ int main(void)
 					command = 0;
 					break;
 
-				// Dataflash info
 				case '6':
+					printf("\n\r");
+					printf(menu_separ);
+					memory_test(arg);
+					printf(menu_separ);
+					AT91F_WaitKeyPressed();
+					command = 0;
+					break;
+				// Dataflash info
+				case '7':
 					printf("\n\r");
 					printf(menu_separ);
 					AT91F_DataflashPrintInfo();
@@ -502,7 +598,7 @@ int main(void)
 					break;
 
 				// Bootloader info
-				case '7':
+				case '8':
 					printf("\n\r");
 					printf(menu_separ);
 					printf("%s %s\n\r", AT91C_NAME, AT91C_VERSION);
@@ -523,11 +619,16 @@ int main(void)
 		xmodemPipe.Read(&xmodemPipe, (char *)download_address, download_size, XmodemProtocol, 0);
 		while(XmodemComplete !=1);
 		download_size = (unsigned int)(svcXmodem.pData) - (unsigned int)download_address;
-		printf("Downloaded %d bytes to [0x%x]\n\r", download_size, download_address);
+		printf("\n\rDownloaded %d bytes to [0x%x]\n\r", download_size, download_address);
 
 		// ask user if really write dataflash
-		AT91F_ReadLine ("Are you sure you want to write dataflash? (y/n) ", message);
-		if(message[0] == 'Y' || message[0] == 'y')
+		printf("Are you sure you want to write dataflash at [0x%x]? (y/n) ", arg);
+		AT91F_ReadLine ("", message);
+		if ((message[0] == 'Y' || message[0] == 'y') && (arg == 0x00))
+		{
+			AT91F_ReadLine ("DANGER!!! This will overwrite your 1st bootloader!!! Continue? (y/n) ", message);
+		}
+		if (message[0] == 'Y' || message[0] == 'y')
 		{
 			// Modification of vector 6
 			NbPage = 0;
@@ -538,18 +639,18 @@ int main(void)
 			*(int *)(download_address + AT91C_OFFSET_VECT6) = i;
 			printf("\n\rModification of Arm Vector 6 :%x\n\r", i);
 
-			printf("\n\rWrite %d bytes in DataFlash [0x%x]\n\r",download_size, dataflash_address);
+			printf("\n\rWrite %d bytes in DataFlash [0x%x]\n\r",download_size, arg);
 			crc1 = 0;
 			pAT91->CRC32((const unsigned char *)download_address, download_size , &crc1);
 
 			// write the dataflash
-			write_dataflash (dataflash_address, download_address, download_size);
+			write_dataflash (arg, download_address, download_size);
 			// clear the buffer before read
 			for(i=0; i < download_size; i++)
 				*(unsigned char *)(download_address + i) = 0;
 
 			//* Read dataflash page in TestBuffer
-			read_dataflash (dataflash_address, download_size, (char *)(download_address));
+			read_dataflash (arg, download_size, (char *)(download_address));
 
 			printf("Verify Dataflash: ");
 			crc2 = 0;
