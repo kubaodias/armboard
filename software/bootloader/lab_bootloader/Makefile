@@ -29,7 +29,7 @@ CFLAGS  = -Iinclude -c -fno-common -Os -g -march=armv4t -mtune=arm920t
 AFLAGS  = -c -Iinclude
 LFLAGS  = -T elf32-littlearm.lds -Ttext 0
 CPFLAGS = --output-target=binary
-ODFLAGS	= -x --syms
+ODFLAGS	= -x -D --syms
 
 OBJECTS = cstartup_ram.o asm_isr.o jump.o at45.o com.o dataflash.o init.o main.o stdio.o _udivsi3.o _umodsi3.o div0.o
          

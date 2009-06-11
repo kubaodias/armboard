@@ -29,6 +29,8 @@
 #define AT91C_MASTER_CLOCK              60000000
 #define AT91C_BAUD_RATE                 115200
 
+#define AT91C_SDRAM_BASE_ADDRESS        0x20000000
+#define AT91C_SDRAM_SIZE                0x04000000
 #define AT91C_DOWNLOAD_BASE_ADDRESS     0x20000000
 #define AT91C_DOWNLOAD_MAX_SIZE         0x00020000
 
