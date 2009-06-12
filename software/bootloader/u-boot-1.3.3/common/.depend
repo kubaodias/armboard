@@ -32,77 +32,6 @@ main.o: main.c /home/odi/workspace/u-boot-1.3.3/include/common.h \
   /home/odi/workspace/u-boot-1.3.3/include/asm/u-boot-arm.h \
   /home/odi/workspace/u-boot-1.3.3/include/watchdog.h \
   /home/odi/workspace/u-boot-1.3.3/include/post.h
-ACEX1K.o: ACEX1K.c /home/odi/workspace/u-boot-1.3.3/include/common.h \
-  /home/odi/workspace/u-boot-1.3.3/include/config.h \
-  /home/odi/workspace/u-boot-1.3.3/include/configs/lab_at91rm9200.h \
-  /home/odi/workspace/u-boot-1.3.3/include/config_cmd_default.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/bitops.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/bitops.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/types.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/config.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/posix_types.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/stddef.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/posix_types.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/types.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/string.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/string.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/ptrace.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/proc/ptrace.h \
-  /opt/gnuarm-4.0.2/bin/../lib/gcc/arm-elf/4.0.2/include/stdarg.h \
-  /home/odi/workspace/u-boot-1.3.3/include/part.h \
-  /home/odi/workspace/u-boot-1.3.3/include/ide.h \
-  /home/odi/workspace/u-boot-1.3.3/include/flash.h \
-  /home/odi/workspace/u-boot-1.3.3/include/image.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/byteorder.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/byteorder/little_endian.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/byteorder/swab.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/byteorder/generic.h \
-  /home/odi/workspace/u-boot-1.3.3/include/command.h \
-  /home/odi/workspace/u-boot-1.3.3/include/lmb.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/u-boot.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/global_data.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/mach-types.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/setup.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/u-boot-arm.h \
-  /home/odi/workspace/u-boot-1.3.3/include/ACEX1K.h \
-  /home/odi/workspace/u-boot-1.3.3/include/altera.h \
-  /home/odi/workspace/u-boot-1.3.3/include/fpga.h
-altera.o: altera.c /home/odi/workspace/u-boot-1.3.3/include/common.h \
-  /home/odi/workspace/u-boot-1.3.3/include/config.h \
-  /home/odi/workspace/u-boot-1.3.3/include/configs/lab_at91rm9200.h \
-  /home/odi/workspace/u-boot-1.3.3/include/config_cmd_default.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/bitops.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/bitops.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/types.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/config.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/posix_types.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/stddef.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/posix_types.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/types.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/string.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/string.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/ptrace.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/proc/ptrace.h \
-  /opt/gnuarm-4.0.2/bin/../lib/gcc/arm-elf/4.0.2/include/stdarg.h \
-  /home/odi/workspace/u-boot-1.3.3/include/part.h \
-  /home/odi/workspace/u-boot-1.3.3/include/ide.h \
-  /home/odi/workspace/u-boot-1.3.3/include/flash.h \
-  /home/odi/workspace/u-boot-1.3.3/include/image.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/byteorder.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/byteorder/little_endian.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/byteorder/swab.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/byteorder/generic.h \
-  /home/odi/workspace/u-boot-1.3.3/include/command.h \
-  /home/odi/workspace/u-boot-1.3.3/include/lmb.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/u-boot.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/global_data.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/mach-types.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/setup.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/u-boot-arm.h \
-  /home/odi/workspace/u-boot-1.3.3/include/ACEX1K.h \
-  /home/odi/workspace/u-boot-1.3.3/include/altera.h \
-  /home/odi/workspace/u-boot-1.3.3/include/fpga.h \
-  /home/odi/workspace/u-boot-1.3.3/include/stratixII.h
 bedbug.o: bedbug.c /home/odi/workspace/u-boot-1.3.3/include/common.h \
   /home/odi/workspace/u-boot-1.3.3/include/config.h \
   /home/odi/workspace/u-boot-1.3.3/include/configs/lab_at91rm9200.h \
@@ -763,42 +692,6 @@ cmd_onenand.o: cmd_onenand.c \
   /home/odi/workspace/u-boot-1.3.3/include/asm/mach-types.h \
   /home/odi/workspace/u-boot-1.3.3/include/asm/setup.h \
   /home/odi/workspace/u-boot-1.3.3/include/asm/u-boot-arm.h
-cmd_pcmcia.o: cmd_pcmcia.c \
-  /home/odi/workspace/u-boot-1.3.3/include/common.h \
-  /home/odi/workspace/u-boot-1.3.3/include/config.h \
-  /home/odi/workspace/u-boot-1.3.3/include/configs/lab_at91rm9200.h \
-  /home/odi/workspace/u-boot-1.3.3/include/config_cmd_default.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/bitops.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/bitops.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/types.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/config.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/posix_types.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/stddef.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/posix_types.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/types.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/string.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/string.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/ptrace.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/proc/ptrace.h \
-  /opt/gnuarm-4.0.2/bin/../lib/gcc/arm-elf/4.0.2/include/stdarg.h \
-  /home/odi/workspace/u-boot-1.3.3/include/part.h \
-  /home/odi/workspace/u-boot-1.3.3/include/ide.h \
-  /home/odi/workspace/u-boot-1.3.3/include/flash.h \
-  /home/odi/workspace/u-boot-1.3.3/include/image.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/byteorder.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/byteorder/little_endian.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/byteorder/swab.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/byteorder/generic.h \
-  /home/odi/workspace/u-boot-1.3.3/include/command.h \
-  /home/odi/workspace/u-boot-1.3.3/include/lmb.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/u-boot.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/global_data.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/mach-types.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/setup.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/u-boot-arm.h \
-  /home/odi/workspace/u-boot-1.3.3/include/pcmcia.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/io.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/memory.h
 cmd_ximg.o: cmd_ximg.c /home/odi/workspace/u-boot-1.3.3/include/common.h \
   /home/odi/workspace/u-boot-1.3.3/include/config.h \
   /home/odi/workspace/u-boot-1.3.3/include/configs/lab_at91rm9200.h \
@@ -933,76 +826,6 @@ console.o: console.c /home/odi/workspace/u-boot-1.3.3/include/common.h \
   /home/odi/workspace/u-boot-1.3.3/include/lists.h \
   /home/odi/workspace/u-boot-1.3.3/include/exports.h \
   /home/odi/workspace/u-boot-1.3.3/include/_exports.h
-cyclon2.o: cyclon2.c /home/odi/workspace/u-boot-1.3.3/include/common.h \
-  /home/odi/workspace/u-boot-1.3.3/include/config.h \
-  /home/odi/workspace/u-boot-1.3.3/include/configs/lab_at91rm9200.h \
-  /home/odi/workspace/u-boot-1.3.3/include/config_cmd_default.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/bitops.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/bitops.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/types.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/config.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/posix_types.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/stddef.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/posix_types.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/types.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/string.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/string.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/ptrace.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/proc/ptrace.h \
-  /opt/gnuarm-4.0.2/bin/../lib/gcc/arm-elf/4.0.2/include/stdarg.h \
-  /home/odi/workspace/u-boot-1.3.3/include/part.h \
-  /home/odi/workspace/u-boot-1.3.3/include/ide.h \
-  /home/odi/workspace/u-boot-1.3.3/include/flash.h \
-  /home/odi/workspace/u-boot-1.3.3/include/image.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/byteorder.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/byteorder/little_endian.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/byteorder/swab.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/byteorder/generic.h \
-  /home/odi/workspace/u-boot-1.3.3/include/command.h \
-  /home/odi/workspace/u-boot-1.3.3/include/lmb.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/u-boot.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/global_data.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/mach-types.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/setup.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/u-boot-arm.h \
-  /home/odi/workspace/u-boot-1.3.3/include/altera.h \
-  /home/odi/workspace/u-boot-1.3.3/include/fpga.h \
-  /home/odi/workspace/u-boot-1.3.3/include/ACEX1K.h
-stratixII.o: stratixII.c \
-  /home/odi/workspace/u-boot-1.3.3/include/common.h \
-  /home/odi/workspace/u-boot-1.3.3/include/config.h \
-  /home/odi/workspace/u-boot-1.3.3/include/configs/lab_at91rm9200.h \
-  /home/odi/workspace/u-boot-1.3.3/include/config_cmd_default.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/bitops.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/bitops.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/types.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/config.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/posix_types.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/stddef.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/posix_types.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/types.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/string.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/string.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/ptrace.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/proc/ptrace.h \
-  /opt/gnuarm-4.0.2/bin/../lib/gcc/arm-elf/4.0.2/include/stdarg.h \
-  /home/odi/workspace/u-boot-1.3.3/include/part.h \
-  /home/odi/workspace/u-boot-1.3.3/include/ide.h \
-  /home/odi/workspace/u-boot-1.3.3/include/flash.h \
-  /home/odi/workspace/u-boot-1.3.3/include/image.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/byteorder.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/byteorder/little_endian.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/byteorder/swab.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/byteorder/generic.h \
-  /home/odi/workspace/u-boot-1.3.3/include/command.h \
-  /home/odi/workspace/u-boot-1.3.3/include/lmb.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/u-boot.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/global_data.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/mach-types.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/setup.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/u-boot-arm.h \
-  /home/odi/workspace/u-boot-1.3.3/include/altera.h \
-  /home/odi/workspace/u-boot-1.3.3/include/fpga.h
 devices.o: devices.c /home/odi/workspace/u-boot-1.3.3/include/config.h \
   /home/odi/workspace/u-boot-1.3.3/include/configs/lab_at91rm9200.h \
   /home/odi/workspace/u-boot-1.3.3/include/config_cmd_default.h \
@@ -1449,41 +1272,6 @@ flash.o: flash.c /home/odi/workspace/u-boot-1.3.3/include/common.h \
   /home/odi/workspace/u-boot-1.3.3/include/asm/mach-types.h \
   /home/odi/workspace/u-boot-1.3.3/include/asm/setup.h \
   /home/odi/workspace/u-boot-1.3.3/include/asm/u-boot-arm.h
-fpga.o: fpga.c /home/odi/workspace/u-boot-1.3.3/include/common.h \
-  /home/odi/workspace/u-boot-1.3.3/include/config.h \
-  /home/odi/workspace/u-boot-1.3.3/include/configs/lab_at91rm9200.h \
-  /home/odi/workspace/u-boot-1.3.3/include/config_cmd_default.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/bitops.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/bitops.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/types.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/config.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/posix_types.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/stddef.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/posix_types.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/types.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/string.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/string.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/ptrace.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/proc/ptrace.h \
-  /opt/gnuarm-4.0.2/bin/../lib/gcc/arm-elf/4.0.2/include/stdarg.h \
-  /home/odi/workspace/u-boot-1.3.3/include/part.h \
-  /home/odi/workspace/u-boot-1.3.3/include/ide.h \
-  /home/odi/workspace/u-boot-1.3.3/include/flash.h \
-  /home/odi/workspace/u-boot-1.3.3/include/image.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/byteorder.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/byteorder/little_endian.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/byteorder/swab.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/byteorder/generic.h \
-  /home/odi/workspace/u-boot-1.3.3/include/command.h \
-  /home/odi/workspace/u-boot-1.3.3/include/lmb.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/u-boot.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/global_data.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/mach-types.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/setup.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/u-boot-arm.h \
-  /home/odi/workspace/u-boot-1.3.3/include/xilinx.h \
-  /home/odi/workspace/u-boot-1.3.3/include/fpga.h \
-  /home/odi/workspace/u-boot-1.3.3/include/altera.h
 ft_build.o: ft_build.c /home/odi/workspace/u-boot-1.3.3/include/common.h \
   /home/odi/workspace/u-boot-1.3.3/include/config.h \
   /home/odi/workspace/u-boot-1.3.3/include/configs/lab_at91rm9200.h \
@@ -1730,8 +1518,7 @@ miiphybb.o: miiphybb.c /home/odi/workspace/u-boot-1.3.3/include/common.h \
   /home/odi/workspace/u-boot-1.3.3/include/asm/mach-types.h \
   /home/odi/workspace/u-boot-1.3.3/include/asm/setup.h \
   /home/odi/workspace/u-boot-1.3.3/include/asm/u-boot-arm.h \
-  /home/odi/workspace/u-boot-1.3.3/include/ioports.h \
-  /home/odi/workspace/u-boot-1.3.3/include/ppc_asm.tmpl
+  /home/odi/workspace/u-boot-1.3.3/include/ioports.h
 miiphyutil.o: miiphyutil.c \
   /home/odi/workspace/u-boot-1.3.3/include/common.h \
   /home/odi/workspace/u-boot-1.3.3/include/config.h \
@@ -1908,76 +1695,6 @@ soft_spi.o: soft_spi.c /home/odi/workspace/u-boot-1.3.3/include/common.h \
   /home/odi/workspace/u-boot-1.3.3/include/asm/setup.h \
   /home/odi/workspace/u-boot-1.3.3/include/asm/u-boot-arm.h \
   /home/odi/workspace/u-boot-1.3.3/include/spi.h
-spartan2.o: spartan2.c /home/odi/workspace/u-boot-1.3.3/include/common.h \
-  /home/odi/workspace/u-boot-1.3.3/include/config.h \
-  /home/odi/workspace/u-boot-1.3.3/include/configs/lab_at91rm9200.h \
-  /home/odi/workspace/u-boot-1.3.3/include/config_cmd_default.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/bitops.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/bitops.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/types.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/config.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/posix_types.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/stddef.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/posix_types.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/types.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/string.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/string.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/ptrace.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/proc/ptrace.h \
-  /opt/gnuarm-4.0.2/bin/../lib/gcc/arm-elf/4.0.2/include/stdarg.h \
-  /home/odi/workspace/u-boot-1.3.3/include/part.h \
-  /home/odi/workspace/u-boot-1.3.3/include/ide.h \
-  /home/odi/workspace/u-boot-1.3.3/include/flash.h \
-  /home/odi/workspace/u-boot-1.3.3/include/image.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/byteorder.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/byteorder/little_endian.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/byteorder/swab.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/byteorder/generic.h \
-  /home/odi/workspace/u-boot-1.3.3/include/command.h \
-  /home/odi/workspace/u-boot-1.3.3/include/lmb.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/u-boot.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/global_data.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/mach-types.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/setup.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/u-boot-arm.h \
-  /home/odi/workspace/u-boot-1.3.3/include/spartan2.h \
-  /home/odi/workspace/u-boot-1.3.3/include/xilinx.h \
-  /home/odi/workspace/u-boot-1.3.3/include/fpga.h
-spartan3.o: spartan3.c /home/odi/workspace/u-boot-1.3.3/include/common.h \
-  /home/odi/workspace/u-boot-1.3.3/include/config.h \
-  /home/odi/workspace/u-boot-1.3.3/include/configs/lab_at91rm9200.h \
-  /home/odi/workspace/u-boot-1.3.3/include/config_cmd_default.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/bitops.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/bitops.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/types.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/config.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/posix_types.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/stddef.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/posix_types.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/types.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/string.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/string.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/ptrace.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/proc/ptrace.h \
-  /opt/gnuarm-4.0.2/bin/../lib/gcc/arm-elf/4.0.2/include/stdarg.h \
-  /home/odi/workspace/u-boot-1.3.3/include/part.h \
-  /home/odi/workspace/u-boot-1.3.3/include/ide.h \
-  /home/odi/workspace/u-boot-1.3.3/include/flash.h \
-  /home/odi/workspace/u-boot-1.3.3/include/image.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/byteorder.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/byteorder/little_endian.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/byteorder/swab.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/byteorder/generic.h \
-  /home/odi/workspace/u-boot-1.3.3/include/command.h \
-  /home/odi/workspace/u-boot-1.3.3/include/lmb.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/u-boot.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/global_data.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/mach-types.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/setup.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/u-boot-arm.h \
-  /home/odi/workspace/u-boot-1.3.3/include/spartan3.h \
-  /home/odi/workspace/u-boot-1.3.3/include/xilinx.h \
-  /home/odi/workspace/u-boot-1.3.3/include/fpga.h
 usb.o: usb.c /home/odi/workspace/u-boot-1.3.3/include/common.h \
   /home/odi/workspace/u-boot-1.3.3/include/config.h \
   /home/odi/workspace/u-boot-1.3.3/include/configs/lab_at91rm9200.h \
@@ -2088,78 +1805,6 @@ usb_storage.o: usb_storage.c \
   /home/odi/workspace/u-boot-1.3.3/include/asm/proc/system.h \
   /home/odi/workspace/u-boot-1.3.3/include/asm/proc/processor.h \
   /home/odi/workspace/u-boot-1.3.3/include/asm/proc/domain.h
-virtex2.o: virtex2.c /home/odi/workspace/u-boot-1.3.3/include/common.h \
-  /home/odi/workspace/u-boot-1.3.3/include/config.h \
-  /home/odi/workspace/u-boot-1.3.3/include/configs/lab_at91rm9200.h \
-  /home/odi/workspace/u-boot-1.3.3/include/config_cmd_default.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/bitops.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/bitops.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/types.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/config.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/posix_types.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/stddef.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/posix_types.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/types.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/string.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/string.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/ptrace.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/proc/ptrace.h \
-  /opt/gnuarm-4.0.2/bin/../lib/gcc/arm-elf/4.0.2/include/stdarg.h \
-  /home/odi/workspace/u-boot-1.3.3/include/part.h \
-  /home/odi/workspace/u-boot-1.3.3/include/ide.h \
-  /home/odi/workspace/u-boot-1.3.3/include/flash.h \
-  /home/odi/workspace/u-boot-1.3.3/include/image.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/byteorder.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/byteorder/little_endian.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/byteorder/swab.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/byteorder/generic.h \
-  /home/odi/workspace/u-boot-1.3.3/include/command.h \
-  /home/odi/workspace/u-boot-1.3.3/include/lmb.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/u-boot.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/global_data.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/mach-types.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/setup.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/u-boot-arm.h \
-  /home/odi/workspace/u-boot-1.3.3/include/virtex2.h \
-  /home/odi/workspace/u-boot-1.3.3/include/xilinx.h \
-  /home/odi/workspace/u-boot-1.3.3/include/fpga.h
-xilinx.o: xilinx.c /home/odi/workspace/u-boot-1.3.3/include/common.h \
-  /home/odi/workspace/u-boot-1.3.3/include/config.h \
-  /home/odi/workspace/u-boot-1.3.3/include/configs/lab_at91rm9200.h \
-  /home/odi/workspace/u-boot-1.3.3/include/config_cmd_default.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/bitops.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/bitops.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/types.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/config.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/posix_types.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/stddef.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/posix_types.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/types.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/string.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/string.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/ptrace.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/proc/ptrace.h \
-  /opt/gnuarm-4.0.2/bin/../lib/gcc/arm-elf/4.0.2/include/stdarg.h \
-  /home/odi/workspace/u-boot-1.3.3/include/part.h \
-  /home/odi/workspace/u-boot-1.3.3/include/ide.h \
-  /home/odi/workspace/u-boot-1.3.3/include/flash.h \
-  /home/odi/workspace/u-boot-1.3.3/include/image.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/byteorder.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/byteorder/little_endian.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/byteorder/swab.h \
-  /home/odi/workspace/u-boot-1.3.3/include/linux/byteorder/generic.h \
-  /home/odi/workspace/u-boot-1.3.3/include/command.h \
-  /home/odi/workspace/u-boot-1.3.3/include/lmb.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/u-boot.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/global_data.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/mach-types.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/setup.h \
-  /home/odi/workspace/u-boot-1.3.3/include/asm/u-boot-arm.h \
-  /home/odi/workspace/u-boot-1.3.3/include/virtex2.h \
-  /home/odi/workspace/u-boot-1.3.3/include/xilinx.h \
-  /home/odi/workspace/u-boot-1.3.3/include/fpga.h \
-  /home/odi/workspace/u-boot-1.3.3/include/spartan2.h \
-  /home/odi/workspace/u-boot-1.3.3/include/spartan3.h
 crc16.o: crc16.c /home/odi/workspace/u-boot-1.3.3/include/crc.h \
   /home/odi/workspace/u-boot-1.3.3/include/linux/types.h \
   /home/odi/workspace/u-boot-1.3.3/include/linux/config.h \
