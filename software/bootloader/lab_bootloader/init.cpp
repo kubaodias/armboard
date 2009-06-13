@@ -148,13 +148,13 @@ void AT91F_InitSdram()
 	// all banks precharge
 	pSdrc->SDRC_MR = AT91C_SDRC_MODE_PRCGALL_CMD;
 
-	pRegister = (int *)0x20000000;
+	pRegister = (int *)AT91C_SDRAM_BASE_ADDRESS;
 	*pRegister = 0;
 
 	// refresh
 	pSdrc->SDRC_MR = AT91C_SDRC_MODE_RFSH_CMD;
 
-	pRegister = (int *)0x20000000;
+	pRegister = (int *)AT91C_SDRAM_BASE_ADDRESS;
 	*pRegister = 0;
 	*pRegister = 0;
 	*pRegister = 0;
@@ -167,20 +167,21 @@ void AT91F_InitSdram()
 	// load mode register
 	pSdrc->SDRC_MR = AT91C_SDRC_MODE_LMR_CMD;
 
-	pRegister = (int *)0x20000080;
-	*pRegister = 0;
+	pRegister = (int *)(AT91C_SDRAM_BASE_ADDRESS + 0x80);
+	for (int i = 0; i < 100; i++)
+		*pRegister = 0;
 
 	// romboot - 0x2e0
 	// dlharmon - 0x1c0
 	pSdrc->SDRC_TR = 0x1c0;
 
-	pRegister = (int *)0x20000000;
+	pRegister = (int *)AT91C_SDRAM_BASE_ADDRESS;
 	*pRegister = 0;
 
 	// normal mode
 	pSdrc->SDRC_MR = AT91C_SDRC_MODE_NORMAL_CMD;
 
-	pRegister = (int *)0x20000000;
+	pRegister = (int *)AT91C_SDRAM_BASE_ADDRESS;
 	*pRegister = 0;
 }
 
