@@ -109,12 +109,31 @@ reset:
 /*----------------------------------------
  Read/modify/write CP15 control register
 ----------------------------------------*/
-		mrc     p15, 0, r0, c1, c0,0  /* read cp15 control registre (cp15 r1) in r0 */
-		ldr     r3,= 0xC0000080      /* Reset bit :Little Endian end fast bus mode */
-		ldr     r4,= 0xC0001000      /* Set bit :Asynchronous clock mode, Not Fast Bus, I-Cache enable */
+		mrc     p15, 0, r0, c1, c0, 0	/* read cp15 control register (cp15 r1) in r0 */
+		ldr     r3,= 0x00000080			/* Reset bit :Little Endian end fast bus mode */
+		/* I-cache was enabled here but it caused failures in execution of
+		   program in SDRAM - unfortunately now it works slower */
+		ldr     r4,= 0xC0000000			/* Set bit :Asynchronous clock mode, Not Fast Bus*/
 		bic     r0, r0, r3
 		orr     r0, r0, r4
-		mcr     p15, 0, r0, c1, c0,0 /* write r0 in cp15 control registre (cp15 r1) */
+		mcr     p15, 0, r0, c1, c0, 0  /* write r0 in cp15 control register (cp15 r1) */
+
+		/*mrc     p15, 0, r0, c1, c0, 0	/* read cp15 control register (cp15 r1) in r0 */
+        /*ldr 	r3, =0xC0003381			/* clear bits:
+        								 * 31:30 (async clocking mode),
+        								 * 13 (V - Base Location of Exception Register),
+        								 * 12 (I-Cache disabled),
+        								 * 9:8 (RS),
+										 * 7 (little endian),
+										 * 0 (MMU disabled)
+        								 */
+        /*bic     r0, r0, r3
+        ldr		r4, =0x00001006	        /* set bits:
+										 * 2 (D-cache enabled),
+										 * 1 (Fault checking enabled),
+        								 */
+        /*orr     r0, r0, r4
+        mcr     p15, 0, r0, c1, c0, 0	/* write r0 in cp15 control register (cp15 r1) */
 
 /* Enable interrupts */
 		msr     CPSR_c, #ARM_MODE_SYS | F_BIT

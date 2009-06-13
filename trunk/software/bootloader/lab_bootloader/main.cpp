@@ -308,7 +308,7 @@ int AT91F_DataflashMemoryDisplay(unsigned int addr, unsigned int size, unsigned 
 //* Input Parameters    :
 //* Output Parameters   :
 //*--------------------------------------------------------------------------------------
-static void AT91F_ResetRegisters(void)
+void AT91F_ResetRegisters(void)
 {
 	volatile int i = 0;
 
@@ -615,7 +615,7 @@ int main(void)
 					break;
 			}
 		}
-
+		XmodemComplete = 0;
 		xmodemPipe.Read(&xmodemPipe, (char *)download_address, download_size, XmodemProtocol, 0);
 		while(XmodemComplete !=1);
 		download_size = (unsigned int)(svcXmodem.pData) - (unsigned int)download_address;
