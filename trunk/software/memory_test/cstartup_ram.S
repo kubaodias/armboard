@@ -115,9 +115,7 @@ reset:
 
 		mrc     p15, 0, r0, c1, c0, 0	/* read cp15 control register (cp15 r1) in r0 */
 		ldr     r3,= 0x00000080			/* Reset bit :Little Endian end fast bus mode */
-		/* I-cache was enabled here but it caused failures in execution of
-		   program in SDRAM - unfortunately now it works slower */
-		ldr     r4,= 0x00001000			/* Set bit :Asynchronous clock mode, Not Fast Bus*/
+		ldr     r4,= 0x00001000			/* Set bit: I-cache enable*/
 		bic     r0, r0, r3
 		orr     r0, r0, r4
 		mcr     p15, 0, r0, c1, c0, 0  /* write r0 in cp15 control register (cp15 r1) */

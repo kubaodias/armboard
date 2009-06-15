@@ -28,7 +28,10 @@ const char *menu_separ = "*----------------------------------------*\n\r";
 const char *menu_dataflash =
 {
 	"1. Read data from memory [addr]\n\r"
-	"8. Memory test info\n\r"
+	"2. Clear memory\n\r"
+	"3. GALloping PATtern (ping-pong) test\n\r"
+	"7. Address test\n\r"
+	"9. Memory test info\n\r"
 };
 
 //* Globales variables
@@ -143,109 +146,160 @@ int AT91F_MemoryDisplay(unsigned int addr, unsigned int size, unsigned int lengt
 	return 0;
 }
 
-void memory_test(unsigned int pattern_number)
+/* Clear whole SDRAM memory */
+void AT91F_ClearSDRAM()
 {
-	static const unsigned int bitpattern[] =
+	unsigned int addr = AT91C_SDRAM_BASE_ADDRESS;
+	for (int i = 0; i < AT91C_SDRAM_SIZE; i += 4)
 	{
-			/*0x00000001,	/* single bit */
-			/*0x00000003,	/* two adjacent bits */
-			/*0x00000007,	/* three adjacent bits */
-			/*0x0000000F,	/* four adjacent bits */
-			/*0x00000005,	/* two non-adjacent bits */
-			/*0x00000015,	/* three non-adjacent bits */
-			/*0x00000055,	/* four non-adjacent bits */
-			/*0xaaaaaaaa,	/* alternating 1/0 */
-			0x00000000,
-			0x11111111,
-			0x33333333,
-			0x55555555,
-			0x0f0f0f0f,
-			0x00ff00ff,
-	};
-	int i;
-	unsigned int pattern, addr, val, incr, readback;
+		*(unsigned int *)addr = 0;
+		addr += 4;
+	}
+}
+
+/* A memory test pattern that tests for address nonuniqueness and other
+ * functional faults in memories, as well as some dynamic faults,
+ * is the GALPAT (GALloping PATtern), sometimes referred to as a ping-pong pattern.
+ * This pattern accesses each address repeatedly using, at some point,
+ * every other cell as a previous address. It starts by writing a background
+ * of zeroes into all memory cells. Then the first cell becomes the test cell.
+ * It is complemented and read alternately with every other cell in memory.
+ * Each succeeding cell then becomes the test cell in turn and the entire read
+ * process is repeated. All data are complemented and the entire test is repeated.
+ * If each read and compare is counted as one operation, then GALPAT has an
+ * execution time proportional to 4N^2, where N is the number of cells.
+ * It is effective for finding cell opens, shorts, address uniqueness faults,
+ * sense amplifier interaction, and access time problems.
+ */
+void AT91F_GallopingPatternTest()
+{
+	unsigned int test_addr, addr, val, readback;
 	unsigned int start_addr = AT91C_SDRAM_BASE_ADDRESS;
 	unsigned int end_addr = AT91C_SDRAM_BASE_ADDRESS + AT91C_SDRAM_SIZE;
-	char test_result;
+	unsigned char test_result = 0;
 
-	int pattern_count = sizeof(bitpattern) / sizeof(unsigned int);
-
-	if (pattern_number > pattern_count)
+	printf("\n\rPerforming memory GALloping PATtern test");
+	AT91F_ClearSDRAM();
+	for (test_addr = start_addr; test_addr < end_addr; test_addr += 4)
 	{
-		printf("Unsupported test %d\n\r", pattern);
-		return;
-	}
+		// complement test cell
+		val = *(unsigned int *)test_addr;
+		*(unsigned int *)test_addr = ~val;
 
-	if (pattern_number == 0)
-	{
-		printf("Performing full memory test\n\r");
-		for (i = 1; i <= pattern_count; i++)
+		for (addr = start_addr; addr < end_addr; addr += 4)
 		{
-			memory_test(i);
-		}
-
-		// return from test
-		return;
-	}
-
-	// select proper bit pattern
-	pattern = bitpattern[pattern_number - 1];
-
-	printf ("* Memory test number %d: \n\r", pattern_number);
-	incr = 1;
-
-	// for each pattern do 2 tests with different variations
-	for (i = 0; i < 2; i++)
-	{
-		printf("  - testing pattern 0x%8x", pattern);
-
-		test_result = 0;
-
-		for (addr = start_addr, val = pattern; addr < end_addr; addr+=4)
-		{
-			*(unsigned int *)addr = val;
-			val  += incr;
-		}
-
-		for (addr=start_addr, val = pattern; addr < end_addr; addr+=4)
-		{
-			readback = *(unsigned int *)addr;
-			if (readback != val)
+			// read each memory cell
+			if (addr == test_addr)
 			{
-				// if this is the first error
+				readback = *(unsigned int *)addr;
+				if (readback != ~val)
+				{
+					if (test_result == 0)
+					{
+						printf("\n\rFAILED:");
+					}
+					printf ("\n\r  !! Memory error at 0x%x: "
+						"found 0x%x, expected 0x%x !!!",
+						addr, readback, ~val);
+					test_result = 1;
+				}
+			}
+			else
+			{
+				readback = *(unsigned int *)addr;
+				if (readback != 0)
+				{
+					if (test_result == 0)
+					{
+						printf("\n\rFAILED:");
+					}
+					printf ("\n\r  !! Memory error at 0x%x: "
+						"found 0x%x, expected 0x%x !!!",
+						addr, readback, 0);
+					test_result = 1;
+				}
+			}
+
+			// read test cell
+			readback = *(unsigned int *)test_addr;
+			if (readback != ~val)
+			{
 				if (test_result == 0)
 				{
-					printf(": FAILED");
+					printf("\n\rFAILED:");
 				}
-				printf ("\n\r    !!! Memory error at 0x%x: "
+				printf ("\n\r  !! Memory error at 0x%x: "
 					"found 0x%x, expected 0x%x !!!",
-					addr, readback, val);
+					addr, readback, ~val);
 				test_result = 1;
 			}
-			val += incr;
 		}
+
+		// complement test cell
+		val = *(unsigned int *)test_addr;
+		*(unsigned int *)test_addr = ~val;
 
 		if (test_result == 0)
-		{
-			printf(": OK\n\r");
-		}
-		else
-			printf("\n\r");
-
-		/*
-		 * Flip the pattern each time to make lots of zeros and
-		 * then, the next time, lots of ones.  We decrement
-		 * the "negative" patterns and increment the "positive"
-		 * patterns to preserve this feature.
-		 */
-		if(pattern & 0x80000000) {
-			pattern = -pattern;	/* complement & increment */
-		}
-		else {
-			pattern = ~pattern;
-		}
-		incr = -incr;
+			printf(" .");
 	}
+
+	if (test_result == 0)
+	{
+		printf("\n\rOK\n\r");
+	}
+	else
+		printf("\n\r");
+}
+
+/* Address Test writes a unique value into each memory location.
+ * Typically, this could be the address of that memory cell;
+ * that is, the value n is written into memory location n.
+ * After writing all memory locations, the data are read back.
+ * The purpose of this test is to check for address uniqueness.
+ * This algorithm requires that the number of bits in each memory
+ * word equal or exceed the number of address bits.
+ */
+void AT91F_AddressTest()
+{
+	int i;
+	unsigned int addr, val, incr, readback;
+	unsigned int start_addr = AT91C_SDRAM_BASE_ADDRESS;
+	unsigned int end_addr = AT91C_SDRAM_BASE_ADDRESS + AT91C_SDRAM_SIZE;
+	char test_result = 0;
+
+	printf("\n\rPerforming memory address test");
+	test_result = 0;
+
+	for (addr = start_addr, val = 0; addr < end_addr; addr += 4)
+	{
+		*(unsigned int *)addr = val;
+		val++;
+	}
+
+	for (addr = start_addr, val = 0; addr < end_addr; addr += 4)
+	{
+		readback = *(unsigned int *)addr;
+		if (readback != val)
+		{
+			// if this is the first error
+			if (test_result == 0)
+			{
+				printf(": FAILED");
+			}
+			printf ("\n\r  !!! Memory error at 0x%x: "
+				"found 0x%x, expected 0x%x !!!",
+				addr, readback, val);
+			test_result = 1;
+		}
+		val++;
+	}
+
+	if (test_result == 0)
+	{
+		printf(": OK\n\r");
+	}
+	else
+		printf("\n\r");
 }
 
 
@@ -291,23 +345,32 @@ int main(void)
 					arg += 0x100;
 				}
 				while(message[0] == '\0');
-				command = 0;
 				break;
 
-			case '6':
-				printf("\n\r");
-				printf(menu_separ);
-				memory_test(arg);
-				printf(menu_separ);
+			case '2':
+				AT91F_ClearSDRAM();
+				printf("\n\rMemory successfully cleared.\n\r");
 				AT91F_WaitKeyPressed();
-				command = 0;
+				break;
+
+			case '3':
+				AT91F_GallopingPatternTest();
+				AT91F_WaitKeyPressed();
+				break;
+
+			case '7':
+				AT91F_AddressTest();
+				AT91F_WaitKeyPressed();
 				break;
 
 			// memory test info
-			case '8':
+			case '9':
 				printf("\n\r");
 				printf(menu_separ);
 				printf("%s %s\n\r", AT91C_NAME, AT91C_VERSION);
+				printf("Memory tests for %dMB of SDRAM @ %dMHz\n\r",
+						AT91C_SDRAM_SIZE/(1024*1024),
+						AT91C_MASTER_CLOCK/1000000);
 				printf("Written by Kuba Odias, %s, %s\n\r", __DATE__, __TIME__);
 				printf(menu_separ);
 				AT91F_WaitKeyPressed();
