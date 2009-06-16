@@ -30,7 +30,8 @@ const char *menu_dataflash =
 	"1. Read data from memory [addr]\n\r"
 	"2. Clear memory\n\r"
 	"3. GALloping PATtern (ping-pong) test\n\r"
-	"7. Address test\n\r"
+	"4. March test [access size]\n\r"
+	"7. Address test [access size]\n\r"
 	"9. Memory test info\n\r"
 };
 
@@ -86,6 +87,47 @@ unsigned int AsciiToHex(char *s, unsigned int *val)
     }
 
 	return 1;
+}
+
+/* Init LEDs */
+void AT91F_InitLEDs()
+{
+#ifdef USE_LEDS
+	AT91PS_PIO pPioB = AT91C_BASE_PIOB;
+
+	pPioB->PIO_PER = AT91C_GREEN_LED;
+	pPioB->PIO_OER = AT91C_GREEN_LED;
+#endif
+}
+
+void AT91F_LEDOn()
+{
+	AT91PS_PIO pPioB = AT91C_BASE_PIOB;
+	pPioB->PIO_SODR = AT91C_GREEN_LED;
+}
+
+void AT91F_LEDOff()
+{
+	AT91PS_PIO pPioB = AT91C_BASE_PIOB;
+	pPioB->PIO_CODR = AT91C_GREEN_LED;
+}
+
+void AT91F_SwitchLED()
+{
+#ifdef USE_LEDS
+	unsigned int value;
+	AT91PS_PIO pPioB = AT91C_BASE_PIOB;
+
+	value = pPioB->PIO_ODSR;
+	if (value & AT91C_GREEN_LED)
+	{
+		pPioB->PIO_CODR = AT91C_GREEN_LED;
+	}
+	else
+	{
+		pPioB->PIO_SODR = AT91C_GREEN_LED;
+	}
+#endif
 }
 
 //*-----------------------------------------------------------------------------
@@ -146,6 +188,27 @@ int AT91F_MemoryDisplay(unsigned int addr, unsigned int size, unsigned int lengt
 	return 0;
 }
 
+/* Check if memory at address addr has correct value */
+bool check_memory_value(unsigned int addr, unsigned int value, unsigned int access_size)
+{
+	unsigned int readback;
+
+	switch(access_size)
+	{
+		case 1:
+			readback = *(unsigned char *)addr;
+			if ((readback & 0x000000FF) == (value & 0x000000FF))
+				return true;
+			break;
+		case 4:
+			readback = *(unsigned int *)addr;
+			if (readback == value)
+				return true;
+			break;
+	}
+	return false;
+}
+
 /* Clear whole SDRAM memory */
 void AT91F_ClearSDRAM()
 {
@@ -198,7 +261,7 @@ void AT91F_GallopingPatternTest()
 					{
 						printf("\n\rFAILED:");
 					}
-					printf ("\n\r  !! Memory error at 0x%x: "
+					printf ("\n\r  Memory error at 0x%x: "
 						"found 0x%x, expected 0x%x !!!",
 						addr, readback, ~val);
 					test_result = 1;
@@ -213,7 +276,7 @@ void AT91F_GallopingPatternTest()
 					{
 						printf("\n\rFAILED:");
 					}
-					printf ("\n\r  !! Memory error at 0x%x: "
+					printf ("\n\r  Memory error at 0x%x: "
 						"found 0x%x, expected 0x%x !!!",
 						addr, readback, 0);
 					test_result = 1;
@@ -228,7 +291,7 @@ void AT91F_GallopingPatternTest()
 				{
 					printf("\n\rFAILED:");
 				}
-				printf ("\n\r  !! Memory error at 0x%x: "
+				printf ("\n\r  Memory error at 0x%x: "
 					"found 0x%x, expected 0x%x !!!",
 					addr, readback, ~val);
 				test_result = 1;
@@ -251,6 +314,85 @@ void AT91F_GallopingPatternTest()
 		printf("\n\r");
 }
 
+/* March, like most of the algorithms, begins by writing a background of zeroes.
+ * Then it reads the data at the first location and writes a 1 to that address.
+ * It continues this read/write procedure sequentially with each address in memory.
+ * When the end of memory is reached, each cell is read and changed back to zero
+ * in reverse order. The test is then repeated using complemented data.
+ * Execution time is of order N. It can find cell opens, shorts, address uniqueness,
+ * and some cell interactions.
+ */
+void AT91F_MarchTest(unsigned int access_size)
+{
+	unsigned int test_addr, addr, val, readback;
+	unsigned int start_addr = AT91C_SDRAM_BASE_ADDRESS;
+	unsigned int end_addr = AT91C_SDRAM_BASE_ADDRESS + AT91C_SDRAM_SIZE;
+	unsigned char test_result = 0;
+
+	printf("\n\rPerforming memory march test (%d-byte access)", access_size);
+	if ((access_size != 1) && (access_size != 4))
+	{
+		printf(": SKIPPED\n\r");
+		return;
+	}
+
+	AT91F_ClearSDRAM();
+
+	val = 1;
+	// repeat process 2 times
+	for (int i = 0; i < 2; i++)
+	{
+		printf("\n\r  * writing");
+		switch (access_size)
+		{
+		case 1:
+			printf(" 0x%2x", val & 0x000000FF);
+			break;
+		case 4:
+			printf(" 0x%8x", val);
+				break;
+		}
+		// write value to each memory cell
+		for (test_addr = start_addr; test_addr < end_addr; test_addr += access_size)
+		{
+			switch(access_size)
+			{
+				case 1:
+					*(unsigned char *)test_addr = val;
+					break;
+				case 4:
+					*(unsigned int *)test_addr = val;
+					break;
+			}
+		}
+		printf("\n\r  * reading");
+		// read in reverse order
+		for (test_addr = end_addr - access_size; test_addr >= start_addr; test_addr -= access_size)
+		{
+			if (check_memory_value(test_addr, val, access_size) == false)
+			{
+				if (test_result == 0)
+				{
+					printf(": FAILED");
+				}
+				printf ("\n\r    - Memory error at 0x%x: "
+					"found 0x%x, expected 0x%x !!!",
+					addr, readback, val);
+				test_result = 1;
+			}
+		}
+		// use complemented value
+		val = ~val;
+	}
+
+	if (test_result == 0)
+	{
+		printf("\n\rOK\n\r");
+	}
+	else
+		printf("\n\rTEST FAILED\n\r");
+}
+
 /* Address Test writes a unique value into each memory location.
  * Typically, this could be the address of that memory cell;
  * that is, the value n is written into memory location n.
@@ -259,34 +401,49 @@ void AT91F_GallopingPatternTest()
  * This algorithm requires that the number of bits in each memory
  * word equal or exceed the number of address bits.
  */
-void AT91F_AddressTest()
+void AT91F_AddressTest(unsigned int access_size)
 {
 	int i;
-	unsigned int addr, val, incr, readback;
+	unsigned int addr, val, readback;
 	unsigned int start_addr = AT91C_SDRAM_BASE_ADDRESS;
 	unsigned int end_addr = AT91C_SDRAM_BASE_ADDRESS + AT91C_SDRAM_SIZE;
 	char test_result = 0;
 
-	printf("\n\rPerforming memory address test");
+	printf("\n\rPerforming memory address test (%d-byte access)", access_size);
+	if ((access_size != 1) && (access_size != 4))
+	{
+		printf(": SKIPPED\n\r");
+		return;
+	}
+
 	test_result = 0;
 
-	for (addr = start_addr, val = 0; addr < end_addr; addr += 4)
+	printf("\n\r  * writing");
+	for (addr = start_addr, val = 0; addr < end_addr; addr += access_size)
 	{
-		*(unsigned int *)addr = val;
+		switch(access_size)
+		{
+			case 1:
+				*(unsigned char *)addr = val;
+				break;
+			case 4:
+				*(unsigned int *)addr = val;
+				break;
+		}
 		val++;
 	}
 
-	for (addr = start_addr, val = 0; addr < end_addr; addr += 4)
+	printf("\n\r  * reading");
+	for (addr = start_addr, val = 0; addr < end_addr; addr += access_size)
 	{
-		readback = *(unsigned int *)addr;
-		if (readback != val)
+		if (check_memory_value(addr, val, access_size) == false)
 		{
 			// if this is the first error
 			if (test_result == 0)
 			{
 				printf(": FAILED");
 			}
-			printf ("\n\r  !!! Memory error at 0x%x: "
+			printf ("\n\r    - Memory error at 0x%x: "
 				"found 0x%x, expected 0x%x !!!",
 				addr, readback, val);
 			test_result = 1;
@@ -296,10 +453,10 @@ void AT91F_AddressTest()
 
 	if (test_result == 0)
 	{
-		printf(": OK\n\r");
+		printf("\n\rOK\n\r");
 	}
 	else
-		printf("\n\r");
+		printf("\n\rTEST FAILED\n\r");
 }
 
 
@@ -331,13 +488,13 @@ int main(void)
 		AT91F_ReadLine("Enter: ", message);
 
 		command = message[0];
-		if(command == '1')
-			if(AsciiToHex(&message[2], &arg) == 0)
-				command = 0;
 
 		switch(command)
 		{
 			case '1':
+				if(AsciiToHex(&message[2], &arg) == 0)
+					break;
+
 				do
 				{
 					AT91F_MemoryDisplay(arg, 4, 64);
@@ -354,12 +511,26 @@ int main(void)
 				break;
 
 			case '3':
+				//if(AsciiToHex(&message[2], &arg) == 0)
+				//	break;
+
 				AT91F_GallopingPatternTest();
 				AT91F_WaitKeyPressed();
 				break;
 
+			case '4':
+				if(AsciiToHex(&message[2], &arg) == 0)
+					break;
+
+				AT91F_MarchTest(arg);
+				AT91F_WaitKeyPressed();
+				break;
+
 			case '7':
-				AT91F_AddressTest();
+				if(AsciiToHex(&message[2], &arg) == 0)
+					break;
+
+				AT91F_AddressTest(arg);
 				AT91F_WaitKeyPressed();
 				break;
 

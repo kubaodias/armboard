@@ -19,6 +19,8 @@
 
 #include "embedded_services.h"
 
+#define USE_LEDS
+#define AT91C_GREEN_LED ((unsigned int) 0x1 <<  2)
 // crystal= 18.432MHz
 // MULA = 38, DIVA = 4, (MULA + 1) / DIV = 9.75
 #define AT91C_PLLA_VALUE 				  0x2026BE04 // -> 179.712MHz
