@@ -50,17 +50,18 @@ int AT91F_DataflashInit(void)
 
 void AT91F_DataflashPrintInfo(void)
 {
+	printf("Dataflash info:\n\r");
 	switch (dataflash_info.id)
 	{
 		case AT45DB041:
-			printf ("Device:            AT45DB041\n\r");
-			printf ("Number of pages:   %d\n\r"
-					"Page size:         %d\n\r",
+			printf ("   Device:            AT45DB041\n\r");
+			printf ("   Number of pages:   %d\n\r"
+					"   Page size:         %d",
 					(unsigned int) dataflash_info.Device.pages_number,
 					(unsigned int) dataflash_info.Device.pages_size);
 			break;
 		default:
-			printf("Valid dataflash device wasn't found\n\r");
+			printf("   Valid dataflash device wasn't found");
 	}
 }
 

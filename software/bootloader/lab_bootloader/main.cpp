@@ -17,6 +17,7 @@
 #include "com.h"
 #include "main.h"
 #include "dataflash.h"
+#include "sdram.h"
 
 #define AT91C_UBOOT_ADDR 0x21F00000
 #define AT91C_UBOOT_SIZE 128*1024
@@ -27,9 +28,8 @@
 //* prototypes
 extern void AT91F_DBGU_Printk(char *);
 extern "C" void AT91F_ST_ASM_Handler(void);
-extern "C" void Jump(unsigned int addr);
 
-const char *menu_separ = "*----------------------------------------*\n\r";
+const char *menu_separ = "\n\r*----------------------------------------*\n\r";
 
 const char *menu_dataflash =
 {
@@ -38,9 +38,16 @@ const char *menu_dataflash =
 	"3. Read data from dataflash [addr]\n\r"
 	"4. Start U-BOOT\n\r"
 	"5. Clear bootloader section in Dataflash\n\r"
-	"6. Memory test [number]\n\r"
-	"7. Dataflash info\n\r"
-	"8. Bootloader info\n\r"
+	// "6. Memory test\n\r"
+	"6. Memory info\n\r"
+	"7. Bootloader info"
+};
+
+const char *menu_memory_test =
+{
+	"1. March test\n\r"
+	"2. Address test"
+	//"3. GALloping PATtern (ping-pong) test [start address]"
 };
 
 //* Globales variables
@@ -149,9 +156,9 @@ void AT91F_ST_Handler(void)
 //*-----------------------------------------------------------------------------
 void AT91F_DisplayMenu(void)
 {
-	printf("\n\r\n\r");
+	printf("\n\r");
 	printf(menu_separ);
-	printf("%s %s\n\r", AT91C_NAME, AT91C_VERSION);
+	printf("%s %s", AT91C_NAME, AT91C_VERSION);
 	printf(menu_separ);
 	printf(menu_dataflash);
 	printf(menu_separ);
@@ -290,117 +297,9 @@ void AT91F_StartUboot(unsigned int dummy, void *pvoid)
 	read_dataflash(AT91C_UBOOT_DATAFLASH_ADDR, AT91C_UBOOT_SIZE, (char *)(AT91C_UBOOT_ADDR));
 	printf("Start U-BOOT...\n\r");
 
-	// Reset registers
 	AT91F_ResetRegisters();
-
-	Jump(AT91C_UBOOT_ADDR);
+	__asm__("ldr pc, =0x21f00000");
 }
-
-void memory_test(unsigned int pattern_number)
-{
-	static const unsigned int bitpattern[] =
-	{
-			/*0x00000001,	/* single bit */
-			/*0x00000003,	/* two adjacent bits */
-			/*0x00000007,	/* three adjacent bits */
-			/*0x0000000F,	/* four adjacent bits */
-			/*0x00000005,	/* two non-adjacent bits */
-			/*0x00000015,	/* three non-adjacent bits */
-			/*0x00000055,	/* four non-adjacent bits */
-			/*0xaaaaaaaa,	/* alternating 1/0 */
-			0x00000000,
-			0x11111111,
-			0x33333333,
-			0x55555555,
-			0x0f0f0f0f,
-			0x00ff00ff,
-	};
-	int i;
-	unsigned int pattern, addr, val, incr, readback;
-	unsigned int start_addr = AT91C_SDRAM_BASE_ADDRESS;
-	unsigned int end_addr = AT91C_SDRAM_BASE_ADDRESS + AT91C_SDRAM_SIZE;
-	char test_result;
-
-	int pattern_count = sizeof(bitpattern) / sizeof(unsigned int);
-
-	if (pattern_number > pattern_count)
-	{
-		printf("Unsupported test %d\n\r", pattern);
-		return;
-	}
-
-	if (pattern_number == 0)
-	{
-		printf("Performing full memory test\n\r");
-		for (i = 1; i <= pattern_count; i++)
-		{
-			memory_test(i);
-		}
-
-		// return from test
-		return;
-	}
-
-	// select proper bit pattern
-	pattern = bitpattern[pattern_number - 1];
-
-	printf ("* Memory test number %d: \n\r", pattern_number);
-	incr = 1;
-
-	// for each pattern do 2 tests with different variations
-	for (i = 0; i < 2; i++)
-	{
-		printf("  - testing pattern 0x%8x", pattern);
-
-		test_result = 0;
-
-		for (addr = start_addr, val = pattern; addr < end_addr; addr+=4)
-		{
-			*(unsigned int *)addr = val;
-			val  += incr;
-		}
-
-		for (addr=start_addr, val = pattern; addr < end_addr; addr+=4)
-		{
-			readback = *(unsigned int *)addr;
-			if (readback != val)
-			{
-				// if this is the first error
-				if (test_result == 0)
-				{
-					printf(": FAILED");
-				}
-				printf ("\n\r    !!! Memory error at 0x%x: "
-					"found 0x%x, expected 0x%x !!!",
-					addr, readback, val);
-				test_result = 1;
-			}
-			val += incr;
-		}
-
-		if (test_result == 0)
-		{
-			printf(": OK\n\r");
-		}
-		else
-			printf("\n\r");
-
-		/*
-		 * Flip the pattern each time to make lots of zeros and
-		 * then, the next time, lots of ones.  We decrement
-		 * the "negative" patterns and increment the "positive"
-		 * patterns to preserve this feature.
-		 */
-		if(pattern & 0x80000000) {
-			pattern = -pattern;	/* complement & increment */
-		}
-		else {
-			pattern = ~pattern;
-		}
-		incr = -incr;
-	}
-}
-
 
 //*----------------------------------------------------------------------------
 //* Function Name       : main
@@ -452,8 +351,8 @@ int main(void)
 	//	DataFlash on SPI Configuration
 	AT91F_DataflashInit ();
 
-	// start tempo to start Uboot in a delay of 1.5 sec if no key pressed
-	svcUbootTempo.Start(&svcUbootTempo, 1500, 0, AT91F_StartUboot, (void *)0);
+	// start tempo to start Uboot in a delay of 1 sec if no key pressed
+	svcUbootTempo.Start(&svcUbootTempo, 1000, 0, AT91F_StartUboot, (void *)0);
 
 	printf("press any key to enter bootloader... ");
 	getc();
@@ -475,7 +374,7 @@ int main(void)
 			AT91F_ReadLine("Enter: ", message);
 
 			command = message[0];
-			if(command == '1' || command == '2' || command == '3' || command == '6')
+			if(command == '1' || command == '2' || command == '3')
 				if(AsciiToHex(&message[2], &arg) == 0)
 					command = 0;
 
@@ -534,18 +433,52 @@ int main(void)
 					command = 0;
 					break;
 
-				case '6':
-					printf("\n\r");
+				/*
+				 case '6':
 					printf(menu_separ);
-					memory_test(arg);
+					printf(menu_memory_test);
 					printf(menu_separ);
-					AT91F_WaitKeyPressed();
+
+					message[0] = 0;
+					message[2] = 0;
+
+					AT91F_ReadLine("Enter: ", message);
+					command = message[0];
+
+					switch(command)
+					{
+						case '1':
+							AT91F_MarchTest();
+							AT91F_WaitKeyPressed();
+							break;
+
+						case '2':
+							AT91F_AddressTest();
+							AT91F_WaitKeyPressed();
+							break;
+
+						case '3':
+							if(AsciiToHex(&message[2], &arg) == 0)
+								break;
+							AT91F_GallopingPatternTest(arg);
+							AT91F_WaitKeyPressed();
+							break;
+
+						default:
+							break;
+					}
+
 					command = 0;
 					break;
-				// Dataflash info
-				case '7':
-					printf("\n\r");
+				*/
+
+				// Dataflash and SDRAM info
+				case '6':
 					printf(menu_separ);
+					printf("SDRAM memory: %dMB @ %dMHz\n\r\n\r",
+						AT91C_SDRAM_SIZE/(1024*1024),
+						AT91C_MASTER_CLOCK/1000000);
+
 					AT91F_DataflashPrintInfo();
 					printf(menu_separ);
 					AT91F_WaitKeyPressed();
@@ -553,13 +486,12 @@ int main(void)
 					break;
 
 				// Bootloader info
-				case '8':
-					printf("\n\r");
+				case '7':
 					printf(menu_separ);
 					printf("%s %s\n\r", AT91C_NAME, AT91C_VERSION);
 					printf("Based on AT91RM9200-Loader gcc port\n\r");
 					printf("(http://www.open-research.org.uk/ARMuC/At91rm9200_Booting.html)\n\r");
-					printf("Modified by Kuba Odias, %s, %s\n\r", __DATE__, __TIME__);
+					printf("Modified by Kuba Odias, %s, %s", __DATE__, __TIME__);
 					printf(menu_separ);
 					AT91F_WaitKeyPressed();
 					command = 0;
