@@ -55,14 +55,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if defined(CONFIG_CMD_NAND)
-void nand_init (void);
-#endif
-
-#if defined(CONFIG_CMD_ONENAND)
-void onenand_init(void);
-#endif
-
 ulong monitor_flash_len;
 
 #ifdef CONFIG_HAS_DATAFLASH
@@ -303,12 +295,6 @@ void start_armboot (void)
 		}
 	}
 
-#ifndef CFG_NO_FLASH
-	/* configure available FLASH banks */
-	size = flash_init ();
-	display_flash_config (size);
-#endif /* CFG_NO_FLASH */
-
 #ifdef CONFIG_VFD
 #	ifndef PAGE_SIZE
 #	  define PAGE_SIZE 4096
@@ -337,15 +323,6 @@ void start_armboot (void)
 
 	/* armboot_start is defined in the board-specific linker script */
 	mem_malloc_init (_armboot_start - CFG_MALLOC_LEN);
-
-#if defined(CONFIG_CMD_NAND)
-	puts ("NAND:  ");
-	nand_init();		/* go init the NAND */
-#endif
-
-#if defined(CONFIG_CMD_ONENAND)
-	onenand_init();
-#endif
 
 #ifdef CONFIG_HAS_DATAFLASH
 	AT91F_DataflashInit();

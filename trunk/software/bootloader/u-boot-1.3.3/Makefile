@@ -197,16 +197,6 @@ SUBDIRS	= tools \
 
 .PHONY : $(SUBDIRS)
 
-ifeq ($(CONFIG_NAND_U_BOOT),y)
-NAND_SPL = nand_spl
-U_BOOT_NAND = $(obj)u-boot-nand.bin
-endif
-
-ifeq ($(CONFIG_ONENAND_U_BOOT),y)
-ONENAND_IPL = onenand_ipl
-U_BOOT_ONENAND = $(obj)u-boot-onenand.bin
-endif
-
 __OBJS := $(subst $(obj),,$(OBJS))
 __LIBS := $(subst $(obj),,$(LIBS)) $(subst $(obj),,$(LIBBOARD))
 
@@ -272,20 +262,6 @@ $(SUBDIRS):	depend $(obj)include/autoconf.mk
 
 $(LDSCRIPT):	depend $(obj)include/autoconf.mk
 		$(MAKE) -C $(dir $@) $(notdir $@)
-
-$(NAND_SPL):	$(VERSION_FILE)	$(obj)include/autoconf.mk
-		$(MAKE) -C nand_spl/board/$(BOARDDIR) all
-
-$(U_BOOT_NAND):	$(NAND_SPL) $(obj)u-boot.bin $(obj)include/autoconf.mk
-		cat $(obj)nand_spl/u-boot-spl-16k.bin $(obj)u-boot.bin > $(obj)u-boot-nand.bin
-
-$(ONENAND_IPL):	$(VERSION_FILE)	$(obj)include/autoconf.mk
-		$(MAKE) -C $(obj)onenand_ipl/board/$(BOARDDIR) all
-
-$(U_BOOT_ONENAND):	$(ONENAND_IPL) $(obj)u-boot.bin $(obj)include/autoconf.mk
-		$(MAKE) -C $(obj)onenand_ipl/board/$(BOARDDIR) all
-		cat $(obj)onenand_ipl/onenand-ipl-2k.bin $(obj)u-boot.bin > $(obj)u-boot-onenand.bin
-		cat $(obj)onenand_ipl/onenand-ipl-4k.bin $(obj)u-boot.bin > $(obj)u-boot-flexonenand.bin
 
 $(VERSION_FILE):
 		@( printf '#define U_BOOT_VERSION "U-Boot %s%s"\n' "$(U_BOOT_VERSION)" \

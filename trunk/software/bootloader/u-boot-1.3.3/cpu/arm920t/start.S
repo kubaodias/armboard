@@ -116,8 +116,8 @@ start_code:
 	orr	r0,r0,#0xd3
 	msr	cpsr,r0
 
-	bl coloured_LED_init
-	/* bl red_LED_on */
+	/* bl coloured_LED_init
+	bl red_LED_on */
 
 #if	defined(CONFIG_AT91RM9200DK) || defined(CONFIG_AT91RM9200EK) || defined(CONFIG_AT91RM9200DF)
 	/*
@@ -215,7 +215,7 @@ cpu_init_crit:
 	bic	r0, r0, #0x00002300	@ clear bits 13, 9:8 (--V- --RS)
 	bic	r0, r0, #0x00000087	@ clear bits 7, 2:0 (B--- -CAM)
 	orr	r0, r0, #0x00000002	@ set bit 2 (A) Align
-	orr	r0, r0, #0x00001000	@ set bit 12 (I) I-Cache
+	// orr	r0, r0, #0x00001000	@ set bit 12 (I) I-Cache
 	mcr	p15, 0, r0, c1, c0, 0
 
 	/*

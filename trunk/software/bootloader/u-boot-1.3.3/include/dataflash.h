@@ -38,7 +38,7 @@
 #include "config.h"
 
 /*number of protected area*/
-#define NB_DATAFLASH_AREA		5
+#define NB_DATAFLASH_AREA		3
 
 #ifdef CFG_NO_FLASH
 
@@ -136,6 +136,7 @@ struct dataflash_addr {
 };
 /*-------------------------------------------------------------------------------------------------*/
 
+#define AT45DB041	0x1c
 #define AT45DB161	0x2c
 #define AT45DB321	0x34
 #define AT45DB642	0x3c
