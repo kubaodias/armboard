@@ -27,13 +27,13 @@
 #define __CONFIG_H
 
 /* SKIP LOWLEVEL INIT */
-#ifndef CONFIG_SKIP_LOWLEVEL_INIT
-#define CONFIG_SKIP_LOWLEVEL_INIT 1
-#endif
+//#ifndef CONFIG_SKIP_LOWLEVEL_INIT
+//#define CONFIG_SKIP_LOWLEVEL_INIT 1
+//#endif
 
 /* ARM asynchronous clock */
 #define AT91C_MAIN_CLOCK	179712000	/* from 18.432 MHz crystal (18432000 / 4 * 39) */
-#define AT91C_MASTER_CLOCK	59904000	/* peripheral clock (AT91C_MASTER_CLOCK / 3) */
+#define AT91C_MASTER_CLOCK	89856000	/* peripheral clock (AT91C_MASTER_CLOCK / 2) */
 /* #define AT91C_MASTER_CLOCK	44928000 */	/* peripheral clock (AT91C_MASTER_CLOCK / 4) */
 
 #define AT91_SLOW_CLOCK		32768	/* slow clock */
@@ -157,21 +157,12 @@
 #define CFG_FLASH_ERASE_TOUT		(2*CFG_HZ) /* Timeout for Flash Erase */
 #define CFG_FLASH_WRITE_TOUT		(2*CFG_HZ) /* Timeout for Flash Write */
 
-#undef	CFG_ENV_IS_IN_DATAFLASH
+#define	CFG_ENV_IS_IN_DATAFLASH
 
 #ifdef CFG_ENV_IS_IN_DATAFLASH
-#define CFG_ENV_OFFSET			0x20000
+#define CFG_ENV_OFFSET			0x4000
 #define CFG_ENV_ADDR			(CFG_DATAFLASH_LOGIC_ADDR_CS0 + CFG_ENV_OFFSET)
-#define CFG_ENV_SIZE			0x2000  /* 0x8000 */
-#else
-#define CFG_ENV_IS_IN_FLASH		1
-#ifdef CONFIG_SKIP_LOWLEVEL_INIT
-#define CFG_ENV_ADDR			(PHYS_FLASH_1 + 0xe000)  /* between boot.bin and u-boot.bin.gz */
-#define CFG_ENV_SIZE			0x2000  /* 0x8000 */
-#else
-#define CFG_ENV_ADDR			(PHYS_FLASH_1 + 0x60000)  /* after u-boot.bin */
-#define CFG_ENV_SIZE			0x10000 /* sectors are 64K here */
-#endif	/* CONFIG_SKIP_LOWLEVEL_INIT */
+#define CFG_ENV_SIZE			0x4000
 #endif	/* CFG_ENV_IS_IN_DATAFLASH */
 
 

@@ -60,7 +60,6 @@ COBJS-$(CONFIG_CMD_FAT) += cmd_fat.o
 COBJS-y += cmd_fdc.o
 COBJS-$(CONFIG_OF_LIBFDT) += cmd_fdt.o fdt_support.o
 COBJS-$(CONFIG_CMD_FDOS) += cmd_fdos.o
-COBJS-$(CONFIG_CMD_FLASH) += cmd_flash.o
 ifdef CONFIG_FPGA
 COBJS-$(CONFIG_CMD_FPGA) += cmd_fpga.o
 endif
@@ -75,10 +74,8 @@ COBJS-y += cmd_mem.o
 COBJS-$(CONFIG_CMD_MII) += cmd_mii.o
 COBJS-$(CONFIG_CMD_MISC) += cmd_misc.o
 COBJS-$(CONFIG_CMD_MMC) += cmd_mmc.o
-COBJS-y += cmd_nand.o
 COBJS-$(CONFIG_CMD_NET) += cmd_net.o
 COBJS-y += cmd_nvedit.o
-COBJS-y += cmd_onenand.o
 COBJS-$(CONFIG_CMD_OTP) += cmd_otp.o
 ifdef CONFIG_PCI
 COBJS-$(CONFIG_CMD_PCI) += cmd_pci.o
@@ -103,15 +100,11 @@ COBJS-y += dlmalloc.o
 COBJS-y += docecc.o
 COBJS-y += environment.o
 COBJS-y += env_common.o
-COBJS-y += env_nand.o
 COBJS-y += env_dataflash.o
-COBJS-y += env_flash.o
 COBJS-y += env_eeprom.o
-COBJS-y += env_onenand.o
 COBJS-y += env_nvram.o
 COBJS-y += env_nowhere.o
 COBJS-y += exports.o
-COBJS-y += flash.o
 COBJS-y += ft_build.o
 COBJS-y += hush.o
 COBJS-y += kgdb.o

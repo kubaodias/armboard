@@ -54,6 +54,18 @@ int AT91F_DataflashInit (void)
 				&dataflash_info[i].Desc);
 
 		switch (dfcode) {
+		case AT45DB041:
+			dataflash_info[i].Device.pages_number = 2048;
+			dataflash_info[i].Device.pages_size = 264;
+			dataflash_info[i].Device.page_offset = 9;
+			dataflash_info[i].Device.byte_mask = 0x100;
+			dataflash_info[i].Device.cs = cs[i].cs;
+			dataflash_info[i].Desc.DataFlash_state = IDLE;
+			dataflash_info[i].logical_address = cs[i].addr;
+			dataflash_info[i].id = dfcode;
+			found[i] += dfcode;;
+			break;
+
 		case AT45DB161:
 			dataflash_info[i].Device.pages_number = 4096;
 			dataflash_info[i].Device.pages_size = 528;
@@ -178,6 +190,10 @@ void dataflash_print_info (void)
 		if (dataflash_info[i].id != 0) {
 			printf("DataFlash:");
 			switch (dataflash_info[i].id) {
+			case AT45DB041:
+				printf("AT45DB041\n");
+				break;
+
 			case AT45DB161:
 				printf("AT45DB161\n");
 				break;
@@ -207,7 +223,7 @@ void dataflash_print_info (void)
 				switch(dataflash_info[i].Device.area_list[j].protected) {
 				case	FLAG_PROTECT_SET:
 				case	FLAG_PROTECT_CLEAR:
-					printf("Area %i:\t%08lX to %08lX %s", j,
+					printf("Area %i:  0x%8X to 0x%8X %s", j,
 						dataflash_info[i].Device.area_list[j].start,
 						dataflash_info[i].Device.area_list[j].end,
 						(dataflash_info[i].Device.area_list[j].protected==FLAG_PROTECT_SET) ? "(RO)" : "    ");
