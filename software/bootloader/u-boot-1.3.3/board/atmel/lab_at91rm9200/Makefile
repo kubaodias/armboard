@@ -25,7 +25,7 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(BOARD).a
 
-COBJS	:= lab_at91rm9200.o led.o mux.o partition.o
+COBJS	:= lab_at91rm9200.o flash.o led.o mux.o partition.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
