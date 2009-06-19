@@ -26,15 +26,9 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-/* SKIP LOWLEVEL INIT */
-//#ifndef CONFIG_SKIP_LOWLEVEL_INIT
-//#define CONFIG_SKIP_LOWLEVEL_INIT 1
-//#endif
-
 /* ARM asynchronous clock */
 #define AT91C_MAIN_CLOCK	179712000	/* from 18.432 MHz crystal (18432000 / 4 * 39) */
 #define AT91C_MASTER_CLOCK	89856000	/* peripheral clock (AT91C_MASTER_CLOCK / 2) */
-/* #define AT91C_MASTER_CLOCK	44928000 */	/* peripheral clock (AT91C_MASTER_CLOCK / 4) */
 
 #define AT91_SLOW_CLOCK		32768	/* slow clock */
 
