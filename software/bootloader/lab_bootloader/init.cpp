@@ -116,8 +116,8 @@ void AT91F_SetClocks(void)
 	tmp = 0;
 	while(!(pPmc->PMC_SR & AT91C_PMC_LOCKB) && (tmp++ < DELAY_MAIN_FREQ));
 
-	// processor clock is a PLLA clock, MCK is 3 timer slower
-	pPmc->PMC_MCKR = AT91C_PMC_CSS_PLLA_CLK | AT91C_PMC_PRES_CLK | AT91C_PMC_MDIV_3;
+	// processor clock is a PLLA clock, MCK is 2 timer slower
+	pPmc->PMC_MCKR = AT91C_PMC_CSS_PLLA_CLK | AT91C_PMC_PRES_CLK | AT91C_PMC_MDIV_2;
 }
 
 //*--------------------------------------------------------------------------------------
@@ -130,6 +130,7 @@ void AT91F_InitSdram()
 {
 	int *pRegister;
 	AT91PS_SDRC pSdrc = AT91C_BASE_SDRC;
+	int i;
 
 	//  Configure PIOC as peripheral (D16/D31)
 	AT91F_PIO_CfgPeriph(
@@ -143,7 +144,7 @@ void AT91F_InitSdram()
 	// 8 TRC, 1 TRP, 1 TRCD, 8 TRAS, 4 TXSR
 	// dlharmon - 0x2188A159 - 4 TRC, 2 TWR, 2 CAS, 4 banks, 13 rows, 9 columns
 	// my config is the same as in dlharmon
-	pSdrc->SDRC_CR = 0x2188A159;
+	/*pSdrc->SDRC_CR = 0x2188A159;
 
 	// all banks precharge
 	pSdrc->SDRC_MR = AT91C_SDRC_MODE_PRCGALL_CMD;
@@ -177,6 +178,46 @@ void AT91F_InitSdram()
 
 	pRegister = (int *)AT91C_SDRAM_BASE_ADDRESS;
 	*pRegister = 0;
+
+	// normal mode
+	pSdrc->SDRC_MR = AT91C_SDRC_MODE_NORMAL_CMD;
+
+	pRegister = (int *)AT91C_SDRAM_BASE_ADDRESS;
+	*pRegister = 0;*/
+
+	// Init SDRAM
+	// based on AT91Bootstrap for AT91SAM9260
+	/* 9 columns, 13 rows, 2 CAS, 4 banks, 32 bits,
+	 * 2 TWR, 7 TRC, 2 TRP, 2 TRCD, 5 TRAS, 8 TXSR
+	 */
+	pSdrc->SDRC_CR = 0x42913959;
+
+	for (i =0; i< 1000;i++);
+
+	// precharge all
+	pSdrc->SDRC_MR = AT91C_SDRC_MODE_PRCGALL_CMD;
+
+	pRegister = (int *)AT91C_SDRAM_BASE_ADDRESS;
+	*pRegister = 0;
+
+	for (i =0; i< 10000;i++);
+
+	for (i = 0; i < 8; i++)
+	{
+		// refresh command
+		pSdrc->SDRC_MR = AT91C_SDRC_MODE_RFSH_CMD;
+		pRegister = (int *)(AT91C_SDRAM_BASE_ADDRESS + i * 4);
+		*pRegister = i;
+	}
+
+	// load mode register
+	pSdrc->SDRC_MR = AT91C_SDRC_MODE_LMR_CMD;
+
+	pRegister = (int *)(AT91C_SDRAM_BASE_ADDRESS + 0x24);
+	*pRegister = 0xcafedede;	// Perform LMR burst=1, lat=2
+
+	// MCK * 7 / 1000000
+	pSdrc->SDRC_TR = 0x1a4;
 
 	// normal mode
 	pSdrc->SDRC_MR = AT91C_SDRC_MODE_NORMAL_CMD;

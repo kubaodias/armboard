@@ -192,17 +192,17 @@ unsigned int AsciiToHex(char *s, unsigned int *val)
 
 //*-----------------------------------------------------------------------------
 //* Function Name       : AT91F_MemoryDisplay()
-//* Object              : Display the content of the dataflash
+//* Object              : Display the content of the memory
 //* Input Parameters    :
 //* Return value		:
 //*-----------------------------------------------------------------------------
-int AT91F_MemoryDisplay(unsigned int addr, unsigned int size, unsigned int length)
+int AT91F_MemoryDisplay(unsigned int addr, unsigned int size, unsigned int length, bool is_dataflash)
 {
-	unsigned long	i, nbytes, linebytes;
-	char	*cp;
+	unsigned long i, nbytes, linebytes;
+	char *cp;
 	unsigned int 	*uip;
-	unsigned short 	*usp;
-	unsigned char 	*ucp;
+	unsigned short *usp;
+	unsigned char *ucp;
 	char linebuf[DISP_LINE_LEN];
 
 	nbytes = length * size;
@@ -215,11 +215,19 @@ int AT91F_MemoryDisplay(unsigned int addr, unsigned int size, unsigned int lengt
 		printf("%08x:", addr);
 		linebytes = (nbytes > DISP_LINE_LEN)?DISP_LINE_LEN:nbytes;
 
-		for (i = 0; i < (linebytes/size)*size; i++)
+		if (is_dataflash == true)
 		{
-			linebuf[i] = *((char *)(addr + i));
+			read_dataflash(addr, (linebytes/size)*size, linebuf);
 		}
-		for (i=0; i<linebytes; i+= size)
+		else
+		{
+			for (i = 0; i < (linebytes/size)*size; i++)
+			{
+				linebuf[i] = *((char *)(addr + i));
+			}
+		}
+
+		for (i=0; i < linebytes; i+= size)
 		{
 			if (size == 4)
 				printf(" %08x", *uip++);
@@ -246,61 +254,6 @@ int AT91F_MemoryDisplay(unsigned int addr, unsigned int size, unsigned int lengt
 
 	return 0;
 }
-
-//*-----------------------------------------------------------------------------
-//* Function Name       : AT91F_DataflashMemoryDisplay()
-//* Object              : Display the content of the dataflash
-//* Input Parameters    :
-//* Return value		:
-//*-----------------------------------------------------------------------------
-int AT91F_DataflashMemoryDisplay(unsigned int addr, unsigned int size, unsigned int length)
-{
-	unsigned long	i, nbytes, linebytes;
-	char	*cp;
-	unsigned int 	*uip;
-	unsigned short 	*usp;
-	unsigned char 	*ucp;
-	char linebuf[DISP_LINE_LEN];
-
-	nbytes = length * size;
-	do
-	{
-		uip = (unsigned int *)linebuf;
-		usp = (unsigned short *)linebuf;
-		ucp = (unsigned char *)linebuf;
-
-		printf("%08x:", addr);
-		linebytes = (nbytes > DISP_LINE_LEN)?DISP_LINE_LEN:nbytes;
-
-		read_dataflash(addr, (linebytes/size)*size, linebuf);
-		for (i=0; i<linebytes; i+= size)
-		{
-			if (size == 4)
-				printf(" %08x", *uip++);
-			else if (size == 2)
-				printf(" %04x", *usp++);
-			else
-				printf(" %02x", *ucp++);
-			addr += size;
-		}
-		printf("    ");
-		cp = linebuf;
-		for (i=0; i<linebytes; i++)
-		{
-			if ((*cp < 0x20) || (*cp > 0x7e))
-				printf("..");
-			else
-				printf("%c ", *cp);
-			cp++;
-		}
-		printf("\n\r");
-		nbytes -= linebytes;
-	}
-	while (nbytes > 0);
-
-	return 0;
-}
-
 
 //*--------------------------------------------------------------------------------------
 //* Function Name       : AT91F_ResetRegisters
@@ -336,8 +289,10 @@ void AT91F_StartUboot(unsigned int dummy, void *pvoid)
 	printf("Load U-BOOT from dataflash[0x%x] to SDRAM[0x%x]\n\r", AT91C_UBOOT_DATAFLASH_ADDR, AT91C_UBOOT_ADDR);
 	read_dataflash(AT91C_UBOOT_DATAFLASH_ADDR, AT91C_UBOOT_SIZE, (char *)(AT91C_UBOOT_ADDR));
 	printf("Start U-BOOT...\n\r");
+
 	// Reset registers
 	AT91F_ResetRegisters();
+
 	Jump(AT91C_UBOOT_ADDR);
 }
 
@@ -533,7 +488,7 @@ int main(void)
 				case '2':
 					do
 					{
-						AT91F_MemoryDisplay(arg, 4, 64);
+						AT91F_MemoryDisplay(arg, 4, 64, false);
 						AT91F_ReadLine ((char *)0, message);
 						arg += 0x100;
 					}
@@ -544,7 +499,7 @@ int main(void)
 				case '3':
 					do
 					{
-						AT91F_DataflashMemoryDisplay(arg, 4, 64);
+						AT91F_MemoryDisplay(arg, 4, 64, true);
 						AT91F_ReadLine ((char *)0, message);
 						arg += 0x100;
 					}

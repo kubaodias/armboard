@@ -21,7 +21,6 @@
 
 #define AT91C_SPI_CLK 8000000
 #define AT91C_SPI_PCS0_SERIAL_DATAFLASH	0xE     /* Chip Select 0 : NPCS0 %1110 */
-#define AT91C_SPI_PCS3_DATAFLASH_CARD		0x7     /* Chip Select 3 : NPCS3 %0111 */
 
 /*----------------------------------------------------------------------------*/
 /* \fn    AT91F_SpiInit						      							  */
@@ -614,5 +613,3 @@ int AT91F_DataflashProbe(AT91PS_DataflashDesc pDesc)
    	AT91F_DataFlashGetStatus(pDesc);
    	return ((pDesc->command[1] == 0xFF)? 0: (pDesc->command[1] & 0x3C));
 }
-
-

@@ -1,4 +1,4 @@
 .global		Jump
-	
-Jump:		mov pc, r0				
+
+Jump:		mov pc, r0
 
