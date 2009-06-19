@@ -223,7 +223,7 @@ void dataflash_print_info (void)
 				switch(dataflash_info[i].Device.area_list[j].protected) {
 				case	FLAG_PROTECT_SET:
 				case	FLAG_PROTECT_CLEAR:
-					printf("Area %i:  0x%8X to 0x%8X %s", j,
+					printf("Area %i:   0x%08lX to 0x%08lX %s", j,
 						dataflash_info[i].Device.area_list[j].start,
 						dataflash_info[i].Device.area_list[j].end,
 						(dataflash_info[i].Device.area_list[j].protected==FLAG_PROTECT_SET) ? "(RO)" : "    ");
