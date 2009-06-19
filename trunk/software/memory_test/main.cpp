@@ -29,10 +29,10 @@ const char *menu_dataflash =
 {
 	"1. Read data from memory [addr]\n\r"
 	"2. Clear memory\n\r"
-	"3. GALloping PATtern (ping-pong) test\n\r"
+	"3. GALloping PATtern (ping-pong) test [start address]\n\r"
 	"4. March test [access size]\n\r"
-	"7. Address test [access size]\n\r"
-	"9. Memory test info\n\r"
+	"5. Address test [access size]\n\r"
+	"6. Memory test info\n\r"
 };
 
 //* Globales variables
@@ -234,24 +234,31 @@ void AT91F_ClearSDRAM()
  * It is effective for finding cell opens, shorts, address uniqueness faults,
  * sense amplifier interaction, and access time problems.
  */
-void AT91F_GallopingPatternTest()
+void AT91F_GallopingPatternTest(unsigned int start_addr)
 {
 	unsigned int test_addr, addr, val, readback;
-	unsigned int start_addr = AT91C_SDRAM_BASE_ADDRESS;
 	unsigned int end_addr = AT91C_SDRAM_BASE_ADDRESS + AT91C_SDRAM_SIZE;
 	unsigned char test_result = 0;
 
-	printf("\n\rPerforming memory GALloping PATtern test");
-	AT91F_ClearSDRAM();
-	for (test_addr = start_addr; test_addr < end_addr; test_addr += 4)
+	if ((start_addr < AT91C_SDRAM_BASE_ADDRESS) || (start_addr >= end_addr))
 	{
+		start_addr = AT91C_SDRAM_BASE_ADDRESS;
+	}
+
+	printf("\n\rPerforming memory GALloping PATtern test for 1kB area starting at 0x%8x", start_addr);
+	AT91F_ClearSDRAM();
+	for (test_addr = start_addr; test_addr < end_addr, test_addr - start_addr < 0x400; test_addr += 4)
+	{
+		printf("\n\r  * testing 0x%8x", test_addr);
+
 		// complement test cell
 		val = *(unsigned int *)test_addr;
 		*(unsigned int *)test_addr = ~val;
 
-		for (addr = start_addr; addr < end_addr; addr += 4)
+		// check against each memory cell
+		for (addr = AT91C_SDRAM_BASE_ADDRESS; addr < end_addr; addr += 4)
 		{
-			// read each memory cell
+			// test cell have unique value written in it
 			if (addr == test_addr)
 			{
 				readback = *(unsigned int *)addr;
@@ -259,9 +266,9 @@ void AT91F_GallopingPatternTest()
 				{
 					if (test_result == 0)
 					{
-						printf("\n\rFAILED:");
+						printf(": FAILED");
 					}
-					printf ("\n\r  Memory error at 0x%x: "
+					printf ("\n\r    - Memory error at 0x%x: "
 						"found 0x%x, expected 0x%x !!!",
 						addr, readback, ~val);
 					test_result = 1;
@@ -274,9 +281,9 @@ void AT91F_GallopingPatternTest()
 				{
 					if (test_result == 0)
 					{
-						printf("\n\rFAILED:");
+						printf(": FAILED");
 					}
-					printf ("\n\r  Memory error at 0x%x: "
+					printf ("\n\r    - Memory error at 0x%x: "
 						"found 0x%x, expected 0x%x !!!",
 						addr, readback, 0);
 					test_result = 1;
@@ -289,9 +296,9 @@ void AT91F_GallopingPatternTest()
 			{
 				if (test_result == 0)
 				{
-					printf("\n\rFAILED:");
+					printf(": FAILED");
 				}
-				printf ("\n\r  Memory error at 0x%x: "
+				printf ("\n\r    - Memory error at 0x%x: "
 					"found 0x%x, expected 0x%x !!!",
 					addr, readback, ~val);
 				test_result = 1;
@@ -301,9 +308,6 @@ void AT91F_GallopingPatternTest()
 		// complement test cell
 		val = *(unsigned int *)test_addr;
 		*(unsigned int *)test_addr = ~val;
-
-		if (test_result == 0)
-			printf(" .");
 	}
 
 	if (test_result == 0)
@@ -311,7 +315,7 @@ void AT91F_GallopingPatternTest()
 		printf("\n\rOK\n\r");
 	}
 	else
-		printf("\n\r");
+		printf("\n\rTEST FAILED\n\r");
 }
 
 /* March, like most of the algorithms, begins by writing a background of zeroes.
@@ -506,15 +510,15 @@ int main(void)
 
 			case '2':
 				AT91F_ClearSDRAM();
-				printf("\n\rMemory successfully cleared.\n\r");
+				printf("\n\rMemory successfully cleared\n\r");
 				AT91F_WaitKeyPressed();
 				break;
 
 			case '3':
-				//if(AsciiToHex(&message[2], &arg) == 0)
-				//	break;
+				if(AsciiToHex(&message[2], &arg) == 0)
+					break;
 
-				AT91F_GallopingPatternTest();
+				AT91F_GallopingPatternTest(arg);
 				AT91F_WaitKeyPressed();
 				break;
 
@@ -526,7 +530,7 @@ int main(void)
 				AT91F_WaitKeyPressed();
 				break;
 
-			case '7':
+			case '5':
 				if(AsciiToHex(&message[2], &arg) == 0)
 					break;
 
@@ -535,7 +539,7 @@ int main(void)
 				break;
 
 			// memory test info
-			case '9':
+			case '6':
 				printf("\n\r");
 				printf(menu_separ);
 				printf("%s %s\n\r", AT91C_NAME, AT91C_VERSION);
