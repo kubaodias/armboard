@@ -26,7 +26,7 @@
 
 #define DELAY_MAIN_FREQ				  1000
 
-#define AT91C_MASTER_CLOCK              60000000
+#define AT91C_MASTER_CLOCK              90000000
 #define AT91C_BAUD_RATE                 115200
 
 #define AT91C_SDRAM_BASE_ADDRESS        0x20000000
