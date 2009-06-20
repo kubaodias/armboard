@@ -34,16 +34,16 @@ struct mmc_cid {
 
 struct mmc_csd
 {
-	u8	csd_structure;
-	u8	spec_vers;
-	u8	taac;
-	u8	nsac;
-	u8	tran_speed;
-	u16	ccc;
+	u8 csd_structure;
+	u8 spec_vers;
+	u8 taac;
+	u8 nsac;
+	u8 tran_speed;
+	u16 ccc;
 	u8 read_bl_len;
 	u8 read_bl_partial;
-    u8 write_blk_misalign;
-    u8 read_blk_misalign;
+    	u8 write_blk_misalign;
+    	u8 read_blk_misalign;
 	u8 dsr_imp;
 	u32 c_size;
 	u8 vdd_r_curr_min;      //Not exist in v2.0
@@ -62,9 +62,9 @@ struct mmc_csd
 	u8 perm_write_protect;
 	u8 tmp_write_protect;
 	u8 file_format;
-    u8 file_format_grp;
+    	u8 file_format_grp;
 	u8 ecc;
-	u8	crc;
+	u8 crc;
 };
 
 /* MMC Command numbers */
