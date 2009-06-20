@@ -203,7 +203,7 @@ __LIBS := $(subst $(obj),,$(LIBS)) $(subst $(obj),,$(LIBBOARD))
 #########################################################################
 #########################################################################
 
-ALL += $(obj)u-boot.srec $(obj)u-boot.bin $(obj)System.map
+ALL += $(obj)u-boot.srec $(obj)u-boot.bin $(obj)System.map $(obj)u-boot.dmp
 ifeq ($(ARCH),blackfin)
 ALL += $(obj)u-boot.ldr
 endif
@@ -218,6 +218,9 @@ $(obj)u-boot.srec:	$(obj)u-boot
 
 $(obj)u-boot.bin:	$(obj)u-boot
 		$(OBJCOPY) ${OBJCFLAGS} -O binary $< $@
+
+$(obj)u-boot.dmp:	$(obj)u-boot
+		$(OBJDUMP) -D $< > $@
 
 $(obj)u-boot.ldr:	$(obj)u-boot
 		$(LDR) -T $(CONFIG_BFIN_CPU) -f -c $@ $< $(LDR_FLAGS)

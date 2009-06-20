@@ -354,7 +354,7 @@ static void mmc_dump_csd(const struct mmc_csd *csd)
 	//printf("CSD data: %08lx %08lx %08lx %08lx\n",
 	 //      csd_raw[0], csd_raw[1], csd_raw[2], csd_raw[3]);
 	unsigned int card_capacity;
-    printf("CSD structure version:   1.%u\n", csd->csd_structure);
+    	printf("CSD structure version:   1.%u\n", csd->csd_structure);
 	printf("MMC System Spec version: %u\n", csd->spec_vers);
 	printf("Card command classes:    %03x\n", csd->ccc);
 	printf("Read block length:       %u\n", 1 << csd->read_bl_len);
@@ -372,16 +372,16 @@ static void mmc_dump_csd(const struct mmc_csd *csd)
 	else
 		puts("Does not support group WP\n");
 	if(csd->csd_structure==0)
-    {
-        card_capacity = (csd->c_size + 1) * (1 << (csd->c_size_mult + 2)) *
+	{
+		card_capacity = (csd->c_size + 1) * (1 << (csd->c_size_mult + 2)) *
                         (1 << csd->read_bl_len);
-        card_capacity /= (1024*1024);
-    }
-    else
-    {
-        card_capacity = csd->c_size/2;
-    }
-    printf("Card capacity:		%u MB\n",card_capacity);
+		card_capacity /= (1024*1024);
+    	}
+    	else
+    	{
+        	card_capacity = csd->c_size/2;
+    	}
+    	printf("Card capacity:		%u MB\n",card_capacity);
 	printf("File format:            %u/%u\n",
 	       csd->file_format_grp, csd->file_format);
 	puts("Write protection:        ");
@@ -444,46 +444,46 @@ static int sd_init_card(struct mmc_cid *cid, int verbose)
 static int sdhc_init_card(struct mmc_cid *cid, int verbose)
 {
     unsigned long resp[4];
-	int i, ret = 0;
+    int i, ret = 0;
 
-	mmc_idle_cards();
+    mmc_idle_cards();
 
-	ret = mmc_cmd(MMC_CMD_SD_SEND_IF_COND, 0x00000122, resp, R7 | NID);
-	if (ret || resp[0]!=0x122)
-		return ret;
+    ret = mmc_cmd(MMC_CMD_SD_SEND_IF_COND, 0x00000122, resp, R7 | NID);
+    if (ret || resp[0]!=0x122)
+	return ret;
 
     for (i = 0; i < 1000; i++) {
-		ret = mmc_acmd(MMC_ACMD_SD_SEND_OP_COND, 0x40000000 ,
-			       resp, R3 | NID);
-		if( ret==0 && (resp[0] & 0x80000000) && (resp[0] & 0x40000000)==0x40000000 )
-        {
-            mmc_card_is_sdhc = 1;
-            break;
-        }
-        if (ret || (resp[0] & 0x80000000))
-			break;
-		ret = -ETIMEDOUT;
-	}
+	ret = mmc_acmd(MMC_ACMD_SD_SEND_OP_COND, 0x40000000 ,
+	       resp, R3 | NID);
+	    if( ret==0 && (resp[0] & 0x80000000) && (resp[0] & 0x40000000)==0x40000000 )
+            {
+                mmc_card_is_sdhc = 1;
+                break;
+            }
+            if (ret || (resp[0] & 0x80000000))
+	        break;
+            ret = -ETIMEDOUT;
+    }
 
-	if (ret)
-		return ret;
+    if (ret)
+	return ret;
 
     ret = mmc_cmd(MMC_CMD_ALL_SEND_CID, 0, resp, R2 | NID);
-	if (ret)
-		return ret;
-	sd_parse_cid(cid, resp);
-	if (verbose)
-		mmc_dump_cid(cid);
+    if (ret)
+	return ret;
+    sd_parse_cid(cid, resp);
+    if (verbose)
+	mmc_dump_cid(cid);
 
-	/* Get RCA of the card that responded */
-	ret = mmc_cmd(MMC_CMD_SD_SEND_RELATIVE_ADDR, 0, resp, R6 | NCR);
-	if (ret)
-		return ret;
+    /* Get RCA of the card that responded */
+    ret = mmc_cmd(MMC_CMD_SD_SEND_RELATIVE_ADDR, 0, resp, R6 | NCR);
+    if (ret)
+	return ret;
 
-	mmc_rca = resp[0] >> 16;
-	if (verbose)
-		printf("SDv2/SDHC Card detected (RCA %u) SDHC flag %d\n", mmc_rca,mmc_card_is_sdhc);
-	mmc_card_is_sd = 1;
+    mmc_rca = resp[0] >> 16;
+    if (verbose)
+	printf("SDv2/SDHC Card detected (RCA %u) SDHC flag %d\n", mmc_rca,mmc_card_is_sdhc);
+    mmc_card_is_sd = 1;
     return 0;
 }
 
@@ -589,19 +589,19 @@ int mmc_init(int verbose)
 	mci_set_mode(CFG_MMC_CLK_OD, MMC_DEFAULT_BLKLEN);
 
 	mmc_card_is_sd = 0;
-    mmc_card_is_sdhc = 0;
-    ret = sdhc_init_card(&cid,verbose);
-    if(ret)
-    {
+        mmc_card_is_sdhc = 0;
+        ret = sdhc_init_card(&cid,verbose);
+        if(ret)
+        {
 	    ret = sd_init_card(&cid, verbose);
 	    if (ret) 
-        {
-		    mmc_rca = MMC_DEFAULT_RCA;
-		    ret = mmc_init_card(&cid, verbose);
-        }
+            {
+	        mmc_rca = MMC_DEFAULT_RCA;
+	        ret = mmc_init_card(&cid, verbose);
+            }
 	}
 	if (ret)
-		return ret;
+	    return ret;
 
 	/* Get CSD from the card */
 	ret = mmc_cmd(MMC_CMD_SEND_CSD, mmc_rca << 16, csd_raw, R2 | NCR);

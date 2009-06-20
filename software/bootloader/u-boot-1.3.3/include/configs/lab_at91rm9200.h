@@ -84,7 +84,7 @@
 #define CONFIG_CMD_NET
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_DHCP
-// #define CONFIG_CMD_MMC
+#define CONFIG_CMD_MMC
 // #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_PING
 
@@ -112,7 +112,6 @@
 #define DEBUG_ETHER
 #define CONFIG_DRIVER_ETHER
 #define CONFIG_NET_RETRY_COUNT		20
-// #define CONFIG_AT91C_USE_RMII
 #undef CONFIG_AT91C_USE_RMII
 
 #define CONFIG_MISC_INIT_R
@@ -122,7 +121,7 @@
 #define DATAFLASH_TCSS	(0xC << 16)
 #define DATAFLASH_TCHS	(0x1 << 24)
 
-// #define CONFIG_MMC
+#define CONFIG_MMC
 #define CONFIG_HAS_DATAFLASH		1
 
 #define CONFIG_NEW_PARTITION 		1
