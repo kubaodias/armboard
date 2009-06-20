@@ -26,7 +26,7 @@
 #include <common.h>
 #include <asm/arch/AT91RM9200.h>
 #include <at91rm9200_net.h>
-#include <dm9161.h>
+#include <ste100p.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -73,11 +73,41 @@ int dram_init (void)
  */
 void at91rm9200_GetPhyInterface(AT91PS_PhyOps p_phyops)
 {
-	p_phyops->Init = dm9161_InitPhy;
-	p_phyops->IsPhyConnected = dm9161_IsPhyConnected;
-	p_phyops->GetLinkSpeed = dm9161_GetLinkSpeed;
-	p_phyops->AutoNegotiate = dm9161_AutoNegotiate;
+	p_phyops->Init = ste100p_InitPhy;
+	p_phyops->IsPhyConnected = ste100p_IsPhyConnected;
+	p_phyops->GetLinkSpeed = ste100p_GetLinkSpeed;
+	p_phyops->AutoNegotiate = ste100p_AutoNegotiate;
 }
 
 #endif
 #endif	/* CONFIG_DRIVER_ETHER */
+
+/* Configure MAC address and init STE100P */
+#if defined(CONFIG_CMD_NET)
+#ifdef CONFIG_MISC_INIT_R
+int misc_init_r(void)
+{
+	int i;
+	char *tmp,*end;
+	tmp = getenv("ethaddr");
+	if (tmp==NULL)
+	{
+		printf("MAC address not set, networking is not operational\n");
+		return 0;
+	}
+	bd_t bd;
+	for (i=0; i<6; i++)
+	{
+		bd.bi_enetaddr[i] = tmp ? simple_strtoul(tmp, &end, 16) : 0;
+		if (tmp)
+			tmp = (*end) ? end+1 : end;
+	}
+	printf("Using MAC address %02X:%02X:%02X:%02X:%02X:%02X\n",
+	bd.bi_enetaddr[0],bd.bi_enetaddr[1],bd.bi_enetaddr[2],
+	bd.bi_enetaddr[3],bd.bi_enetaddr[4],bd.bi_enetaddr[5]);
+
+	return eth_init(&bd);
+}
+#endif
+#endif
+

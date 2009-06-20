@@ -25,7 +25,7 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(SOC).a
 
-COBJS	= bcm5221.o dm9161.o ether.o i2c.o interrupts.o \
+COBJS	= bcm5221.o ste100p.o ether.o i2c.o interrupts.o \
 	  lxt972.o serial.o usb.o spi.o
 SOBJS	= lowlevel_init.o
 
