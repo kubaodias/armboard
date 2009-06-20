@@ -422,6 +422,7 @@ clean:
 		\( -name 'core' -o -name '*.bak' -o -name '*~' \
 		-o -name '*.o'	-o -name '*.a'	\) -print \
 		| xargs rm -f
+	@rm -f $(obj) `find -iname '.depend'`
 
 clobber:	clean
 	@find $(OBJTREE) -type f \( -name .depend \

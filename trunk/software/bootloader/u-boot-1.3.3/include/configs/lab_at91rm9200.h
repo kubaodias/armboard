@@ -42,29 +42,6 @@
 #define CONFIG_SETUP_MEMORY_TAGS 1
 #define CONFIG_INITRD_TAG	1
 
-#ifndef CONFIG_SKIP_LOWLEVEL_INIT
-#define CFG_USE_MAIN_OSCILLATOR		1
-
-/* clocks */
-#define PLLAR_VAL	0x20263E04 /* 179.712000 MHz for PCK */
-#define PLLBR_VAL	0x10483E0E /* 48.054857 MHz (divider by 2 for USB) */
-#define MCKR_VAL	0x00000202 /* PCK/3 = MCK Master Clock = 59.904000MHz from PLLA */
-
-/* sdram */
-#define PIOC_ASR_VAL	0xFFFF0000 /* Configure PIOC as peripheral (D16/D31) */
-#define PIOC_BSR_VAL	0x00000000
-#define PIOC_PDR_VAL	0xFFFF0000
-#define EBI_CSA_VAL	0x00000002 /* CS1=SDRAM */
-#define SDRC_CR_VAL	0x2188c155 /* set up the SDRAM */
-#define SDRAM		0x20000000 /* address of the SDRAM */
-#define SDRAM1		0x20000080 /* address of the SDRAM */
-#define SDRAM_VAL	0x00000000 /* value written to SDRAM */
-#define SDRC_MR_VAL	0x00000002 /* Precharge All */
-#define SDRC_MR_VAL1	0x00000004 /* refresh */
-#define SDRC_MR_VAL2	0x00000003 /* Load Mode Register */
-#define SDRC_MR_VAL3	0x00000000 /* Normal Mode */
-#define SDRC_TR_VAL	0x000002E0 /* Write refresh rate */
-#endif	/* CONFIG_SKIP_LOWLEVEL_INIT */
 /*
  * Size of malloc() pool
  */
@@ -104,8 +81,12 @@
  */
 #include <config_cmd_default.h>
 
+#define CONFIG_CMD_NET
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_DHCP
+// #define CONFIG_CMD_MMC
+// #define CONFIG_CMD_EXT2
+#define CONFIG_CMD_PING
 
 #undef CONFIG_CMD_BDI
 #undef CONFIG_CMD_IMI
@@ -127,16 +108,29 @@
 #define CFG_MEMTEST_START		PHYS_SDRAM
 #define CFG_MEMTEST_END			CFG_MEMTEST_START + PHYS_SDRAM_SIZE - 262144
 
+// TODO: remove
+#define DEBUG_ETHER
 #define CONFIG_DRIVER_ETHER
 #define CONFIG_NET_RETRY_COUNT		20
-#define CONFIG_AT91C_USE_RMII
+// #define CONFIG_AT91C_USE_RMII
+#undef CONFIG_AT91C_USE_RMII
+
+#define CONFIG_MISC_INIT_R
 
 /* AC Characteristics */
 /* DLYBS = tCSS = 250ns min and DLYBCT = tCSH = 250ns */
 #define DATAFLASH_TCSS	(0xC << 16)
 #define DATAFLASH_TCHS	(0x1 << 24)
 
+// #define CONFIG_MMC
 #define CONFIG_HAS_DATAFLASH		1
+
+#define CONFIG_NEW_PARTITION 		1
+#define	CONFIG_NEW_DF_PARTITION 	1
+#define CONFIG_DOS_PARTITION        	1
+#define CONFIG_ISO_PARTITION        	1
+
+
 #define CFG_SPI_WRITE_TOUT		(5*CFG_HZ)
 #define CFG_MAX_DATAFLASH_BANKS		1
 #define CFG_MAX_DATAFLASH_PAGES		16384
