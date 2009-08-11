@@ -1,0 +1,132 @@
+\documentclass[a4paper]{report}
+
+\usepackage[polish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[OT4]{fontenc}
+\usepackage{tabularx}
+\usepackage{geometry}
+\usepackage[pdftex]{graphicx}
+\usepackage[T1]{fontenc}
+\usepackage{listings}
+
+\geometry{verbose,a4paper,tmargin=2.5cm,bmargin=2.5cm,lmargin=3cm,rmargin=2.5cm}
+
+\linespread{1.3}
+
+\pagestyle{empty}
+
+\bibliographystyle{plain}
+
+\author{Jakub Odias}
+\title{Konstrukcja platformy sprzętowej dla potrzeb wbudowanego systemu Linux}
+
+\begin{document}
+	{\fontfamily{phv}\selectfont
+	\begin{titlepage}
+		\vspace*{20pt}
+		\begin{figure}[htp]
+			\begin{center}
+				\includegraphics[scale=0.25]{img/polsl.png}
+			\end{center}
+		\end{figure}
+
+		\vspace{10pt}
+		\begin{center}
+			
+			\LARGE{\textbf{P}}\Large{\textbf{OLITECHNIKA}}\LARGE{\textbf{ Ś}}\Large{\textbf{LĄSKA}}\\
+
+			\vspace{12pt}
+			
+			\LARGE{\textbf{W}}\Large{\textbf{YDZIAŁ }}\LARGE{\textbf{A}}\Large{\textbf{UTOMATYKI, }}\LARGE{\textbf{E}}\Large{\textbf{LEKTRONIKI I }}\LARGE{\textbf{I}}\Large{\textbf{NFORMATYKI}}\\
+
+			\vspace{80pt}
+			
+			\LARGE{Praca dyplomowa magisterska}
+			
+			\vspace{40pt}
+			
+			\Large{Konstrukcja platformy sprzętowej dla potrzeb \\wbudowanego systemu Linux}
+		\end{center}
+		\vspace{90pt}
+		
+		\begin{flushleft}
+			\Large{Autor: Jakub Odias}\\
+			\vspace{5pt}
+			\Large{Kierujący pracą: dr inż. Krzysztof Tokarz}\\
+
+			\vspace{110pt}
+			\large{Gliwice, sierpień 2009}
+		\end{flushleft}
+	\end{titlepage}}
+
+	\tableofcontents
+	
+	\newpage
+	\chapter{Wstęp}
+		\section{Wprowadzenie}
+		\section{Wbudowany Linux}
+		\section{Platforma sprzętowa}
+		\section{Cel pracy}
+			Celem niniejszej pracy magisterskiej jest konstrukcja platformy sprzętowej dostosowanej do potrzeb wbudowanego systemu Linux (Embedded Linux). Platforma ma mieć mozliwość podłączenia pamięci masowych typu Compact  Flash lub dysk IDE, wyświetlaczy graficznych LCD, urządzeń USB oraz sieci Ethernet.\\
+			TODO: Moim zadaniem było zaprojektowanie oraz wykonanie części sprzętowej projektu, spełniającej powyższe wymagania, a następnie zapoznanie się z wbudowaną wersją systemu Linux i jej implementacja na gotowym układzie.\\
+
+		\section{Przykładowe implementacje}
+
+	\chapter{Część sprzętowa}
+		\section{Wprowadzenie}
+		\section{Mikroprocesor}
+			\subsection{Wymagania}
+			\subsection{Porównanie dostępnych układów}
+		\section{Nośniki pamięci}
+			\subsection{Pamięć SDRAM}			
+			\subsection{Pamięć NAND i NOR Flash}
+				
+			\subsection{Pamięć Serial Dataflash}
+			\subsection{Karty pamięci}
+		\section{Standard sieciowy Ethernet}
+		\section{Standard transmisji USB}
+			\subsection{Host USB}
+			
+			\subsection{Urządzenie USB}Mikroprocesor AT91RM9200 może pełnić rolę urządzenia USB poprzez użycie pinów DDM i DDP. Możliwe jest wtedy podłączenie np. do komputera klasy PC, który działa w trybie hosta. Niestety, z powodu braku wystarczającej ilości miejsca na płytce drukowanej, tryb urządzenia USB nie jest dostępny w projekcie. Przykładowy schemat podłączenia wraz z wartościami elementów jest dostępny w TODO.
+			
+		\section{Wyświetlacz LCD}
+			\subsection{Kontroler wyświetlacza}
+		\section{Urządzenia peryferyjne mikrokontrolera}
+		\section{Pozostałe układy}
+			\subsection{Programator}
+				\label{sec:programator}
+				Aby zaoszczędzić miejsce na głównej płytce wchodzącej w skład projektu, zdecydowałem że układy scalone, złącza, oraz pozostałe elementy używane tylko podczas programowania lub debuggowania układu będą znajdować się na osobnej płytce drukowanej dołączanej za pomocą przewodu do transmisji danych. TODO: photo itp
+			\subsection{JTAG}
+				\label{sec:jtag}
+			\subsection{Przetwornik Audio}
+			\subsection{Inne możliwości}
+		\section{Gotowy układ}
+			\subsection{Wykonanie płytki drukowanej}
+			\subsection{Lutowanie}
+			\subsection{Problemy}
+
+	\chapter{Część programowa}
+		\section{Wprowadzenie}
+		\section{Programowanie układu}
+			\subsection{OpenOCD}
+			\subsection{Debug Unit}
+			\subsection{Kompilator}
+			\subsection{GDB}
+			\subsection{Eclipse}
+		\section{Bootloader}
+			\subsection{Bootloader inicjalizujący}
+			\subsection{Bootloader główny}
+		\section{Jądro Linuksa}
+			\subsection{Kompilacja}
+			\subsection{Wybór modułów}
+		\section{initrd}
+		\section{Dystrybucja Linuksa}
+		\section{System plików}
+		\section{Moduły}
+			\subsection{Ethernet}
+			\subsection{Kontroler LCD}
+		\section{Aplikacja demonstracyjna}
+		
+	\chapter{Podsumowanie}
+	\chapter{Literatura}
+\end{document}
