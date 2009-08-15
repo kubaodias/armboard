@@ -59,21 +59,42 @@
 
 	\tableofcontents
 
+%------------------------------------------------------------------------------------
+% WSTĘP
+%------------------------------------------------------------------------------------
+
 	\chapter{Wstęp}
 		\section{Wprowadzenie}
-			Wraz z rozwojem informatyki pojawia się coraz więcej układów sprzętowych, różnorodnych protokołów oraz użytecznych aplikacji i bibliotek. Dodatkowo aby napisać sterownik urządzenia lub programową obsługę dla danego protokołu, należy zazwyczaj poświęcić dużo czasu i zasobów na zapoznanie się z dokumentacją, napisanie programu oraz wystarczające przetestowanie.\\
+			Wraz z rozwojem informatyki pojawia się coraz więcej układów sprzętowych, różnorodnych protokołów oraz użytecznych aplikacji i bibliotek. Aby napisać sterownik urządzenia lub programową obsługę dla danego protokołu, należy zazwyczaj poświęcić dużo czasu i zasobów na zapoznanie się z dokumentacją, napisanie programu oraz wystarczające przetestowanie.\\
 			Dlatego podczas tworzenia zaawansowanego układu sprzętowego, wygodnym rozwiązaniem jest użycie gotowego i stabilnego kodu, który obsłuży większość potrzebnych użytkownikowi funkcjonalności. Firmy zajmujące się produkcją nowych urządzeń, np. telefonów komórkowych czy routerów bezprzewodowych, zazwyczaj wykorzystują rozwijane przez siebie aplikacje lub proste systemy operacyjne w celu przyspieszenia wstępnej fazy uruchamiania nowego oprogramowania oraz późniejszego efektywnego zarządzania zasobami. Możliwe jest także zastosowanie gotowych rozwiązań, takich jak zaawansowane systemy operacyjne Windows Embedded i Linux; wadą wbudowanej wersji Windowsa jest niestety to że nie jest to darmowe oprogramowanie, oraz w przeciwieństwie do Linuksa nie posiada ogólnodostępnego kodu źródłowego. Dzięki udostępnieniu plików źródłowych jądra systemu Linux na licencji GNU General Public License 2 \cite{gnu_gpl_v2}, każdy programista może dla swoich potrzeb napisać sterownik, a następnie udostępnić go innym - w ten sposób dodawanie nowych funkcjonalności oraz poprawianie ewentualnych błędów jest znacznie uproszczone.\\
 			Dzięki wiedzy o tym w jaki sposób zaprojektować platformę sprzętową, umożliwiającą uruchomienie systemu operacyjnego na prostym układzie mikroprocesorowym, można stworzyć urządzenie które ma bardzo rozbudowane możliwości, porównywalne z tymi dostępnymi w urządzeniach przenośnych.
-		\section{Wbudowany Linux}
-		\section{Platforma sprzętowa}
 		\section{Cel pracy}
-			Celem niniejszej pracy magisterskiej jest konstrukcja platformy sprzętowej dostosowanej do potrzeb wbudowanego systemu Linux (Embedded Linux). Platforma ma mieć mozliwość podłączenia pamięci masowych typu Compact  Flash lub dysk IDE, wyświetlaczy graficznych LCD, urządzeń USB oraz sieci Ethernet.\\
+			Celem niniejszej pracy magisterskiej jest konstrukcja platformy sprzętowej dostosowanej do potrzeb wbudowanego systemu Linux (ang. Embedded Linux). Platforma ma mieć mozliwość podłączenia pamięci masowych typu Compact  Flash lub dysk IDE, wyświetlaczy graficznych LCD, urządzeń USB oraz sieci Ethernet.\\
 			Głównym zadaniem było zaprojektowanie oraz wykonanie części sprzętowej projektu, spełniającej powyższe wymagania, a następnie zapoznanie się z wbudowaną wersją systemu Linux i jej implementacja na gotowym układzie.\\
-
+		\section{Wbudowany Linux}
+			W odróżnieniu od systemu operacyjnego Linux, stosowanego w komputerach domowych lub na serwerach, wbudowana wersja jest przeznaczona dla urządzeń z ograniczonymi zasobami, np. urządzeń mobilnych. Pełnią one ściśle określoną rolę, więc nie muszą zawierać zbędnego lub mało używanego oprogramowania oraz niepotrzebnych sterowników. Dodatkowo mają zazwyczaj ograniczoną ilość pamięci RAM, szybkość pracy procesora oraz zasobów dyskowych więc ważna jest także odpowiednia konfiguracja i optymalizacja takiego systemu.\\
+			Określenie 'Wbudowany Linux' oznacza zatem jedynie konfigurację systemu dla konkretnych potrzeb - jądro Linuksa jest niemal identyczne jak w przypadku komputerów klasy PC lub podobnych.
+		\section{Platforma sprzętowa}
+			Podczas konstruowania uniwersalnej platformy sprzętowej dla Linuksa istotne jest wzięcie pod uwagę następujących czynników:
+			\begin{itemize}
+				\item Linux jest systemem 32-bitowym więc procesor użyty w projekcie również powinien mieć architekturę 32-bitową. Co prawda istnieją wersje Linuksa dostosowane dla mikroprocesorów 8- lub 16-bitowych, jednak nie są one dostatecznie wspierane.
+				\item System operacyjny Linux wymaga żeby procesor implementował jednostkę zarządzania pamięcią (MMU) w celu efektywnego i bezpiecznego używania pamięci. Istnieje okrojona wersja $\mu$cLinux\cite{uclinux} dostosowana dla potrzeb mikroprocesorów niewyposażonych w MMU.
+				\item Tworzony układ powinien móc wykonać dostateczną liczbę operacji na sekundę oraz mieć ilość pamięci RAM wystarczającą do uruchomienia zaawansowanego systemu operacyjnego.
+				\item Platforma powinna umożliwić podłączenie jak najmniejszym kosztem sieci Ethernet, urządzeń USB oraz wszelkich innych układów.
+			\end{itemize}
 		\section{Przykładowe implementacje}
+
+
+
+
+%------------------------------------------------------------------------------------
+% CZĘŚĆ SPRZĘTOWA
+%------------------------------------------------------------------------------------
 
 	\chapter{Część sprzętowa}
 		\section{Wprowadzenie}
+			W tej części zostanie przedstawiony dobór, wraz z opisem i uzasadnieniem, wszystkich układów sprzętowych użytych w projekcie.\\
+			Rozdział \ref{sec:gotowy_uklad} zawiera schematy i zdjęcia zaprojektowanego układu.
 		\section{Mikroprocesor}
 			\subsection{Wymagania}
 			\subsection{Porównanie dostępnych układów}
@@ -87,7 +108,8 @@
 		\section{Standard transmisji USB}
 			\subsection{Host USB}
 			
-			\subsection{Urządzenie USB}Mikroprocesor AT91RM9200 może pełnić rolę urządzenia USB poprzez użycie pinów DDM i DDP. Możliwe jest wtedy podłączenie np. do komputera klasy PC, który działa w trybie hosta. Niestety, z powodu braku wystarczającej ilości miejsca na płytce drukowanej, tryb urządzenia USB nie jest dostępny w projekcie. Przykładowy schemat podłączenia wraz z wartościami elementów jest dostępny np. w schemacie zestawu uruchomieniowego firmy Atmel\cite{at91rm9200_ek}.
+			\subsection{Urządzenie USB}Mikroprocesor AT91RM9200 może pełnić rolę urządzenia USB poprzez użycie pinów DDM i DDP. Możliwe jest wtedy podłączenie np. do komputera klasy PC, który działa w trybie hosta. Niestety, z powodu braku wystarczającej ilości miejsca na płytce drukowanej, tryb urządzenia USB nie jest dostępny w projekcie.\\
+			Przykładowy schemat podłączenia, wraz z wartościami elementów, jest przedstawiony np. w schemacie zestawu uruchomieniowego firmy Atmel\cite{at91rm9200_ek}.
 			
 		\section{Wyświetlacz LCD}
 			\subsection{Kontroler wyświetlacza}
@@ -98,6 +120,7 @@
 			\subsection{Przetwornik Audio}
 			\subsection{Inne możliwości}
 		\section{Gotowy układ}
+			\label{sec:gotowy_uklad}
 			\subsection{Projekt}
 				\subsubsection{Główna płytka sprzętowa}
 				\subsubsection{Dodatkowa płytka sprzętowa}
@@ -107,12 +130,17 @@
 			\subsection{Lutowanie}
 			\subsection{Problemy}
 
+
+
+
+
+%------------------------------------------------------------------------------------
+% CZĘŚĆ PROGRAMOWA
+%------------------------------------------------------------------------------------
+
 	\chapter{Część programowa}
 		\section{Wprowadzenie}
 		\section{Programowanie układu}
-		
-		
-		
 		
 			\subsection{OpenOCD}
 				Aby połączyć się z układem mikroprocesorowym za pomocą złącza JTAG należy zastosować specjalne oprogramowanie, które pozwoli na przetworzenie poleceń użytkownika, wydawanych za pośrednictwem komputera PC, na odpowiednie polecenia protokołu JTAG.\\
@@ -226,12 +254,14 @@ $_TARGETNAME configure -work-area-virt 0x00200000 -work-area-phys
 			\subsection{Bootloader inicjalizujący}
 			\subsection{Bootloader główny}
 		\section{Jądro Linuksa}
+			\label{sec:linux_kernel}
 			\subsection{Kompilacja}
 			\subsection{Wybór modułów}
 		\section{initrd}
 		\section{Dystrybucja Linuksa}
 		\section{System plików}
 		\section{Moduły}
+			\label{sec:linux_modules}
 			\subsection{Ethernet}
 			\subsection{Kontroler LCD}
 		\section{Aplikacja demonstracyjna}
