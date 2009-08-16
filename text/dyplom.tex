@@ -72,18 +72,20 @@
 			Celem niniejszej pracy magisterskiej jest konstrukcja platformy sprzętowej dostosowanej do potrzeb wbudowanego systemu Linux (ang. Embedded Linux). Platforma ma mieć mozliwość podłączenia pamięci masowych typu Compact  Flash lub dysk IDE, wyświetlaczy graficznych LCD, urządzeń USB oraz sieci Ethernet.\\
 			Głównym zadaniem było zaprojektowanie oraz wykonanie części sprzętowej projektu, spełniającej powyższe wymagania, a następnie zapoznanie się z wbudowaną wersją systemu Linux i jej implementacja na gotowym układzie.\\
 		\section{Wbudowany Linux}
-			W odróżnieniu od systemu operacyjnego Linux, stosowanego w komputerach domowych lub na serwerach, wbudowana wersja jest przeznaczona dla urządzeń z ograniczonymi zasobami, np. urządzeń mobilnych. Pełnią one ściśle określoną rolę, więc nie muszą zawierać zbędnego lub mało używanego oprogramowania oraz niepotrzebnych sterowników. Dodatkowo mają zazwyczaj ograniczoną ilość pamięci RAM, szybkość pracy procesora oraz zasobów dyskowych więc ważna jest także odpowiednia konfiguracja i optymalizacja takiego systemu.\\
+			W odróżnieniu od systemu operacyjnego Linux, stosowanego w komputerach domowych lub na serwerach, wbudowana wersja jest przeznaczona dla urządzeń z ograniczonymi zasobami, np. urządzeń mobilnych. Pełnią one ściśle określoną rolę, więc nie muszą zawierać zbędnego lub mało używanego oprogramowania oraz niepotrzebnych sterowników. Dodatkowo mają zazwyczaj ograniczoną ilość pamięci RAM, szybkość pracy procesora oraz niewiele zasobów dyskowych więc ważna jest także odpowiednia konfiguracja i optymalizacja takiego systemu.\\
 			Określenie 'Wbudowany Linux' oznacza zatem jedynie konfigurację systemu dla konkretnych potrzeb - jądro Linuksa jest niemal identyczne jak w przypadku komputerów klasy PC lub podobnych.
 		\section{Platforma sprzętowa}
 			Podczas konstruowania uniwersalnej platformy sprzętowej dla Linuksa istotne jest wzięcie pod uwagę następujących czynników:
 			\begin{itemize}
 				\item Linux jest systemem 32-bitowym więc procesor użyty w projekcie również powinien mieć architekturę 32-bitową. Co prawda istnieją wersje Linuksa dostosowane dla mikroprocesorów 8- lub 16-bitowych, jednak nie są one dostatecznie wspierane.
-				\item System operacyjny Linux wymaga żeby procesor implementował jednostkę zarządzania pamięcią (MMU) w celu efektywnego i bezpiecznego używania pamięci. Istnieje okrojona wersja $\mu$cLinux\cite{uclinux} dostosowana dla potrzeb mikroprocesorów niewyposażonych w MMU.
+				\item System operacyjny Linux wymaga żeby procesor implementował jednostkę zarządzania pamięcią (MMU) w celu efektywnego i bezpiecznego używania pamięci. Istnieje okrojona wersja $\mu$cLinux\cite{uclinux} dostosowana do potrzeb mikroprocesorów niewyposażonych w MMU.
 				\item Tworzony układ powinien móc wykonać dostateczną liczbę operacji na sekundę oraz mieć ilość pamięci RAM wystarczającą do uruchomienia zaawansowanego systemu operacyjnego.
 				\item Platforma powinna umożliwić podłączenie jak najmniejszym kosztem sieci Ethernet, urządzeń USB oraz wszelkich innych układów.
 			\end{itemize}
 		\section{Przykładowe implementacje}
-
+			Linux jest obecnie najpopularniejszym systemem operacyjnym wśród producentów systemów wbudowanych m.in. telefonów komórkowych, Palmtopów, przełączników i routerów sieciowych oraz systemów przemysłowych.\\
+			Podczas projektowania układu pomocne jest wzorowanie się na działających rozwiązaniach, które pełnią podobne funkcje.\\
+			W dodatku \ref{app:przykladowe_projekty} znajduje się lista stron WWW mieszczących projekty, z których korzystał autor tej pracy.
 
 
 
@@ -93,13 +95,56 @@
 
 	\chapter{Część sprzętowa}
 		\section{Wprowadzenie}
-			W tej części zostanie przedstawiony dobór, wraz z opisem i uzasadnieniem, wszystkich układów sprzętowych użytych w projekcie.\\
-			Rozdział \ref{sec:gotowy_uklad} zawiera schematy i zdjęcia zaprojektowanego układu.
+			W tej części zostanie przedstawiony dobór, wraz z objaśnieniem, wszystkich układów sprzętowych użytych w projekcie oraz opis zagadnień na które należało zwracać uwagę podczas projektowania platformy.\\
+			Rozdział \ref{sec:projekt_platformy} zawiera schematy i zdjęcia zaprojektowanego układu.
 		\section{Mikroprocesor}
 			\subsection{Wymagania}
+				Podczas wyboru mikroprocesora, który będzie stanowił rdzeń platformy, kierowano się tym aby wybrany układ scalony posiadał następujące cechy:
+				\begin{itemize}
+					\item architektura 32-bitowa
+					\item jednostka zarządzania pamięcią MMU
+					\item maksymalna szybkość pracy mikroprocesora wystarczająca do efektywnego działania systemu operacyjnego
+					\item sprzętowa obsługa portów USB i Ethernet
+					\item interfejs SPI i/lub MMC w celu podłączenia kart pamięci SD/MMC
+					\item wbudowany kontroler pamięci SDRAM
+					\item dostępność układu w obudowie umożliwiającej stosunkowo łatwe przylutowanie np. TQFP
+				\end{itemize}
 			\subsection{Porównanie dostępnych układów}
+				Na rynku jest dostępnych wiele procesorów o architekturach spełniających wymagania projektu m.in. x86, PowerPC, MIPS, ARM i AVR32, jednak jedynie 2 ostatnie z nich są łatwo dostępne w ilościach detalicznych.\\
+				Zarówno ARM jak i AVR32 są wspierane przez jądro systemu Linux, jednak kod dla 32-bitowej architektury mikrokontrolerów AVR został udostępniony stosunkowo niedawno, bo dopiero w wersji 2.6.19. W związku z tym zdecydowano się na wykorzystanie jednego z procesorów zawierających rdzeń firmy ARM\cite{arm}, które już od dłuższego czasu posiadają stabilne sterowniki w źródłach kernela.\\
+				Układy oparte o rdzenie ARM są produkowane przez różne firmy np. Philips zajmuje się wytwarzaniem mikrokontrolerów ARM7TDMI, jednak nie są one wyposażone w jednostkę MMU, natomiast firma Atmel jest uznanym producentem układów m.in. z rodzin ARM9TDMI i ARM9E. Mikroprocesory z nowszymi rdzeniami, takimi jak XScale i Cortex, są trudno dostępne do zakupu oraz występują zazwyczaj w obudowach BGA.\\
+				Po zapoznaniu z ofertą firmy Atmel, okazało się że jedynie mikrokontrolery AT91RM9200 i AT91SAM9260 spełniają wymagania projektu (są dostępne w Polsce oraz występują w obudowach QFP208). W tabeli \ref{tab:arm_comparison} znajduje się porównanie najważniejszych cech obu układów.
+				
+				\begin{table}[]
+					%\extrarowheight=3pt
+					\begin{tabularx}{\textwidth }{|c|X|X|}
+						\hline \textbf{Cecha} &\textbf{AT91RM9200} & \textbf{AT91SAM9260} \\ 
+						\hline Rdzeń & ARM920T & ARM926EJ-S - rozszerzone rozkazy DSP, technologia ARM Jazelle dla Javy \\
+						\hline Szybkość & 200 MIPS @ 180 MHz & 200 MIPS @ 180 MHz \\
+							procesora & & \\
+						\hline Pamięć cache & 16kB dane, 16kB instrukcje & 8kB dane i 8kB instrukcje \\
+						\hline Wbudowana pamięć & 16kB SRAM, 128kB ROM & 4kB SRAM, 32 kB ROM \\
+						\hline Ethernet & kontroler MAC 10/100T z interfejsem MII & kontroler MAC 10/100T z interfejsem MII \\
+						\hline USB & USB 2.0 - tryb urządzenia i gospodarza & USB 2.0 - tryb urządzenia i gospodarza \\
+						\hline Możliwość podłączenia & SDRAM, pamięć statyczna, Dataflash & SDRAM, pamięć statyczna, Dataflash \\
+							zewn. pamięci & & \\
+						\hline Interfejs MMC & tak & tak \\
+						\hline Debug Unit & tak & tak \\
+						\hline JTAG & tak & tak \\
+						\hline SPI & tak, możliwość podłączenia 4 układów & tak, możliwość podłączenia 4 układów \\
+						\hline TWI & tak & tak - multimaster \\
+						\hline SSC & tak - 3 interfejsy & tak - 1 interfejs \\
+						\hline Liczba linii PIO & 96 & 96 \\
+						\hline Dodatkowe cechy & - & interfejs do rozpoznawania obrazów, kontroler resetu, 4 zapasowe rejestry\\
+						\hline 
+					\end{tabularx}
+					\caption{Porównanie mikroprocesorów AT91RM9200 i AT91SAM9260}
+					\label{tab:arm_comparison}
+				\end{table}
 		\section{Nośniki pamięci}
+		d
 			\subsection{Pamięć SDRAM}			
+			f
 			\subsection{Pamięć NAND i NOR Flash}
 				
 			\subsection{Pamięć Serial Dataflash}
@@ -109,7 +154,7 @@
 			\subsection{Host USB}
 			
 			\subsection{Urządzenie USB}Mikroprocesor AT91RM9200 może pełnić rolę urządzenia USB poprzez użycie pinów DDM i DDP. Możliwe jest wtedy podłączenie np. do komputera klasy PC, który działa w trybie hosta. Niestety, z powodu braku wystarczającej ilości miejsca na płytce drukowanej, tryb urządzenia USB nie jest dostępny w projekcie.\\
-			Przykładowy schemat podłączenia, wraz z wartościami elementów, jest przedstawiony np. w schemacie zestawu uruchomieniowego firmy Atmel\cite{at91rm9200_ek}.
+			Przykładowy schemat podłączenia, wraz z wartościami elementów, jest przedstawiony w rozwiązaniach zawartych w dodatku \ref{app:przykladowe_projekty}.
 			
 		\section{Wyświetlacz LCD}
 			\subsection{Kontroler wyświetlacza}
@@ -119,15 +164,15 @@
 				\label{sec:jtag}
 			\subsection{Przetwornik Audio}
 			\subsection{Inne możliwości}
-		\section{Gotowy układ}
-			\label{sec:gotowy_uklad}
-			\subsection{Projekt}
-				\subsubsection{Główna płytka sprzętowa}
-				\subsubsection{Dodatkowa płytka sprzętowa}
-				\subsubsection{Programator}
-					\label{sec:programator}
-					Aby zaoszczędzić miejsce na głównej płytce wchodzącej w skład projektu, zdecydowałem że układy scalone, złącza, oraz pozostałe elementy używane tylko podczas programowania lub debuggowania układu będą znajdować się na osobnej płytce drukowanej dołączanej za pomocą przewodu do transmisji danych. TODO: photo itp
+		\section{Projekt platformy}
+			\label{sec:projekt_platformy}
+			\subsection{Główna płytka sprzętowa}
+			\subsection{Dodatkowa płytka sprzętowa}
+			\subsection{Programator}
+				\label{sec:programator}
+				Aby zaoszczędzić miejsce na głównej płytce wchodzącej w skład projektu, zdecydowałem że układy scalone, złącza, oraz pozostałe elementy używane tylko podczas programowania lub debuggowania układu będą znajdować się na osobnej płytce drukowanej dołączanej za pomocą przewodu do transmisji danych. TODO: photo itp
 			\subsection{Lutowanie}
+			\subsection{Gotowy układ}
 			\subsection{Problemy}
 
 
@@ -149,7 +194,7 @@
 					Stabilną wersję OpenOCD można pobrać ze strony domowej projektu, jednak wersja 0.2.0 nie współdziałała poprawnie z zastosowanym w tej pracy układem sprzętowym JTAG. W związku z tym użyto działającej wersji numer 1679 dostępnej pod kontrolą źródeł SVN na stronie twórców.\\
 					Aby skompilować i zainstalować aplikację należy doinstalować sterowniki odpowiednie dla obsługi sprzętowej używanego programatora JTAG. Na systemie operacyjnym Debian wystarczy, mając uprawnienia administratora, wydać komendę:\\
 					\texttt{apt-get install libftdi1 libftdi-dev libusb-dev}\\
-					W celu ściągnięcia i zainstalowania samej aplikacji wystarczy wykonać ciąg następujących poleceń:\\
+					W celu ściągnięcia i zainstalowania samej aplikacji należy wykonać ciąg następujących poleceń:\\
 					\texttt{svn checkout -r 1679 svn://svn.berlios.de/openocd/trunk} - spowoduje pobranie z SVN-a odpowiedniej wersji OpenOCD\\
 					\texttt{./bootstrap} - wstępna konfiguracja\\
 					\texttt{./configure --enable-maintainer-mode --enable-ft2232\_libftdi --prefix=/usr} - konfiguracja aplikacji; dołączenie biblioteki LibFTDI i ustawienie katalogu gdzie ma zostać zainstalowana na /usr\\
@@ -160,7 +205,7 @@
 					Możliwe jest podanie opcji konfiguracyjnych bezpośrednio przy uruchomieniu OpenOCD lub zastosowanie plików konfiguracyjnych. Zgodnie z zaleceniami twórców, istotny jest podział konfiguracji na części istotne dla zastosowanego interfejsu służącego do programowania, używanego procesora oraz ustawień dodatkowych układów np. zewnętrznej pamięci SDRAM używanej w projekcie. W związku z tym ustawienia zostały podzielone na 4 części:
 					\begin{itemize}
 						\item{\texttt{openocd.cfg}}\\
-							Główny plik konfiguracyjny definiujący m.in. używane porty
+							Główny plik konfiguracyjny definiujący m.in. używane porty.
 							\begin{lstlisting}[basicstyle={\footnotesize\ttfamily}]
 # Main configuration file
 telnet_port 4444
@@ -184,7 +229,7 @@ jtag_nsrst_delay 200
 jtag_ntrst_delay 200
 							\end{lstlisting}
 						\item{\texttt{target/at91rm9200.cfg}}\\
-							Opcje specyficzne dla zastosowanego mikroprocesora
+							Opcje specyficzne dla zastosowanego mikroprocesora.
 							\begin{lstlisting}[basicstyle={\footnotesize\ttfamily}]
 # Configuration file for AT91RM9200 microprocessor
 reset_config srst_only srst_pulls_trst
@@ -213,15 +258,15 @@ if { $_CPUTAPID == 0x15b0203f } {
 }
 
 jtag newtap $_CHIPNAME cpu -irlen 4 -ircapture 0x1 -irmask 0xf 
-	-expected-id $_CPUTAPID
+   -expected-id $_CPUTAPID
 
 # Create the GDB Target.
 set _TARGETNAME [format "%s.cpu" $_CHIPNAME]
 target create $_TARGETNAME arm920t -endian $_ENDIAN -chain-position 
-	$_TARGETNAME 
+   $_TARGETNAME 
 # AT91RM9200 has a 16K block of sram @ 0x0020.0000
 $_TARGETNAME configure -work-area-virt 0x00200000 -work-area-phys 
-	0x00200000 -work-area-size 0x4000 -work-area-backup 1
+   0x00200000 -work-area-size 0x4000 -work-area-backup 1
 							\end{lstlisting}
 						\item{\texttt{board/at91rm9200\_lab.cfg}}\\
 							Dodatkowy plik który może zawierać komendy używane do ustawienia szybkości pracy mikroprocesora, konfiguracji odpowiednich układów wewnętrznych, pamięci SDRAM itp.
@@ -248,6 +293,7 @@ $_TARGETNAME configure -work-area-virt 0x00200000 -work-area-phys
 			\subsection{Debug Unit}
 				s
 			\subsection{Kompilator}
+				k
 			\subsection{GDB}
 			\subsection{Eclipse}
 		\section{Bootloader}
@@ -270,4 +316,27 @@ $_TARGETNAME configure -work-area-virt 0x00200000 -work-area-phys
 
 	\bibliographystyle{plain}
 	\bibliography{bibliography}
+	
+	\appendix
+	\chapter{Przykładowe projekty}
+	\label{app:przykladowe_projekty}
+	\begin{itemize}
+		\item \texttt{http://www.atmel.com/dyn/resources/prod\_documents/doc6103.pdf}\\
+			Zestaw uruchomieniowy firmy Atmel dla AT91RM9200.\\
+			\scriptsize{(strona sprawdzana 15.08.2009)}
+			\normalsize
+		\item \texttt{http://blackmesaeast.com.pl/projects/electronics/sarge-single-\\board-computer/}\\
+			Projekt autorstwa Grzegorza Rajtara wykorzystujący mikrokontroler AT91RM9200 i kontroler sieciowy STE100P.\\
+			\scriptsize{(strona sprawdzana 15.08.2009)}
+			\normalsize
+		\item \texttt{http://bryndza.boff.pl/index.php?dz=proj\&id=armputer210}\\
+			Projekt autorstwa Lucjana Bryndzy pełniący rolę serwera sieciowego.\\
+			\scriptsize{(strona sprawdzana 15.08.2009)}
+			\normalsize
+		\item \texttt{http://www.olimex.com/dev/sam9-L9261.html}\\
+			Zestaw uruchomieniowy firmy Olimex dla mikroprocesora AT91SAM9261.\\
+			\scriptsize{(strona sprawdzana 15.08.2009)}
+			\normalsize
+	\end{itemize}
+	
 \end{document}
