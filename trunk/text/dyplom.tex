@@ -112,14 +112,14 @@
 			\subsection{Porównanie dostępnych układów}
 				Na rynku jest dostępnych wiele procesorów o architekturach spełniających wymagania projektu m.in. x86, PowerPC, MIPS, ARM i AVR32, jednak jedynie 2 ostatnie z nich są łatwo dostępne w ilościach detalicznych.\\
 				Zarówno ARM jak i AVR32 są wspierane przez jądro systemu Linux, jednak kod dla 32-bitowej architektury mikrokontrolerów AVR został udostępniony stosunkowo niedawno, bo dopiero w wersji 2.6.19. W związku z tym zdecydowano się na wykorzystanie jednego z procesorów zawierających rdzeń firmy ARM\cite{arm}, które już od dłuższego czasu posiadają stabilne sterowniki w źródłach kernela.\\
-				Układy oparte o rdzenie ARM są produkowane przez różne firmy np. Philips zajmuje się wytwarzaniem mikrokontrolerów ARM7TDMI, jednak nie są one wyposażone w jednostkę MMU, natomiast firma Atmel jest uznanym producentem układów m.in. z rodzin ARM9TDMI i ARM9E. Mikroprocesory z nowszymi rdzeniami, takimi jak XScale i Cortex, są trudno dostępne do zakupu oraz występują zazwyczaj w obudowach BGA.\\
+				Układy oparte o rdzenie ARM są produkowane przez różne firmy np. Philips zajmuje się wytwarzaniem mikrokontrolerów ARM7TDMI, niestety nie są one wyposażone w jednostkę MMU, natomiast firma Atmel jest uznanym producentem układów m.in. z rodzin ARM9TDMI i ARM9E. Mikroprocesory z nowszymi rdzeniami, takimi jak XScale i Cortex, są trudno dostępne do zakupu oraz występują zazwyczaj w obudowach BGA.\\
 				Po zapoznaniu z ofertą firmy Atmel, okazało się że jedynie mikrokontrolery AT91RM9200 i AT91SAM9260 spełniają wymagania projektu (są dostępne w Polsce oraz występują w obudowach QFP208). W tabeli \ref{tab:arm_comparison} znajduje się porównanie najważniejszych cech obu układów.
 				
 				\begin{table}[]
 					%\extrarowheight=3pt
 					\begin{tabularx}{\textwidth }{|c|X|X|}
 						\hline \textbf{Cecha} &\textbf{AT91RM9200} & \textbf{AT91SAM9260} \\ 
-						\hline Rdzeń & ARM920T & ARM926EJ-S - rozszerzone rozkazy DSP, technologia ARM Jazelle dla Javy \\
+						\hline Rdzeń & ARM920T & ARM926EJ-S - rozszerzone rozkazy DSP, technologia ARM Jazelle\textsuperscript{\textregistered} dla Javy \\
 						\hline Szybkość & 200 MIPS @ 180 MHz & 200 MIPS @ 180 MHz \\
 							procesora & & \\
 						\hline Pamięć cache & 16kB dane, 16kB instrukcje & 8kB dane i 8kB instrukcje \\
@@ -134,21 +134,34 @@
 						\hline SPI & tak, możliwość podłączenia 4 układów & tak, możliwość podłączenia 4 układów \\
 						\hline TWI & tak & tak - multimaster \\
 						\hline SSC & tak - 3 interfejsy & tak - 1 interfejs \\
-						\hline Liczba linii PIO & 96 & 96 \\
+						\hline Liczba linii PIO & 94 & 96 \\
 						\hline Dodatkowe cechy & - & interfejs do rozpoznawania obrazów, kontroler resetu, 4 zapasowe rejestry\\
 						\hline 
 					\end{tabularx}
 					\caption{Porównanie mikroprocesorów AT91RM9200 i AT91SAM9260}
 					\label{tab:arm_comparison}
 				\end{table}
+			Pomimo tego że mikrokontroler AT91SAM9260 posiada nowszy rdzeń i więcej wbudowanych układów sprzętowych niż AT91RM9200, zdecydowano się na wykorzystanie drugiego z nich z następujących przyczyn:
+			\begin{itemize}
+				\item Pamięć SRAM musi pomieścić program ładujący (ang. bootloader) - limit 4kB w przypadku nowszego układu mógłby spowodować problemy przy implementacji wszystkich potrzebnych funkcji.
+				\item Kilka układów wewnętrznych, m.in. interfejs Ethernet, SPI i MMC, dzieli między sobą te same nóżki mikrokontrolera AT91SAM9260 co wymaga multipleksowania programowego i sprzętowego.
+				\item Na procesorze AT91RM9200 zostały oparte projekty przedstawione w dodatku \ref{app:przykladowe_projekty} - w ich źródłach znajdują się poprawione sterowniki urządzeń.
+			\end{itemize}
 		\section{Nośniki pamięci}
-		d
 			\subsection{Pamięć SDRAM}			
-			f
+				W projekcie wykorzystano 2 popularne i tanie układy K4S561632J firmy Samsung - każdy z nich posiada pojemność 16777216 słów 16-bitowych, co po równoległym połączeniu w jedną magistralę 32-bitową daje pojemność 64MB. \\
+				Wybrany mikrokontroler posiada zarówno interfejs do obsługi zewnętrznej magistrali (linie A0-A25 i D0-D31) jak i kontroler SDRAM, który odpowiada m.in. za odświeżanie komórek pamięci.\\
+				Pamięć synchroniczna jest wykorzystywana jako pamięć operacyjna platformy - program rozruchowy inicjalizuje ją, a następnie ładuje do niej jądro systemu Linux i przekazuje mu kontrolę.
+				
 			\subsection{Pamięć NAND i NOR Flash}
+				W urządzeniach mobilnych popularne jest zastosowanie układów pamięci NAND lub NOR Flash, jednak w omawianym projekcie nie zostały one użyte z powodu ich wysokiej ceny. Ponieważ pamięć tego typu jest bardzo szybka, ale posiada ograniczoną liczbę zapisów, dobrym pomysłem jest jej wykorzystanie do przechowywania programu rozruchowego oraz jądra systemu Linux.
 				
 			\subsection{Pamięć Serial Dataflash}
+				Pamięć Serial Dataflash firmy Atmel (dowolny model z serii AT45DB) jest tanią alternatywą dla układów NAND i NOR Flash. Zgodnie ze specyfikacją, szeregowy interfejs pozwala na osiągnięcie częstotliwości taktowania równej 66MHz.\\
+				Wykorzystany układ scalony AT45DB041D posiada 512kB pamięci i jego zadaniem jest przechowywanie bootloadera odpowiedzialnego za inicjalizację większości układów i załadowanie kernela z karty pamięci SD/MMC.\\
+				Mikrokontroler AT91RM9200 po zresetowaniu szuka programu w pamięci Serial Dataflash podłączonej do interfejsu SPI0. Jeśli zostanie znaleziony prawidłowy program, zostanie on załadowany do pamięci SRAM i stamtąd uruchomiony.
 			\subsection{Karty pamięci}
+				Platforma ma możliwość włożenia 2 kart pamięci SD/MMC. Na pierwszej z nich znajduje się główny system plików i korzysta ona ze standardowego równoległego, 4-bitowego interfejsu MCI (Multimedia Card Interface) w celu jak najszybszej pracy. Druga z kart używa szeregowego interfejsu SPI i może służyć do zapisywania danych wykorzystywanych przez użytkownika.
 		\section{Standard sieciowy Ethernet}
 		\section{Standard transmisji USB}
 			\subsection{Host USB}
