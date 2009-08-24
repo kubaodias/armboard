@@ -8,6 +8,7 @@
 \usepackage[pdftex]{graphicx}
 \usepackage[T1]{fontenc}
 \usepackage{listings}
+\usepackage{subfigure}
 
 \geometry{verbose,a4paper,tmargin=2.5cm,bmargin=2.5cm,lmargin=3cm,rmargin=2.5cm}
 
@@ -96,7 +97,7 @@
 	\chapter{Część sprzętowa}
 		\section{Wprowadzenie}
 			W tej części zostanie przedstawiony dobór, wraz z objaśnieniem, wszystkich układów sprzętowych użytych w projekcie oraz opis zagadnień na które należało zwracać uwagę podczas projektowania platformy.\\
-			Rozdział \ref{sec:projekt_platformy} zawiera schematy i zdjęcia zaprojektowanego układu.
+			W dodatku \ref{app:gotowy_projekt} znajdują się schematy i zdjęcia zaprojektowanego układu.
 		\section{Mikroprocesor}
 			\subsection{Wymagania}
 				Podczas wyboru mikroprocesora, który będzie stanowił rdzeń platformy, kierowano się tym aby wybrany układ scalony posiadał następujące cechy:
@@ -164,14 +165,26 @@
 				Platforma ma możliwość włożenia 2 kart pamięci SD/MMC. Na pierwszej z nich znajduje się główny system plików i korzysta ona ze standardowego równoległego, 4-bitowego interfejsu MCI (Multimedia Card Interface) w celu jak najszybszej pracy. Druga z kart używa szeregowego interfejsu SPI i może służyć do zapisywania danych wykorzystywanych przez użytkownika.
 		\section{Standard sieciowy Ethernet}
 		\section{Standard transmisji USB}
+			USB (Universal Serial Bus) jest bardzo popularnym standardem szeregowej transmisji danych. Za jego pomocą można połączyć rozmaite urządzenia m.in. myszki, klawiatury, nośniki danych, kamery internetowe.
 			\subsection{Host USB}
-			
-			\subsection{Urządzenie USB}Mikroprocesor AT91RM9200 może pełnić rolę urządzenia USB poprzez użycie pinów DDM i DDP. Możliwe jest wtedy podłączenie np. do komputera klasy PC, który działa w trybie hosta. Niestety, z powodu braku wystarczającej ilości miejsca na płytce drukowanej, tryb urządzenia USB nie jest dostępny w projekcie.\\
+				Używany mikrokontroler posiada wbudowany kontroler USB w wersji 2.0, co umożliwia podłączanie urządzeń i transfer danych z prędkością do 12Mb/s.\\
+				System Linux posiada wsparcie dla protokołu USB, zatem użytkownik nie musi zajmować się pisaniem skomplikowanego sterownika.
+			\subsection{Urządzenie USB}
+				Mikroprocesor AT91RM9200 może pełnić rolę urządzenia USB poprzez użycie pinów DDM i DDP. Możliwe jest wtedy podłączenie np. do komputera klasy PC, który działa w trybie hosta. Niestety, z powodu braku wystarczającej ilości miejsca na płytce drukowanej, tryb urządzenia USB nie jest dostępny w projekcie.\\
 			Przykładowy schemat podłączenia, wraz z wartościami elementów, jest przedstawiony w rozwiązaniach zawartych w dodatku \ref{app:przykladowe_projekty}.
 			
 		\section{Wyświetlacz LCD}
+			Jednym z założeniem projektu była możliwość podłączenia wyświetlacza LCD. Żeby móc wyświetlać chociażby konsolę systemu Linux ważne było zastosowanie układu o jak największej rozdzielczości.\\
+			Zdecydowano się na wybór panelu TFT LQ043T3DX02 firmy Sharp - został on zastosowany w konsoli do gier Sony Playstation Portable\textsuperscript{\textregistered} i umożliwia wyświetlanie obrazu w 24-bitowej głębi koloru i rozdzielczości 480*272 pikseli.\\
+			Aby odciążyć procesor od potrzeby odświeżania obrazu istotne jest zastosowanie specjalizowanego kontrolera wyświetlacza LCD.
 			\subsection{Kontroler wyświetlacza}
+				Większość dostępnych sterowników kolorowych paneli TFT nie jest w stanie obsłużyć wyświetlacza o dużej rozdzielczości w pełnej głębi koloru. Istotnym parametrem takiego układu jest ilość wbudowanej pamięci stosowanej do przechowywania wyświetlanego obrazu.\\
+				W projekcie użyto sterownika SSD1906 firmy Solomon, który posiada 256kB pamięci SRAM i potrafi wyświetlać obraz w głębi 18 bitów. Dostępna pamięć układu pozwala jednak jedynie na wyświetlenie obrazu o rozdzielczości 480*272 pikseli używając 16 bitowej palety kolorów (480 * 272 * 16 bitów = 261120 bitów = 255 kB). Dodatkowo układ scalony SSD1906 posiada funkcje takie jak obracanie wyświetlanego obrazu, wybór okna wyświetlania i sterowanie podświetleniem poprzez specjalne linie.
 		\section{Urządzenia peryferyjne mikrokontrolera}
+			Układ scalony AT91RM9200 posiada wiele wbudowanych układów mogących pełnić różne funkcje. Poniżej znajduje się ich lista wraz z przykładowymi zastosowaniami.
+			\begin{itemize}
+				\item SPI
+			\end{itemize}
 		\section{Pozostałe układy}
 			\subsection{JTAG}
 				\label{sec:jtag}
@@ -186,6 +199,8 @@
 				Aby zaoszczędzić miejsce na głównej płytce wchodzącej w skład projektu, zdecydowałem że układy scalone, złącza, oraz pozostałe elementy używane tylko podczas programowania lub debuggowania układu będą znajdować się na osobnej płytce drukowanej dołączanej za pomocą przewodu do transmisji danych. TODO: photo itp
 			\subsection{Lutowanie}
 			\subsection{Gotowy układ}
+				
+
 			\subsection{Problemy}
 
 
@@ -196,7 +211,7 @@
 % CZĘŚĆ PROGRAMOWA
 %------------------------------------------------------------------------------------
 
-	\chapter{Część programowa}
+	\chapter{Częć programowa}
 		\section{Wprowadzenie}
 		\section{Programowanie układu}
 		
@@ -316,8 +331,8 @@ $_TARGETNAME configure -work-area-virt 0x00200000 -work-area-phys
 			\label{sec:linux_kernel}
 			\subsection{Kompilacja}
 			\subsection{Wybór modułów}
-		\section{initrd}
 		\section{Dystrybucja Linuksa}
+			\subsection{Buildroot}
 		\section{System plików}
 		\section{Moduły}
 			\label{sec:linux_modules}
@@ -330,7 +345,72 @@ $_TARGETNAME configure -work-area-virt 0x00200000 -work-area-phys
 	\bibliographystyle{plain}
 	\bibliography{bibliography}
 	
+	
+	
 	\appendix
+	
+	\chapter{Gotowy projekt}
+	\label{app:gotowy_projekt}
+%		\begin{figure}[h]
+%			\begin{center}
+%				\label{fig:cpu_sch}
+%				\includegraphics[scale=1.0]{img/cpu_sch.png}
+%				\caption{Schemat podłączenia mikrokontrolera}
+%			\end{center}
+%		\end{figure}
+%		
+%		\begin{figure}[h]
+%			\begin{center}
+%				\label{fig:main_sch}
+%				\includegraphics[scale=1.0,angle=90]{img/main_sch.png}
+%				\caption{Schemat podłączenia dodatkowych układów do głównej części projektu}
+%			\end{center}
+%		\end{figure}
+%		
+%		\begin{figure}[]
+%			\begin{center}
+%				\label{fig:main_brd}
+%				\includegraphics[scale=1.25]{img/main_brd.png}
+%				\caption{Plik .brd programu Eagle dla głównej płytki}
+%			\end{center}
+%		\end{figure}
+%		
+%		\begin{figure}[]
+%			\begin{center}
+%				\label{fig:ext_brd}
+%				\includegraphics[scale=1.25]{img/ext_brd.png}
+%				\caption{Plik .brd programu Eagle dla dodatkowej płytki}
+%			\end{center}
+%		\end{figure}
+%		
+%		\begin{figure}[]
+%			\begin{center}
+%				\subfigure[Górna strona]{\label{fig:pcb1-top}\includegraphics[scale=0.25,angle=90]{img/pcb1_top.jpg}}
+%				\hspace{20pt}
+%				\subfigure[Dolna strona]{\label{fig:pcb1-bottom}\includegraphics[scale=0.25,angle=90]{img/pcb1_bottom.jpg}}\\
+%				\vspace{20pt}
+%				\subfigure[Górna strona z przylutowanymi elementami]{\label{fig:pcb1-top}\includegraphics[scale=0.25,angle=90]{img/pcb1_top.jpg}}
+%				\hspace{20pt}
+%				\subfigure[Dolna strona z przylutowanymi elementami]{\label{fig:pcb1-bottom}\includegraphics[scale=0.25,angle=90]{img/pcb1_bottom.jpg}}
+%			\end{center}
+%			\caption{Główna płytka drukowana}
+%			\label{fig:pcb1}
+%		\end{figure}
+%		\begin{figure}[]
+%			\begin{center}
+%				\subfigure[Górna strona]{\label{fig:pcb2-top}\includegraphics[scale=0.25,angle=90]{img/pcb2_top.jpg}}
+%				\hspace{20pt}
+%				\subfigure[Dolna strona]{\label{fig:pcb2-bottom}\includegraphics[scale=0.25,angle=90]{img/pcb2_bottom.jpg}}\\
+%				\vspace{20pt}
+%				\subfigure[Górna strona z przylutowanymi elementami]{\label{fig:pcb2-top}\includegraphics[scale=0.25,angle=90]{img/pcb2_top.jpg}}
+%				\hspace{20pt}
+%				\subfigure[Dolna strona z przylutowanymi elementami]{\label{fig:pcb2-bottom}\includegraphics[scale=0.25,angle=90]{img/pcb2_bottom.jpg}}
+%			\end{center}
+%			\caption{Dodatkowa płytka drukowana}
+%			\label{fig:pcb2}
+%		\end{figure}
+	
+	
 	\chapter{Przykładowe projekty}
 	\label{app:przykladowe_projekty}
 	\begin{itemize}
