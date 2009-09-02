@@ -9,6 +9,7 @@
 \usepackage[T1]{fontenc}
 \usepackage{listings}
 \usepackage{subfigure}
+\usepackage{url}
 
 \geometry{verbose,a4paper,tmargin=2.5cm,bmargin=2.5cm,lmargin=3cm,rmargin=2.5cm}
 
@@ -67,7 +68,7 @@
 	\chapter{Wstęp}
 		\section{Wprowadzenie}
 			Wraz z rozwojem informatyki pojawia się coraz więcej układów sprzętowych, różnorodnych protokołów oraz użytecznych aplikacji i bibliotek. Aby napisać sterownik urządzenia lub programową obsługę dla danego protokołu, należy zazwyczaj poświęcić dużo czasu i zasobów na zapoznanie się z dokumentacją, napisanie programu oraz wystarczające przetestowanie.\\
-			Dlatego podczas tworzenia zaawansowanego układu sprzętowego, wygodnym rozwiązaniem jest użycie gotowego i stabilnego kodu, który obsłuży większość potrzebnych użytkownikowi funkcjonalności. Firmy zajmujące się produkcją nowych urządzeń, np. telefonów komórkowych czy routerów bezprzewodowych, zazwyczaj wykorzystują rozwijane przez siebie aplikacje lub proste systemy operacyjne w celu przyspieszenia wstępnej fazy uruchamiania nowego oprogramowania oraz późniejszego efektywnego zarządzania zasobami. Możliwe jest także zastosowanie gotowych rozwiązań, takich jak zaawansowane systemy operacyjne Windows Embedded i Linux; wadą wbudowanej wersji Windowsa jest niestety to że nie jest to darmowe oprogramowanie, oraz w przeciwieństwie do Linuksa nie posiada ogólnodostępnego kodu źródłowego. Dzięki udostępnieniu plików źródłowych jądra systemu Linux na licencji GNU General Public License 2 \cite{gnu_gpl_v2}, każdy programista może dla swoich potrzeb napisać sterownik, a następnie udostępnić go innym - w ten sposób dodawanie nowych funkcjonalności oraz poprawianie ewentualnych błędów jest znacznie uproszczone.\\
+			Dlatego podczas tworzenia zaawansowanego układu sprzętowego, wygodnym rozwiązaniem jest użycie gotowego i stabilnego kodu, który obsłuży większość potrzebnych użytkownikowi funkcjonalności. Firmy zajmujące się produkcją nowych urządzeń, np. telefonów komórkowych czy routerów bezprzewodowych, zazwyczaj wykorzystują rozwijane przez siebie aplikacje lub proste systemy operacyjne w celu przyspieszenia wstępnej fazy uruchamiania nowego oprogramowania oraz późniejszego efektywnego zarządzania zasobami. Możliwe jest także zastosowanie gotowych rozwiązań, takich jak zaawansowane systemy operacyjne Windows Embedded i Linux; wadą wbudowanej wersji Windowsa jest niestety to że nie jest to darmowe oprogramowanie, oraz w przeciwieństwie do Linuksa nie posiada ogólnodostępnego kodu źródłowego. Dzięki udostępnieniu plików źródłowych jądra systemu Linux na licencji GNU General Public License 2 \cite{website:gnu_gpl_v2}, każdy programista może dla swoich potrzeb napisać sterownik, a następnie udostępnić go innym - w ten sposób dodawanie nowych funkcjonalności oraz poprawianie ewentualnych błędów jest znacznie uproszczone.\\
 			Dzięki wiedzy o tym w jaki sposób zaprojektować platformę sprzętową, umożliwiającą uruchomienie systemu operacyjnego na prostym układzie mikroprocesorowym, można stworzyć urządzenie które ma bardzo rozbudowane możliwości, porównywalne z tymi dostępnymi w urządzeniach przenośnych.
 		\section{Cel pracy}
 			Celem niniejszej pracy magisterskiej jest konstrukcja platformy sprzętowej dostosowanej do potrzeb wbudowanego systemu Linux (ang. Embedded Linux). Platforma ma mieć mozliwość podłączenia pamięci masowych typu Compact  Flash lub dysk IDE, wyświetlaczy graficznych LCD, urządzeń USB oraz sieci Ethernet.\\
@@ -79,7 +80,7 @@
 			Podczas konstruowania uniwersalnej platformy sprzętowej dla Linuksa istotne jest wzięcie pod uwagę następujących czynników:
 			\begin{itemize}
 				\item Linux jest systemem 32-bitowym więc procesor użyty w projekcie również powinien mieć architekturę 32-bitową. Co prawda istnieją wersje Linuksa dostosowane dla mikroprocesorów 8- lub 16-bitowych, jednak nie są one dostatecznie wspierane.
-				\item System operacyjny Linux wymaga żeby procesor implementował jednostkę zarządzania pamięcią (MMU) w celu efektywnego i bezpiecznego używania pamięci. Istnieje okrojona wersja $\mu$cLinux\cite{uclinux} dostosowana do potrzeb mikroprocesorów niewyposażonych w MMU.
+				\item System operacyjny Linux wymaga żeby procesor implementował jednostkę zarządzania pamięcią (MMU) w celu efektywnego i bezpiecznego używania pamięci. Istnieje okrojona wersja $\mu$cLinux\cite{website:uclinux} dostosowana do potrzeb mikroprocesorów niewyposażonych w MMU.
 				\item Tworzony układ powinien móc wykonać dostateczną liczbę operacji na sekundę oraz mieć ilość pamięci RAM wystarczającą do uruchomienia zaawansowanego systemu operacyjnego.
 				\item Platforma powinna umożliwić podłączenie jak najmniejszym kosztem sieci Ethernet, urządzeń USB oraz wszelkich innych układów.
 			\end{itemize}
@@ -112,7 +113,7 @@
 				\end{itemize}
 			\subsection{Porównanie dostępnych układów}
 				Na rynku jest dostępnych wiele procesorów o architekturach spełniających wymagania projektu m.in. x86, PowerPC, MIPS, ARM i AVR32, jednak jedynie 2 ostatnie z nich są łatwo dostępne w ilościach detalicznych.\\
-				Zarówno ARM jak i AVR32 są wspierane przez jądro systemu Linux, jednak kod dla 32-bitowej architektury mikrokontrolerów AVR został udostępniony stosunkowo niedawno, bo dopiero w wersji 2.6.19. W związku z tym zdecydowano się na wykorzystanie jednego z procesorów zawierających rdzeń firmy ARM\cite{arm}, które już od dłuższego czasu posiadają stabilne sterowniki w źródłach kernela.\\
+				Zarówno ARM jak i AVR32 są wspierane przez jądro systemu Linux, jednak kod dla 32-bitowej architektury mikrokontrolerów AVR został udostępniony stosunkowo niedawno, bo dopiero w wersji 2.6.19. W związku z tym zdecydowano się na wykorzystanie jednego z procesorów zawierających rdzeń firmy ARM\cite{website:arm}, które już od dłuższego czasu posiadają stabilne sterowniki w źródłach kernela.\\
 				Układy oparte o rdzenie ARM są produkowane przez różne firmy np. Philips zajmuje się wytwarzaniem mikrokontrolerów ARM7TDMI, niestety nie są one wyposażone w jednostkę MMU, natomiast firma Atmel jest uznanym producentem układów m.in. z rodzin ARM9TDMI i ARM9E. Mikroprocesory z nowszymi rdzeniami, takimi jak XScale i Cortex, są trudno dostępne do zakupu oraz występują zazwyczaj w obudowach BGA.\\
 				Po zapoznaniu z ofertą firmy Atmel, okazało się że jedynie mikrokontrolery AT91RM9200 i AT91SAM9260 spełniają wymagania projektu (są dostępne w Polsce oraz występują w obudowach QFP208). W tabeli \ref{tab:arm_comparison} znajduje się porównanie najważniejszych cech obu układów.
 				
@@ -163,7 +164,9 @@
 				Mikrokontroler AT91RM9200 po zresetowaniu szuka programu w pamięci Serial Dataflash podłączonej do interfejsu SPI0. Jeśli zostanie znaleziony prawidłowy program, zostanie on załadowany do pamięci SRAM i stamtąd uruchomiony.
 			\subsection{Karty pamięci}
 				Platforma ma możliwość włożenia 2 kart pamięci SD/MMC. Na pierwszej z nich znajduje się główny system plików i korzysta ona ze standardowego równoległego, 4-bitowego interfejsu MCI (Multimedia Card Interface) w celu jak najszybszej pracy. Druga z kart używa szeregowego interfejsu SPI i może służyć do zapisywania danych wykorzystywanych przez użytkownika.
-		\section{Standard sieciowy Ethernet}
+		\section{Sieć Ethernet}
+			Wykorzystanie opisanego przez standard IEEE 802.3 protokołu przesyłu danych między maszynami połączonymi w sieć jest jednym z wymagań projektu. Dzięki zastosowaniu Ethernetu możliwe jest nie tylko połączenie z siecią Internet, co daje bardzo duże możliwości, ale także ułatwione staje się przesyłanie plików, np. poprawionych sterowników, na docelową platformę.\\
+			AT91RM9200 posiada wbudowany kontroler warstwy łącza danych MAC 10/100T z interfejsem MII (Media Independent Interface) pozwalający na przesył danych z szybkością 100Mb/s. W celu podłączenia kabla sieciowego, czyli popularnej skrętki, należy użyć dodatkowego układu pośredniczącego między interfejsem mikrokontrolera a gniazdkiem sieciowym z transformatorem. W tym celu wykorzystano kontroler warstwy fizycznej STE100P. Kod źródłowy dla sterownika tego urządzenia został zaczerpnięty z przykładowych projektów znajdujących się w dodatku \ref{app:przykladowe_projekty}.
 		\section{Standard transmisji USB}
 			USB (Universal Serial Bus) jest bardzo popularnym standardem szeregowej transmisji danych. Za jego pomocą można połączyć rozmaite urządzenia m.in. myszki, klawiatury, nośniki danych, kamery internetowe.
 			\subsection{Host USB}
@@ -180,23 +183,39 @@
 			\subsection{Kontroler wyświetlacza}
 				Większość dostępnych sterowników kolorowych paneli TFT nie jest w stanie obsłużyć wyświetlacza o dużej rozdzielczości w pełnej głębi koloru. Istotnym parametrem takiego układu jest ilość wbudowanej pamięci stosowanej do przechowywania wyświetlanego obrazu.\\
 				W projekcie użyto sterownika SSD1906 firmy Solomon, który posiada 256kB pamięci SRAM i potrafi wyświetlać obraz w głębi 18 bitów. Dostępna pamięć układu pozwala jednak jedynie na wyświetlenie obrazu o rozdzielczości 480*272 pikseli używając 16 bitowej palety kolorów (480 * 272 * 16 bitów = 261120 bitów = 255 kB). Dodatkowo układ scalony SSD1906 posiada funkcje takie jak obracanie wyświetlanego obrazu, wybór okna wyświetlania i sterowanie podświetleniem poprzez specjalne linie.
-		\section{Urządzenia peryferyjne mikrokontrolera}
-			Układ scalony AT91RM9200 posiada wiele wbudowanych układów mogących pełnić różne funkcje. Poniżej znajduje się ich lista wraz z przykładowymi zastosowaniami.
-			\begin{itemize}
-				\item SPI
-			\end{itemize}
+%		\section{Urządzenia peryferyjne mikrokontrolera}
+%			AT91RM9200 posiada wiele wbudowanych układów mogących pełnić różne funkcje. Poniżej znajduje się ich lista wraz z przykładowymi zastosowaniami.
+%			\begin{itemize}
+%				\item SPI
+%			\end{itemize}
 		\section{Pozostałe układy}
 			\subsection{JTAG}
 				\label{sec:jtag}
+				W celu zaprogramowania mikroprocesora oraz krokowego wykonywania programu przydatne jest wykorzystanie protokołu JTAG (ang. Joint Test Action Group) zdefiniowanego w standardzie IEEE 1149.1.\\
+				Oprócz sprzętowego wsparcia zawartego w układzie scalonym AT91RM9200, konieczne jest wykorzystanie specjalizowanego interfejsu używanego do komunikacji z komputerem klasy PC. Przykładem takiego układu jest ARM JTAG Turtelizer 2 \cite{website:turtelizer2}, który jest wykorzystywany w popularnym projekcie Ethernut\textsuperscript{\textregistered}.\\
+				Aby uzyskać poprawną współpracę z przedstawionym interfejsem sprzętowym należy podać niski stan logiczny na wejście JTAGSEL mikrokontrolera.
 			\subsection{Przetwornik Audio}
+				Jednym z ważniejszych dodatkowych układów scalonych zawartych w projekcie jest przetwornik cyfrowo-analogowy używany do odtwarzania sygnału dźwiękowego.\\
+				TLV320DAC23 jest w stanie odtwarzać dźwięk stereo z częstotliwością próbkowania do 96 kHz, posiada wbudowany wzmacniacz słuchawkowy oraz interfejsy cyfrowe SPI i I\textsuperscript{2}S.
 			\subsection{Inne możliwości}
+				Platforma sprzętowa powinna umożliwić dołączenie dodatkowych układów, takich jak np. moduły Bluetooth, WiFi czy zewnętrzne nośniki danych. Większość z nich można podłączyć poprzez łącze USB, jednak zdecydowano się oprócz tego na podział projektu na 2 części tak aby możliwa była zmiana konfiguracji sprzętowej (szczegółowy opis znajduje się w sekcji \ref{sec:projekt_platformy}).
 		\section{Projekt platformy}
 			\label{sec:projekt_platformy}
+				\begin{figure}[]
+					\begin{center}
+						\label{fig:block_schematic}
+						\includegraphics[scale=0.6]{img/schematic.jpg}
+						\caption{Schemat blokowy projektu}
+					\end{center}
+				\end{figure}
+				Rysunek \ref{fig:block_schematic} przedstawia schemat ideowy przykładowego rozwiązania platformy sprzętowej. Projekt zdecydowano wykonać w darmowej wersji programu do projektowania płytek drukowanych Eagle, jednak z powodu ograniczeń tej wersji (maksymalny rozmiar pojedynczej płytki to 100mm*80mm) wystąpiła potrzeba podziału projektu na części opisane w punktach \ref{sec:main_board}, \ref{sec:ext_board} i \ref{sec:programator}.
 			\subsection{Główna płytka sprzętowa}
+				\label{sec:main_board}
 			\subsection{Dodatkowa płytka sprzętowa}
+				\label{sec:ext_board}
 			\subsection{Programator}
 				\label{sec:programator}
-				Aby zaoszczędzić miejsce na głównej płytce wchodzącej w skład projektu, zdecydowałem że układy scalone, złącza, oraz pozostałe elementy używane tylko podczas programowania lub debuggowania układu będą znajdować się na osobnej płytce drukowanej dołączanej za pomocą przewodu do transmisji danych. TODO: photo itp
+				Aby zaoszczędzić miejsce na głównej płytce wchodzącej w skład projektu, zdecydowano że układy scalone, złącza, oraz pozostałe elementy używane tylko podczas programowania lub debuggowania układu będą znajdować się na osobnej płytce drukowanej dołączanej za pomocą przewodu do transmisji danych. TODO: photo itp
 			\subsection{Lutowanie}
 			\subsection{Gotowy układ}
 				
@@ -217,7 +236,7 @@
 		
 			\subsection{OpenOCD}
 				Aby połączyć się z układem mikroprocesorowym za pomocą złącza JTAG należy zastosować specjalne oprogramowanie, które pozwoli na przetworzenie poleceń użytkownika, wydawanych za pośrednictwem komputera PC, na odpowiednie polecenia protokołu JTAG.\\
-				Jedną z takich aplikacji jest Open On-Chip Debugger\cite{openocd}, który działa na zasadzie serwera uruchamianego w tle i oczekującego na polecenia użytkownika.
+				Jedną z takich aplikacji jest Open On-Chip Debugger\cite{website:openocd}, który działa na zasadzie serwera uruchamianego w tle i oczekującego na polecenia użytkownika.
 				\subsubsection{Instalacja}
 					Stabilną wersję OpenOCD można pobrać ze strony domowej projektu, jednak wersja 0.2.0 nie współdziałała poprawnie z zastosowanym w tej pracy układem sprzętowym JTAG. W związku z tym użyto działającej wersji numer 1679 dostępnej pod kontrolą źródeł SVN na stronie twórców.\\
 					Aby skompilować i zainstalować aplikację należy doinstalować sterowniki odpowiednie dla obsługi sprzętowej używanego programatora JTAG. Na systemie operacyjnym Debian wystarczy, mając uprawnienia administratora, wydać komendę:\\
@@ -364,6 +383,22 @@ $_TARGETNAME configure -work-area-virt 0x00200000 -work-area-phys
 %				\label{fig:main_sch}
 %				\includegraphics[scale=1.0,angle=90]{img/main_sch.png}
 %				\caption{Schemat podłączenia dodatkowych układów do głównej części projektu}
+%			\end{center}
+%		\end{figure}
+%		
+%		\begin{figure}[h]
+%			\begin{center}
+%				\label{fig:ext_sch_lcd}
+%				\includegraphics[scale=1.0,angle=90]{img/ext_sch1.png}
+%				\caption{Schemat podłączenia wyświetlacza i kontrolera LCD}
+%			\end{center}
+%		\end{figure}
+%		
+%		\begin{figure}[h]
+%			\begin{center}
+%				\label{fig:ext_sch_rest}
+%				\includegraphics[scale=1.0]{img/ext_sch2.png}
+%				\caption{Schemat podłączenia dodatkowych elementów rozszerzających możliwości projektu}
 %			\end{center}
 %		\end{figure}
 %		
