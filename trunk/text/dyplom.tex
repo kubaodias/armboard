@@ -201,26 +201,62 @@
 				Platforma sprzętowa powinna umożliwić dołączenie dodatkowych układów, takich jak np. moduły Bluetooth, WiFi czy zewnętrzne nośniki danych. Większość z nich można podłączyć poprzez łącze USB, jednak zdecydowano się oprócz tego na podział projektu na 2 części tak aby możliwa była zmiana konfiguracji sprzętowej (szczegółowy opis znajduje się w sekcji \ref{sec:projekt_platformy}).
 		\section{Projekt platformy}
 			\label{sec:projekt_platformy}
-				\begin{figure}[]
+				\begin{figure}[h!]
 					\begin{center}
-						\label{fig:block_schematic}
 						\includegraphics[scale=0.6]{img/schematic.jpg}
 						\caption{Schemat blokowy projektu}
+						\label{fig:block_schematic}
 					\end{center}
 				\end{figure}
-				Rysunek \ref{fig:block_schematic} przedstawia schemat ideowy przykładowego rozwiązania platformy sprzętowej. Projekt zdecydowano wykonać w darmowej wersji programu do projektowania płytek drukowanych Eagle, jednak z powodu ograniczeń tej wersji (maksymalny rozmiar pojedynczej płytki to 100mm*80mm) wystąpiła potrzeba podziału projektu na części opisane w punktach \ref{sec:main_board}, \ref{sec:ext_board} i \ref{sec:programator}.
+				Rysunek \ref{fig:block_schematic} przedstawia schemat ideowy przykładowego rozwiązania platformy sprzętowej. Projekt zdecydowano wykonać w darmowej wersji programu do projektowania płytek drukowanych Eagle, jednak z powodu ograniczeń tej wersji (dozwolony maksymalny rozmiar pojedynczej płytki to 100mm*80mm) wystąpiła potrzeba podziału projektu na części opisane w punktach \ref{sec:main_board}, \ref{sec:ext_board} i \ref{sec:programator}. Podział taki spowodował uzyskanie projektu mniejszej wielkości oraz możliwość zmiany konfiguracji sprzętowej poprzez wymianę dodatkowej płytki PCB.\\
+				Dwuwarstwowe płytki drukowane zostały wykonane w firmie Merkar z Katowic.\\
+				Schematy ideowe, projekt PCB oraz zdjęcia wykonanego układu znajdują się w dodatku \ref{app:gotowy_projekt}.
 			\subsection{Główna płytka sprzętowa}
 				\label{sec:main_board}
+				\subsubsection{Opis}
+					Podstawowa część projektu jest w stanie samodzielnie obsługiwać system operacyjny Linux. W jej skład wchodzą:
+					\begin{itemize}
+						\item Mikroprocesor AT91RM9200
+						\item Zasilanie układu oraz kontroler resetu
+					\item 64MB pamięci SDRAM
+						\item Złącze karty pamięci SD/MMC przeznaczonej na system operacyjny
+						\item Sterownik warstwy fizycznej Ethernetu oraz gniazdko RJ-45
+						\item Pamięć Serial Dataflash przechowująca programy uruchomieniowe
+						\item Złącza dla programatora oraz dodatkowej płytki drukowanej
+					\end{itemize}
+					Za pomocą dwóch 40-pinowych złączy szpilkowych zostały wyprowadzone linie zasilania +3.3V i +5V oraz 54 linie ogólnego użytku, w tym magistrala EBI (External Bus Interface), TWI (Two Wire Interface), SPI (Serial Peripheral Interface), SSC (Synchronous Serial Controller).\\
+				\subsubsection{Uwagi}
+					Podczas projektowania tej części platformy należało zwracać uwagę na wymienione poniżej zagadnienia.
+					\begin{itemize}
+						\item Do zasilania projektu użyto zasilacza impulsowego +5V/2.5A. Na wejściu zastosowano bezpiecznik 1.5A, diodę zabezpieczającą oraz serię kondensatorów elektrolitycznych i tantalowych.\\
+						Ponieważ do działania układu jest dodatkowo konieczne napięcie +3.3V i +1.8V, zastosowano stabilizatory LM3940IMP-3.3 o maksymalnym obciążeniu prądowym 1A i LM1117-1.8 o obciążeniu 800mA.\\
+						Napięcie +3.3V jest używane przez większość układów scalonych oraz transformator w gniazdku RJ-45. Do podświetlania wyświetlacza LCD jest potrzebne napięcie +5V, dlatego użyto bezpiecznika o dopuszczalnej wartości prądowej 1.5A.
+						\item Ważne jest zapewnienie poprawnego startu mikrokontrolera dzięki podłączeniu pamięci Dataflash i zwarciu nóżki BMS mikrokontrolera poprzez opornik do napięcia zasilania. Po zresetowaniu mikrokontrolera zostanie uruchomiony program zawarty w pamięci ROM, który jest odpowiedzialny za przeszukanie kolejno pamięci Serial Dataflash podłączonej do portu SPI0, pamięci EEPROM dołączonej przez interfejs TWI oraz pamięci równoległej aktywowanej sygnałem NCS0, w celu znalezienia poprawnego wektora wskazującego na kod aplikacji. Jeśli taki wektor zostanie znaleziony to kod jest ładowany z danego układu do pamięci SRAM mikrokontrolera i stamtąd wykonywany. W przeciwnym razie nowy kod w postaci binarnej może zostać przesłany poprzez szeregowy interfejs DBGU za pomocą prokołu XModem lub łączem USB wykorzystując zaprojektowany przez Atmel protokół DFU (Device Firmware Upgrade). Po poprawnym ściągnięciu obrazu aplikacji do pamięci SRAM nastąpi wykonanie pierwszego rozkazu.\\
+							W celu prawidłowego skonfigurowania portu szeregowego lub USB należy użyć rezonatora kwarcowego o jednej z wartości wskazanych w dokumentacji AT91RM9200 (np. 18.432MHz).
+						\item Jako zewnętrzną pamięć SDRAM użyto dwóch kości o pojemności 32MB każda i szerokości słowa 16 bit. Aby uzyskać częstotliwość pracy magistrali powyżej 60MHz (przy takiej szybkości pracy linie używane do przesyłu danych zachowują się jak linie długie) należało zwracać szczególną uwagę na mogące wystąpić następujące problemy.
+							\begin{itemize}
+								\item Układy pamięci umieścić możliwie jak najbliżej procesora, aby skrócić czas propagacji sygnału. W projekcie udało się uzyskać minimalną długość linii ok. 20mm.
+								\item Wszystkie ścieżki między procesorem a pamięcią powinny mieć jak najbardziej zbliżoną do siebie długość aby wyrównać czas propagacji sygnałów i impedancję linii. Z powodu braku miejsca na dwuwarstwowej płytce drukowanej wyrównanie długości nie było w pełni możliwe - uzyskano wartości rzędu 20-30mm.
+							\end{itemize}
+						\item Gniazda szpilkowe używane do połączenia z dodatkową płytką drukowaną powinny wyprowadzać jak najwięcej użytecznych linii sygnałowych oraz linie napięcia zasilania +3.3V i +5V.
+					\end{itemize}
 			\subsection{Dodatkowa płytka sprzętowa}
 				\label{sec:ext_board}
+				Na przykładowej dodatkowej płytce drukowanej znajdują się wymienione układy:
+				\begin{itemize}
+					\item Kontroler wyświetlacza LCD SSD1906, sterownik podświetlenia TPS61040 i złącza ZIF do podłączenia panelu TFT LQ043T3DX02.
+					\item Przetwornik audio cyfrowo-analogowy TLV320DAC23 i gniazdo Jack dla słuchawek lub głośników aktywnych.
+					\item Gniazdo na karty pamięci MicroSD do przechowywania danych użytkownika.
+				\end{itemize}
+				Podczas projektowania tej części platformy należało zwracać uwagę głównie na dostosowanie wymiarów w celu podłączenia do podstawowej płytki sprzętowej. Płytki są umieszczane jedna na drugiej i łączone za pomocą gniazda szpilkowego zatem żadne wystające elementy nie mogą znajdować się w tych samych rejonach. Dodatkowo istotne było właściwe ustawienie gniazda na taśmę wyświetlacza LCD.
 			\subsection{Programator}
 				\label{sec:programator}
-				Aby zaoszczędzić miejsce na głównej płytce wchodzącej w skład projektu, zdecydowano że układy scalone, złącza, oraz pozostałe elementy używane tylko podczas programowania lub debuggowania układu będą znajdować się na osobnej płytce drukowanej dołączanej za pomocą przewodu do transmisji danych. TODO: photo itp
+				Aby zaoszczędzić miejsce na głównej płytce wchodzącej w skład projektu, zdecydowano że układy scalone, złącza, oraz pozostałe elementy używane tylko podczas programowania lub debuggowania układu będą znajdować się na osobnej płytce drukowanej dołączanej za pomocą 16-sygnałowego przewodu do transmisji danych. Programator zawiera zatem złącze do interfejsu JTAG, port szeregowy UART oraz port do debuggowania układu DBGU. Schemat ideowy programatora oraz projekt płytki drukowanej znajdują się na rysunku \ref{fig:programator} w dodatku \ref{app:gotowy_projekt}.
 			\subsection{Lutowanie}
+			
 			\subsection{Gotowy układ}
 				
-
-			\subsection{Problemy}
+			\subsection{Problemy sprzętowe}
 
 
 
@@ -444,6 +480,16 @@ $_TARGETNAME configure -work-area-virt 0x00200000 -work-area-phys
 %			\caption{Dodatkowa płytka drukowana}
 %			\label{fig:pcb2}
 %		\end{figure}
+%	
+%		\begin{figure}[]
+%			\begin{center}
+%				\subfigure[Schemat ideowy programatora wykonany w programie Eagle]{\label{fig:programator_sch}\includegraphics[scale=0.55]{img/programator_sch.png}}\\
+%				\vspace{40pt}
+%				\subfigure[Plik .brd programu Eagle dla programaora]{\label{fig:programator_brd}\includegraphics[scale=1.4]{img/programator_brd.png}}
+%			\end{center}
+%			\caption{Projekt programatora}
+%			\label{fig:programator}
+%		\end{figure}
 	
 	
 	\chapter{Przykładowe projekty}
@@ -451,19 +497,19 @@ $_TARGETNAME configure -work-area-virt 0x00200000 -work-area-phys
 	\begin{itemize}
 		\item \texttt{http://www.atmel.com/dyn/resources/prod\_documents/doc6103.pdf}\\
 			Zestaw uruchomieniowy firmy Atmel dla AT91RM9200.\\
-			\scriptsize{(strona sprawdzana 15.08.2009)}
+			\scriptsize{(strona odwiedzana w dniu 15.08.2009)}
 			\normalsize
 		\item \texttt{http://blackmesaeast.com.pl/projects/electronics/sarge-single-\\board-computer/}\\
 			Projekt autorstwa Grzegorza Rajtara wykorzystujący mikrokontroler AT91RM9200 i kontroler sieciowy STE100P.\\
-			\scriptsize{(strona sprawdzana 15.08.2009)}
+			\scriptsize{(strona odwiedzana w dniu 15.08.2009)}
 			\normalsize
 		\item \texttt{http://bryndza.boff.pl/index.php?dz=proj\&id=armputer210}\\
 			Projekt autorstwa Lucjana Bryndzy pełniący rolę serwera sieciowego.\\
-			\scriptsize{(strona sprawdzana 15.08.2009)}
+			\scriptsize{(strona odwiedzana w dniu 15.08.2009)}
 			\normalsize
 		\item \texttt{http://www.olimex.com/dev/sam9-L9261.html}\\
 			Zestaw uruchomieniowy firmy Olimex dla mikroprocesora AT91SAM9261.\\
-			\scriptsize{(strona sprawdzana 15.08.2009)}
+			\scriptsize{(strona odwiedzana w dniu 15.08.2009)}
 			\normalsize
 	\end{itemize}
 	
