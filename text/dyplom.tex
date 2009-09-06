@@ -13,7 +13,7 @@
 
 \geometry{verbose,a4paper,tmargin=2.5cm,bmargin=2.5cm,lmargin=3cm,rmargin=2.5cm}
 
-\linespread{1.3}
+\linespread{1.5}
 
 \pagestyle{empty}
 
@@ -30,31 +30,31 @@
 			\end{center}
 		\end{figure}
 
-		\vspace{-10pt}
+		\vspace{-9pt}
 		\begin{center}
 			
 			\Large{\textbf{P}}\large{\textbf{OLITECHNIKA}}\Large{\textbf{ Ś}}\large{\textbf{LĄSKA}}\\
 
-			\vspace{12pt}
+			\vspace{10pt}
 			
 			\Large{\textbf{W}}\large{\textbf{YDZIAŁ }}\Large{\textbf{A}}\large{\textbf{UTOMATYKI, }}\Large{\textbf{E}}\large{\textbf{LEKTRONIKI I }}\Large{\textbf{I}}\large{\textbf{NFORMATYKI}}\\
 
-			\vspace{80pt}
+			\vspace{75pt}
 			
 			\Large{Praca dyplomowa magisterska}
 			
-			\vspace{40pt}
+			\vspace{38pt}
 			
 			\large{Konstrukcja platformy sprzętowej dla potrzeb \\wbudowanego systemu Linux}
 		\end{center}
-		\vspace{90pt}
+		\vspace{85pt}
 		
 		\begin{flushleft}
 			\large{Autor: Jakub Odias}\\
 			\vspace{5pt}
 			\large{Kierujący pracą: dr inż. Krzysztof Tokarz}\\
 
-			\vspace{110pt}
+			\vspace{105pt}
 			\normalsize{Gliwice, sierpień 2009}
 		\end{flushleft}
 	\end{titlepage}}
@@ -226,6 +226,7 @@
 					\end{itemize}
 					Za pomocą dwóch 40-pinowych złączy szpilkowych zostały wyprowadzone linie zasilania +3.3V i +5V oraz 54 linie ogólnego użytku, w tym magistrala EBI (External Bus Interface), TWI (Two Wire Interface), SPI (Serial Peripheral Interface), SSC (Synchronous Serial Controller).\\
 				\subsubsection{Uwagi}
+					\label{sec:uwagi}
 					Podczas projektowania tej części platformy należało zwracać uwagę na wymienione poniżej zagadnienia.
 					\begin{itemize}
 						\item Do zasilania projektu użyto zasilacza impulsowego +5V/2.5A. Na wejściu zastosowano bezpiecznik 1.5A, diodę zabezpieczającą oraz serię kondensatorów elektrolitycznych i tantalowych.\\
@@ -245,7 +246,7 @@
 				Na przykładowej dodatkowej płytce drukowanej znajdują się wymienione układy:
 				\begin{itemize}
 					\item Kontroler wyświetlacza LCD SSD1906, sterownik podświetlenia TPS61040 i złącza ZIF do podłączenia panelu TFT LQ043T3DX02.
-					\item Przetwornik audio cyfrowo-analogowy TLV320DAC23 i gniazdo Jack dla słuchawek lub głośników aktywnych.
+					\item Przetwornik audio cyfrowo-analogowy TLV320DAC23 i gniazdo Jack 3.5mm dla słuchawek lub głośników aktywnych.
 					\item Gniazdo na karty pamięci MicroSD do przechowywania danych użytkownika.
 				\end{itemize}
 				Podczas projektowania tej części platformy należało zwracać uwagę głównie na dostosowanie wymiarów w celu podłączenia do podstawowej płytki sprzętowej. Płytki są umieszczane jedna na drugiej i łączone za pomocą gniazda szpilkowego zatem żadne wystające elementy nie mogą znajdować się w tych samych rejonach. Dodatkowo istotne było właściwe ustawienie gniazda na taśmę wyświetlacza LCD.
@@ -253,12 +254,24 @@
 				\label{sec:programator}
 				Aby zaoszczędzić miejsce na głównej płytce wchodzącej w skład projektu, zdecydowano że układy scalone, złącza, oraz pozostałe elementy używane tylko podczas programowania lub debuggowania układu będą znajdować się na osobnej płytce drukowanej dołączanej za pomocą 16-sygnałowego przewodu do transmisji danych. Programator zawiera zatem złącze do interfejsu JTAG, port szeregowy UART oraz port do debuggowania układu DBGU. Schemat ideowy programatora oraz projekt płytki drukowanej znajdują się na rysunku \ref{fig:programator} w dodatku \ref{app:gotowy_projekt}.
 			\subsection{Lutowanie}
+				Założeniem projektu było, aby był on możliwy do zlutowania bez potrzeby użycia zaawansowanego sprzętu. Do lutowania większości elementów wykorzystano zwykłą stację lutowniczą, jednak elementy o rozstawie nóżek 0.5mm (m.in. mikrokontroler AT91RM9200) przylutowano za pomocą stacji na gorące powietrze.
 			
-			\subsection{Gotowy układ}
-				
 			\subsection{Problemy sprzętowe}
-
-
+				W trakcie i po zlutowaniu projektu okazało się że wystąpiło kilka problemów:
+				\begin{itemize}
+					\item W projekcie płytki drukowanej zastosowano złe obudowy niektórych kondensatorów ceramicznych i rezonatora kwarcowego 32.768kHz.
+					\item Po pierwszym uruchomieniu przepalił się bezpiecznik na wejściu układu. Po jego wymianie na bezpiecznik wielokrotny problem dalej występował - zauważono że jeden z kondensatorów tantalowych został wlutowany odwrotnie co powodowało duży pobór prądu przez układ.
+					\item Podczas próby skomunikowania z układem poprzez JTAG okazało się że rozlutowane są nóżki procesora odpowiedzialne za przesył danych do programatora oraz źle przylutowany został przycisk resetujący układ przez co procesor był ciągle w stanie resetu. Po poprawieniu tych błędów komunikacja powiodła się.
+					\item W projekcie programatora zastosowano zły schemat złącza DB-9 używanego do szeregowego przesyłu danych.
+					\item Użyto złego schematu gniazda RJ-45 używanego przez port Ethernet co spowodowało niemożliwość używania sieci w projekcie.
+					\item Ponieważ najpierw zaprojektowana i wykonana została podstawowa część platformy, podczas tworzenia dodatkowej płytki sprzętowej okazało się, że należy poprawić kilka elementów na głównej płytce PCB:
+						\begin{itemize}
+							\item Zapomniano o wyprowadzeniu napięcia zasilania +5V.
+							\item Przydatny okazał się sygnał PCK0, który stanowi programowalny przez mikrokontroler sygnał zegarowy. Jest on używany przez układ SSD1906.
+							\item W pierwotnej wersji projektu nie uwzględniono, że płytki znajdujące się w niedużej odległości jedna nad drugą, zawierają wystające elementy, takie jak kondensatory ceramiczne i złącza. Główna płytka sprzętowa została nieznacznie poprawiona pod tym względem.
+						\end{itemize}
+				\end{itemize}
+				Wszystkie znalezione błędy zostały pomyślnie poprawione w ostatecznej wersji projektu.
 
 
 
@@ -266,8 +279,17 @@
 % CZĘŚĆ PROGRAMOWA
 %------------------------------------------------------------------------------------
 
-	\chapter{Częć programowa}
+	\chapter{Część programowa}
 		\section{Wprowadzenie}
+			Posiadając działającą platformę sprzętową można przejść do części programowej projektu, na którą składa się:
+			\begin{itemize}
+				\item Zapoznanie się ze sposobami programowej komunikacji, w tym samego programowania jak i debuggowania układu.
+				\item Uruchomienie programu inicjalizującego (ang. bootloader), odpowiedzialnego za poprawne skonfigurowanie najważniejszych urządzeń sprzętowych zawartych w projekcie a następnie uruchomienie jądra systemu Linux.
+				\item Konfiguracja i kompilacja linuksowego kernela.
+				\item Utworzenie głównego systemu plików.
+				\item Napisanie sterowników dla pozostałych potrzebnych urządzeń.
+			\end{itemize}
+			Dopiero na etapie programowania ujawnia się większość błędów sprzętowych zaistniałych w fazie projektowania platformy.
 		\section{Programowanie układu}
 		
 			\subsection{OpenOCD}
@@ -280,7 +302,7 @@
 					W celu ściągnięcia i zainstalowania samej aplikacji należy wykonać ciąg następujących poleceń:\\
 					\texttt{svn checkout -r 1679 svn://svn.berlios.de/openocd/trunk} - spowoduje pobranie z SVN-a odpowiedniej wersji OpenOCD\\
 					\texttt{./bootstrap} - wstępna konfiguracja\\
-					\texttt{./configure --enable-maintainer-mode --enable-ft2232\_libftdi --prefix=/usr} - konfiguracja aplikacji; dołączenie biblioteki LibFTDI i ustawienie katalogu gdzie ma zostać zainstalowana na /usr\\
+					\texttt{./configure ----enable-maintainer-mode ----enable-ft2232\_libftdi ----prefix=/usr} - konfiguracja aplikacji; dołączenie biblioteki LibFTDI i ustawienie katalogu gdzie ma zostać zainstalowana na /usr\\
 					\texttt{make \&\& make install} - kompilacja i instalacja\\
 					Po poprawnym wykonaniu powyższych komend powinniśmy móc uruchomić oprogramowanie poprzez wykonanie polecenia \texttt{openocd}
 					
@@ -300,7 +322,7 @@ reset halt
 							\end{lstlisting}
 						\item{\texttt{interface/turtelizer.cfg}}\\
 							Ustawienia interfejsu sprzętowego służącego do programowania.\\
-							Opcja \texttt{jtag\_khz} służy do ustawiania szybkości interfejsu, lecz powinna być zmieniana dopiero po ustawieniu odpowiedniej szybkości pracy mikroprocesora.
+							Opcja \texttt{jtag\_khz} służy do ustawiania szybkości interfejsu, lecz powinna być zmieniana dopiero po osiągnięciu odpowiedniej szybkości pracy mikroprocesora.
 							\begin{lstlisting}[basicstyle={\footnotesize\ttfamily}]
 # Configuration file for programming interface
 interface ft2232
@@ -371,21 +393,56 @@ $_TARGETNAME configure -work-area-virt 0x00200000 -work-area-phys
 						\item\texttt{help} - pełny spis poleceń
 					\end{itemize}
 				
-				
-				
-			\subsection{Debug Unit}
-				s
-			\subsection{Kompilator}
-				k
-			\subsection{GDB}
+			\subsection{Debug Unit (DBGU)}
+				Debug Unit jest sprzętowym interfejsem mikrokontrolera, który pozwala na szeregowe przesyłanie danych pomiędzy programowanym układem a komputerem PC. Za pomocą jednostki DBGU można w całości zaprogramować platformę, bez potrzeby stosowania interfejsu JTAG.\\
+				Aby komputer klasy PC mógł się poprawnie komunikować z mikrokontrolerem należy użyć szeregowego kabla typu null-modem oraz programu takiego jak HyperTerminal (Windows) lub minicom (Linux) i zastosować następujące parametry transmisji:\\
+				\texttt{szybkość transmisji: 115200,\\ilość bitów danych: 8,\\bit parzystości:brak,\\bity stopu: 1}\\
+				Po uruchomieniu platformy, na ekranie terminala (np. minicom) powinien pojawiać się znak 'C' zachęcający do rozpoczęcia transmisji danych. Niezaprogramowany mikrokontroler oczekuje w ten sposób na przesłanie kodu programu poprzez protokół XModem. Po otrzymaniu kodu binarnego zostaje on skopiowany do wewnętrznej pamięci SRAM, a następnie stamtąd uruchomiony.\\
+				Bardziej szczegółowy opis postępowania podczas programowania znajduje się w sekcji \ref{sec:bootloader2nd}.
+			\subsection{Środowisko do kompilowania}
+				W celu skompilowania kodu źródłowego dla procesora o architekturze ARM należy użyć kompilatora skrośnego (ang. cross compiler). Kompilator taki jest uruchamiany na standardowym komputerze PC, ale zamiast kompilować kod do rozkazów np. procesora x86, potrafi kompilować i optymalizować programy dla architektury ARM. Oczywiście posiadając działający system oparty o mikroprocesor z rodziny ARM, można na nim zainstalować natywny kompilator i przeprowadzać kompilację do właściwej postaci, jednak zazwyczaj, z uwagi na dużą częstotliwość pracy najnowszych procesorów w zwykłych komputerach PC, szybciej i prościej jest przeprowadzić kompilację z użyciem kompilatora skrośnego.\\
+				Podczas wyboru odpowiedniego kompilatora, nie zawsze najlepszym wyjściem jest pobranie najnowszych dostępnych wersji - należy zwrócić uwagę na kompatybilność kompilatora z dodatkowymi bibliotekami i aplikacjami takimi jak np. linker ld i debugger gdb. Kompilator używany do kompilacji programów dla innej architektury można skompilować samemu, jednak najlepiej zastosować stabilne i przetestowane środowisko (tzw. toolchain), które zostało już skompilowane dla danej architektury i posiada spełnione wszystkie wymagane zależności.\\
+				W projekcie zastosowano toolchain pobrany ze strony \cite{website:gnuarm}, w którego skład wchodzi kompilator gcc-4.0.2-c-c++, dodatkowe aplikacje binarne binutils-2.16.1, oraz biblioteka C przeznaczona dla systemów wbudowanych newlib-1.14.0.
+
 			\subsection{Eclipse}
+				Podczas pisania oprogramowania, warto jest zastosować efektywne środowisko programistyczne, które może znacznie ułatwić proces tworzenia części programowej projektu.\\
+				Jedną z popularniejszych aplikacji tego typu jest środowisko Eclipse, które pozwala na pisanie i kompilowanie oprogramowania w języku C, a także po odpowiedniej konfiguracji jego testowanie i debuggowanie na docelowej platformie dzięki zastosowaniu interfejsu JTAG. Szczegółowy opis konfiguracji został przedstawiony na stronie projektu YAGARTO\cite{website:yagarto}.
+				
 		\section{Bootloader}
+			Bootloader, czyli pierwszy program uruchamiany po zresetowaniu mikrokontrolera, jest odpowiedzialny za zainicjalizowanie podstawowej funkcjonalności platformy, a następnie uruchomienie jądra systemu Linux. Mikrokontroler AT91RM9200 posiada wbudowany program inicjalizujący pierwszego poziomu, którego działanie zostało opisane w sekcji \ref{sec:uwagi}.\\
+			Ponieważ program załadowany z Serial Dataflasha do pamięci SRAM może zajmować co najwyżej 16kB (w tym oprócz samego kodu należy uwzględnić obszar pamięci potrzebny na dane użytkownika) jego funkcjonalność jest znacznie ograniczona. Bardzo trudnym lub niewykonalnym zadaniem jest aby w tak niewielkiej ilości pamięci zmieścić aplikację, która będzie odpowiedzialna za skonfigurowanie pamięci SDRAM, odczytanie kernela z karty pamięci lub sieci i uruchomienie go. Dlatego zdecydowano się że program zawarty w pamięci ROM pobierze z pamięci Serial Dataflash i uruchomi bootloader drugiego poziomu, którego zadaniem będzie konfiguracja pamięci SDRAM i odczytanie głównego programu inicjalizującego, którego kod można umieścić w pamięci synchronicznej. Dopiero główny bootloader, posiadający znacznie bardziej zaawansowaną funkcjonalność, zajmie się uruchomieniem jądra systemu operacyjnego Linux.
 			\subsection{Bootloader inicjalizujący}
+				\label{sec:bootloader2nd}
+				Jako bootloader drugiego poziomu, czyli pierwszą aplikację której kod źródłowy jest dostępny dla użytkownika, zdecydowano się użyć stworzony przez firmę Atmel projekt RomBoot dla zestawu AT91RM9200DK\cite{website:arm_booting}. Kod został przeportowany dla kompilatora gcc zamiast ADS (ARM Developer Suite) a następnie nieznacznie uproszczony i dostosowany do potrzeb platformy sprzętowej. Zadaniem tego programu jest wykonanie następujących operacji:
+				\begin{enumerate}
+					\item Inicjalizacja wektorów przerwań i konfiguracja stosów dla różnych trybów pracy mikrokontrolera.
+					\item Inicjalizacja kontrolera przerwań.
+					\item Ustawienie poprawnej szybkości pracy procesora.
+					\item Skonfigurowanie pamięci synchronicznej SDRAM.
+					\item Zapoczątkowanie komunikacji poprzez port do debuggowania układu DBGU.
+					\item Wyczyszczenie pamięci cache, ustawienie poprawnego trybu pracy układu, zezwolenie na przerwania.
+					\item Inicjalizacja pamięci Serial Dataflash.
+				\end{enumerate}
+				Po pomyślnym wykonaniu powyższych czynności mikrokontroler automatycznie wystartuje główny program inicjalizujący po upływie określonego czasu (domyślnie 0.5 sekundy) lub będzie czekał na polecenia użytkownika. Obecna wersja aplikacji umożliwia wykonanie następujących poleceń:
+				\begin{enumerate}
+					\item Pobranie danych poprzez port szeregowy pod wskazany adres pamięci Serial Dataflash.
+					\item Przeczytanie zawartości pamięci SDRAM pod podanym adresem.
+					\item Przeczytanie zawartości pamięci Serial Dataflash pod podanym adresem.
+					\item Wystartowanie głównego bootloadera.
+					\item Wyczyszczenie obszaru pamięci Dataflash zajmowanego przez podstawowy program inicjalizujący.
+					\item Informacja o pamięci i bootloaderze.
+				\end{enumerate}
+				Skompilowany i zoptymalizowany kod tego bootloadera zajmuje ok. 11kB. Rozmiar ten można jeszcze zmniejszyć ponieważ mikrokontroler AT91RM9200 umożliwia poprzez tzw. Embedded Software Services wykorzystanie funkcji które znajdują się w pamięci ROM i są używane przez bootloader pierwszego poziomu.
+				
 			\subsection{Bootloader główny}
+				f
 		\section{Jądro Linuksa}
+			j
 			\label{sec:linux_kernel}
 			\subsection{Kompilacja}
+				k
 			\subsection{Wybór modułów}
+				m
 		\section{Dystrybucja Linuksa}
 			\subsection{Buildroot}
 		\section{System plików}
@@ -393,7 +450,7 @@ $_TARGETNAME configure -work-area-virt 0x00200000 -work-area-phys
 			\label{sec:linux_modules}
 			\subsection{Ethernet}
 			\subsection{Kontroler LCD}
-		\section{Aplikacja demonstracyjna}
+%		\section{Aplikacja demonstracyjna}
 		
 	\chapter{Podsumowanie}
 
