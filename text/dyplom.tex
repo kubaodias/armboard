@@ -410,10 +410,18 @@ $_TARGETNAME configure -work-area-virt 0x00200000 -work-area-phys
 				
 		\section{Bootloader}
 			Bootloader, czyli pierwszy program uruchamiany po zresetowaniu mikrokontrolera, jest odpowiedzialny za zainicjalizowanie podstawowej funkcjonalności platformy, a następnie uruchomienie jądra systemu Linux. Mikrokontroler AT91RM9200 posiada wbudowany program inicjalizujący pierwszego poziomu, którego działanie zostało opisane w sekcji \ref{sec:uwagi}.\\
-			Ponieważ program załadowany z Serial Dataflasha do pamięci SRAM może zajmować co najwyżej 16kB (w tym oprócz samego kodu należy uwzględnić obszar pamięci potrzebny na dane użytkownika) jego funkcjonalność jest znacznie ograniczona. Bardzo trudnym lub niewykonalnym zadaniem jest aby w tak niewielkiej ilości pamięci zmieścić aplikację, która będzie odpowiedzialna za skonfigurowanie pamięci SDRAM, odczytanie kernela z karty pamięci lub sieci i uruchomienie go. Dlatego zdecydowano się że program zawarty w pamięci ROM pobierze z pamięci Serial Dataflash i uruchomi bootloader drugiego poziomu, którego zadaniem będzie konfiguracja pamięci SDRAM i odczytanie głównego programu inicjalizującego, którego kod można umieścić w pamięci synchronicznej. Dopiero główny bootloader, posiadający znacznie bardziej zaawansowaną funkcjonalność, zajmie się uruchomieniem jądra systemu operacyjnego Linux.
+			Ponieważ program załadowany z Serial Dataflasha do pamięci SRAM może zajmować co najwyżej 16kB (w tym oprócz samego kodu należy uwzględnić obszar pamięci potrzebny na dane użytkownika) jego funkcjonalność jest znacznie ograniczona. Bardzo trudnym lub niewykonalnym zadaniem jest aby w tak niewielkiej ilości pamięci zmieścić aplikację, która będzie odpowiedzialna za skonfigurowanie pamięci SDRAM, odczytanie kernela z karty pamięci lub sieci i uruchomienie go. Dlatego zdecydowano się że program zawarty w pamięci ROM pobierze z pamięci Serial Dataflash i uruchomi bootloader drugiego poziomu (nazwany LAB Bootloader), którego zadaniem będzie konfiguracja pamięci SDRAM i wczytanie do niej głównego programu inicjalizującego. Dopiero główny bootloader, posiadający znacznie bardziej zaawansowaną funkcjonalność, zajmie się uruchomieniem jądra systemu operacyjnego Linux.\\
+			Obydwa programy inicjalizujące są zapisane w pamięci Serial Dataflash (w projekcie użyto układu AT45DB041D o pojemności 512kB), ich rozmieszczenie zostało przedstawione na rysunku \ref{fig:bootloader_map}.
+			\begin{figure}[]
+				\begin{center}
+					\includegraphics[scale=0.6]{img/bootloader_map.jpg}
+					\caption{Zawartość pamięci Serial Dataflash}
+					\label{fig:bootloader_map}
+				\end{center}
+			\end{figure}
 			\subsection{Bootloader inicjalizujący}
 				\label{sec:bootloader2nd}
-				Jako bootloader drugiego poziomu, czyli pierwszą aplikację której kod źródłowy jest dostępny dla użytkownika, zdecydowano się użyć stworzony przez firmę Atmel projekt RomBoot dla zestawu AT91RM9200DK\cite{website:arm_booting}. Kod został przeportowany dla kompilatora gcc zamiast ADS (ARM Developer Suite) a następnie nieznacznie uproszczony i dostosowany do potrzeb platformy sprzętowej. Zadaniem tego programu jest wykonanie następujących operacji:
+				Jako bootloader drugiego poziomu (LAB Bootloader), czyli pierwszą aplikację której kod źródłowy jest dostępny dla użytkownika, zdecydowano się użyć stworzony przez firmę Atmel projekt RomBoot dla zestawu AT91RM9200DK\cite{website:arm_booting}. Kod został przeportowany dla kompilatora gcc zamiast ADS (ARM Developer Suite) a następnie nieznacznie uproszczony i dostosowany do potrzeb platformy sprzętowej. Zadaniem tego programu jest wykonanie następujących operacji:
 				\begin{enumerate}
 					\item Inicjalizacja wektorów przerwań i konfiguracja stosów dla różnych trybów pracy mikrokontrolera.
 					\item Inicjalizacja kontrolera przerwań.
@@ -424,18 +432,42 @@ $_TARGETNAME configure -work-area-virt 0x00200000 -work-area-phys
 					\item Inicjalizacja pamięci Serial Dataflash.
 				\end{enumerate}
 				Po pomyślnym wykonaniu powyższych czynności mikrokontroler automatycznie wystartuje główny program inicjalizujący po upływie określonego czasu (domyślnie 0.5 sekundy) lub będzie czekał na polecenia użytkownika. Obecna wersja aplikacji umożliwia wykonanie następujących poleceń:
-				\begin{enumerate}
+				\begin{itemize}
 					\item Pobranie danych poprzez port szeregowy pod wskazany adres pamięci Serial Dataflash.
 					\item Przeczytanie zawartości pamięci SDRAM pod podanym adresem.
 					\item Przeczytanie zawartości pamięci Serial Dataflash pod podanym adresem.
 					\item Wystartowanie głównego bootloadera.
 					\item Wyczyszczenie obszaru pamięci Dataflash zajmowanego przez podstawowy program inicjalizujący.
 					\item Informacja o pamięci i bootloaderze.
-				\end{enumerate}
+				\end{itemize}
 				Skompilowany i zoptymalizowany kod tego bootloadera zajmuje ok. 11kB. Rozmiar ten można jeszcze zmniejszyć ponieważ mikrokontroler AT91RM9200 umożliwia poprzez tzw. Embedded Software Services wykorzystanie funkcji które znajdują się w pamięci ROM i są używane przez bootloader pierwszego poziomu.
 				
 			\subsection{Bootloader główny}
-				f
+				Po analizie dostępnych rozwiązań, zdecydowano że jako główny bootloader zostanie użyty projekt U-Boot autorstwa Wolfganga Denka\cite{website:uboot}. Wybrany projekt został w znacznej mierze oparty na źródłach systemu operacyjnego Linux oraz posiada wsparcie dla mikrokontrolera AT91RM9200.\\
+				Po pobraniu z internetu i poprawnym skompilowaniu za pomocą polecenia \texttt{make} przystąpiono do dostosowywania aplikacji do potrzeb docelowej platformy sprzętowej. W tym celu skopiowano zawartość przykładowego projektu zawartego w katalogu \texttt{board/atmel/at91rm9200dk} do katalogu \texttt{board/atmel/lab\_at91rm9200} i w dalszej kolejności wykonano następujące czynności:
+				\begin{enumerate}
+					\item Zmodyfikowano nazwę głównego pliku \texttt{at91rm9200dk.c} na \texttt{lab\_at91rm9200.c} i wszystkie nazwy oraz ścieżki w pliku \texttt{Makefile}.
+					\item W pliku źródłowym \texttt{lab\_at91rm9200.c} usunięto funkcje odpowiedzialne za konfigurację pamięci NAND oraz zmieniono funkcję inicjalizującą interfejs sieciowy.
+					\item W pliku \texttt{partition.c} zmieniono konfigurację zawartości pamięci Serial Dataflash (p. rys. \ref{fig:bootloader_map}).
+					\item Do katalogu \texttt{cpu/arm920t/at91rm9200/}, który zawiera pliki źródłowe specyficzne dla zastosowanego mikrokontrolera skopiowano brakujące pliki:
+						\begin{itemize}
+							\item \texttt{atmel\_mci.c} - funkcje do obsługi interfejsu MCI
+							\item \texttt{atmel\_mci.h} - plik nagłówkowy używany przez funkcje obsługujące MCI
+							\item \texttt{ste100p.c} - funkcje do obsługi warstwy fizycznej interfejsu sieciowego
+							\item \texttt{ste100p.h} - plik nagłówkowy używany przez powyższy plik źródłowy
+						\end{itemize}
+					\item W pliku \texttt{Makefile} w katalogu \texttt{cpu/arm920t/at91rm9200/} dodano wpisy dla plików obiektowych \texttt{atmel\_mci.o} i \texttt{ste100p.o}.
+					\item Zmieniono pliki \texttt{drivers/mtd/dataflash.c} i \texttt{include/dataflash.h} pod kątem zastosowanego układu pamięci Serial Dataflash AT45DB041D.
+					\item Dodano plik \texttt{include/asm-arm/arch-at91rm9200/mmc.h}.
+					\item W pliku \texttt{include/configs/lab\_at91rm9200.h} utworzonym na podstawie przykładowego pliku konfiguracyjnego zmodyfikowano wartości takie jak szybkość pracy mikroprocesora, ilość dostępnej pamięci SDRAM oraz opcje dostępne w menu U-Boot.
+					\item Dodano wpis dla platformy \texttt{lab\_at91rm9200} w głównym pliku \texttt{Makefile} projektu U-Boot.
+				\end{enumerate}
+				Skompilowany kod w postaci binarnej umieszczono pod adresem 0x00008000 w pamięci Serial Dataflash za pomocą opcji dostępnej w bootloaderze inicjalizującym.\\
+				\subsubsection{Uruchamianie}
+				Pierwsze próby uruchomienia nie powiodły się - po zdebuggowania z użyciem JTAG-u okazało się że procesor wykonuje skok pod zły adres w pamięci. Ponieważ U-Boot jest uruchamiany z poziomu pamięci SDRAM sugerowało to problemy z czasami dostępu. Zewnętrzna magistrala używana podczas dostępu do pamięci była taktowana zegarem o częstotliwości 60MHz, niestety obniżenie szybkości pracy nie poprawiło efektów działania procesora.\\
+				W pewnym stopniu pomogło wyłączenie w procesorze pamięci cache dla instrukcji. Spowodowało to jednak kilkukrotne spowolnienie działania układu, ponieważ kolejne rozkazy dla procesora były za każdym razem pobierane z pamięci SDRAM.\\
+				% memory_test ???
+				Jak się okazało, problem stanowiła zbyt duża różnica w czasie dostępu do wbudowanej pamięci cache a zewnętrznej pamięci SDRAM. Rdzeń procesora taktowany zegarem 180MHz działał zbyt szybko podczas próby pobrania rozkazu z zewnętrznej pamięci, która korzystała z zegara o częstotliwości 60MHz. Po podwyższeniu tej wartości do 90MHz uruchomienie bootloadera U-Boot powiodło się.
 		\section{Jądro Linuksa}
 			j
 			\label{sec:linux_kernel}
