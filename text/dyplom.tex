@@ -495,14 +495,87 @@ $_TARGETNAME configure -work-area-virt 0x00200000 -work-area-phys
 					\end{itemize}
 					Powyższe poprawki są uwzględnione w pliku \texttt{linux-2.6.27.8-lab\_at91rm9200.patch.gz}.\\
 					Po zastosowaniu wszystkich poprawek można przystąpić do wyboru konkretnych opcji konfiguracyjnych kernela - aby w tym celu skorzystać z pomocy graficznego narzędzia, należy wykonać polecenie \texttt{make ARCH=arm xconfig}.\\
-					Uruchomiona w ten sposób aplikacja, zależnie od wybranej architektury sprzętowej procesora, dzieli strukturę kernela na kilkanaście kategorii. Ich opis wraz z objaśnieniem wyboru modułów został przedstawiony poniżej.
+					Uruchomiona w ten sposób aplikacja, zależnie od wybranej architektury sprzętowej procesora, dzieli strukturę kernela na kilkanaście kategorii. Opis ważniejszych z nich wraz z objaśnieniem wyboru modułów został przedstawiony poniżej. Niektóre funkcjonalności można zbudować jako moduły możliwe do załadowania w razie wystąpienia takiej potrzeby - jeśli system operacyjny nie będzie ich potrzebował będzie zajmował mniej miejsca w pamięci i działał szybciej. Jednakże w systemie wbudowanym zazwyczaj znana jest ostateczna konfiguracja i zadania jakie ma wykonywać platforma, zatem możliwe jest wbudowanie wszystkich wymaganych elementów w samo jądro.
+					\begin{itemize}
+						\item \textit{\textbf{General setup}} - Ogólne ustawienia kernela, domyślne ustawienia są poprawne.
+							\begin{itemize}
+								\item \textbf{Optimize for size} - Jeśli użytkownikowi zależy na rozmiarze zbudowanego obrazu jądra powinien włączyć tą opcję - spowoduje to przekazanie do kompilatora gcc flagi -Os zamiast -O2.
+							\end{itemize}
+						\item \textit{\textbf{Enable loadable module support}} - Pozwala na zastosowanie ładowalnych modułów.
+							\begin{itemize}
+								\item \textbf{Module unloading} - Pozwala na usuwanie modułów z przestrzeni kernela.
+							\end{itemize}
+						\item \textit{\textbf{System Type}} - Opcje specyficzne dla użytego mikrokontrolera.
+							\begin{itemize}
+								\item \textbf{ARM System Type} - Należy wybrać opcję Atmel AT91.
+								\item \textbf{Support ARM920T processor} - Wsparcie dla rdzenia ARM920T zastosowanego w mikrokontrolerze AT91RM9200.
+								\item \textbf{Disable I-cache / D-cache} - Włączenie pamięci cache na instrukcje i dane, powoduje znaczne przyspieszenie działania procesora.
+								\item \textbf{Atmel AT91 System-on-Chip}
+									\begin{itemize}
+										\item \texttt{Atmel AT91 processor} - Należy wybrać AT91RM9200.
+										\item \texttt{Linux ARM Board} - Jedna spośród dostępnych platform sprzętowych (ta pozycja pojawi się jeśli użytkownik zastosował poprawkę opisaną we wcześniejszej części tej sekcji).
+										\item \texttt{Programmable clocks} - Aby używać jednego z programowalnych zegarów PCK0..3 należy zaznaczyć tą opcję - w omawianym projekcie linia PCK0 jest używana przez sterownik wyświetlacza LCD.
+										\item \texttt{Select a UART for early kernel messages} - Port szeregowy wybrany do wyświetlania powiadomień na konsolę to DBGU.
+									\end{itemize}
+							\end{itemize}
+						\item \textit{\textbf{Kernel features}}
+							\begin{itemize}
+								\item \textbf{Use the ARM EABI to compile the kernel} - EABI (Embedded Application Binary Interface) to zestaw reguł używanych we współpracy między aplikacjami i bibliotekami. Włączenie tej opcji powinno spowodować przyspieszenie działania systemu, jednak wymagane jest aby wszystkie aplikacje również były skompilowane z obsługą EABI.
+							\end{itemize}
+						\item \textit{\textbf{Boot options}} - Opcje ważne przy starcie Linuksa.
+							\begin{itemize}
+								\item \textbf{Default kernel command string} - Parametry przekazywane do jądra podczas ładowania głównego systemu plików. Przykład:\\
+								\texttt{mem=64M console=ttyS0,115200 rootfstype=ext2 root=/dev/mmcblk0p2 rootdelay=4 init=/sbin/init}
+							\end{itemize}
+						\item \textit{\textbf{Networking support}} - Umożliwia użycie rozmaitych protokołów sieciowych, dla zbudowanej platformy sprzętowej ważne jest włączenie obsługi stosu TCP/IP oraz ew. modułów filtrujących pakiety (firewall Netfilter).
+						\item \textit{\textbf{Device drivers}} - sterowniki wszystkich urządzeń wspieranych przez Linuksa
+							\begin{itemize}
+								\item \textbf{Memory Technology Device (MTD) support} - Jeśli używane są scalone układy pamięciowe takie jak np. Flash należy zwrócić uwagę na dostępne opcje. Dla opisywanej platformy sprzętowej wystarczy zaznaczyć opcję \texttt{AT91RM9200 DataFlash AT45DBxxx (legacy driver)}.
+								\item \textbf{Block devices} - Urządzenia blokowe.
+									\begin{itemize}
+										\item \texttt{RAM block device support} - Przydatne gdy użytkownik chce używać części pamięci RAM jako urządzenia blokowego przechowującego system plików.
+									\end{itemize}
+								\item \textbf{Misc devices} - Różne urządzenia.
+									\begin{itemize}
+										\item \texttt{Device driver for Atmel SSC peripheral} - Włączenie obsługi interfejsu SSC (Synchronous Serial Communication) używanego przez przetwornik Audio TLV320DAC23.
+									\end{itemize}								
+								\item \textbf{Network device support} - W tym menu należy wybrać wsparcie dla sterownika warstwy fizycznej \texttt{STE100P} oraz warstwy łącza danych (opcja \texttt{AT91RM9200 Ethernet support}). Jeśli używane są sieciowe urządzenia USB należy dodatkowo wybrać odpowiednią opcję.
+								\item \textbf{Input device support} - Obsługa urządzeń wskazujących, w tym klawiatur i myszek.
+								\item \textbf{Character devices} - Wsparcie dla urządzeń znakowych.
+									\begin{itemize}
+										\item \texttt{SPI driver (legacy) for AT91RM9200 processors} - W czasie działania systemu protokół SPI będzie używany tylko do obsługi dodatkowej karty pamięci SD/MMC.
+										\item \texttt{Serial drivers} - W celu debuggowania układu ważne jest zezwolenie na używanie portu szeregowego jako konsoli poprzez opcję \texttt{Support for console on AT91/AT32 serial port}.
+									\end{itemize}
+								\item \textbf{SPI support} - W tym menu należy wybrać właściwy kontroler dla protokołu SPI (\texttt{Atmel SPI Controller}).
+								\item \textbf{Watchdog timer support} - Jeśli użytkownik chce używać układu resetującego działanie procesora w przypadku bezczynności (w celu wykrywania błędów w aplikacjach) powinien włączyć tą opcję.
+								% TODO: framebuffer?
+								\item \textbf{USB support} - Wsparcie dla rozmaitych urządzeń USB.
+								\item \textbf{MMC/SD card support} - Obsługa protokołów MMC i SD.
+									\begin{itemize}
+										\item \texttt{MMC block device driver} - Spowoduje skonfigurowanie czytnika kart pamięci jako urządzenia blokowego. Możliwe staje się wtedy korzystanie z systemu plików zawartego na karcie.
+										\item \texttt{AT91 SD/MMC Card Interface support} - Wybranie interfejsy MCI firmy Atmel.
+									\end{itemize}
+								\item \textbf{Real time clock} - Umożliwia korzystanie z wbudowanego w AT91RM9200 zegara czasu rzeczywistego.
+							\end{itemize}
+						\item \textit{\textbf{File systems}} - Wybór głównego systemu plików został przedstawiony w sekcji \ref{sec:filesystem}. Użytkownik może w tym menu zaznaczyć dodatkowe systemy plików jako moduły, co spowoduje ich dynamiczne załadowanie w razie potrzeby.				
+					\end{itemize}
+					Po zapisaniu zostanie utworzony plik \texttt{.config} zawierający wszystkie wybrane opcje.
 				\subsubsection{Kompilacja}
-					k
+					W celu zbudowania nowego jądra systemu operacyjnego Linux należy wykonać serię wymienionych poniżej poleceń:
+					\begin{itemize}
+						\item \texttt{make dep} - utworzenie wszystkich zależności
+						\item \texttt{make clean} - wyczyszczenie pozostałości po poprzednio budowanym kernelu
+						\item \texttt{make ARCH=arm CROSS\_COMPILE=/opt/gnuarm-4.0.2/bin/arm-elf-} - skompilowanie jądra dla architektury ARM z użyciem podanego kompilatora skrośnego
+						\item \texttt{make uImage} - utworzenie obrazu binarnego, który może zostać uruchomiony przez bootloader
+					\end{itemize}
+					Przed wykonaniem ostatniego kroku należy się upewnić, czy aplikacja \texttt{mkimage} zawarta w katalogu \texttt{tools} bootloadera U-Boot jest widziana podczas budowania jądra (jeśli nie jest, należy dodać katalog \texttt{tools} do zmiennej środowiskowej \texttt{PATH}). Narzędzie \texttt{mkimage} służy do dodania niedużego nagłówka do zbudowanego obrazu, tak aby U-Boot wiedział spod jakiego adresu należy wystartować jądro systemu operacyjnego Linux.\\
+					Po pomyślnym wykonaniu podanych poleceń w katalogu \texttt{arch/arm/boot/} źródeł Linuksa powinien znaleźć się plik \texttt{uImage} będący skompresowanym obrazem systemu operacyjnego (jego rozmiar dla wybranej konfiguracji to ok. 1MB). Dodatkowo, jeśli użytkownik skompilował niektóre funkcje jako moduły, odpowiednie pliki z rozszerzeniem \texttt{.ko} będą znajdowały się w podkatalogu \texttt{lib/modules/2.6.27.8}. Aby działający system mógł je poprawnie załadować należy skopiować podany katalog do głównego katalogu w docelowym systemie plików. 
 			\subsection{Dystrybucja}
 				f
 				\subsubsection{Buildroot}
 					b
 			\subsection{System plików}
+				\label{sec:filesystem}
 				s
 			\subsection{Uruchamianie}
 				u
@@ -609,7 +682,7 @@ $_TARGETNAME configure -work-area-virt 0x00200000 -work-area-phys
 %			\caption{Projekt programatora}
 %			\label{fig:programator}
 %		\end{figure}
-%	
+
 	
 	\chapter{Przykładowe projekty}
 	\label{app:przykladowe_projekty}
