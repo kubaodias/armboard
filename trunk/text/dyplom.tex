@@ -61,6 +61,8 @@
 
 	\tableofcontents
 
+	\pagestyle{plain}
+	
 %------------------------------------------------------------------------------------
 % WSTĘP
 %------------------------------------------------------------------------------------
@@ -68,7 +70,7 @@
 	\chapter{Wstęp}
 		\section{Wprowadzenie}
 			Wraz z rozwojem informatyki pojawia się coraz więcej układów sprzętowych, różnorodnych protokołów oraz użytecznych aplikacji i bibliotek. Aby napisać sterownik urządzenia lub programową obsługę dla danego protokołu, należy zazwyczaj poświęcić dużo czasu i zasobów na zapoznanie się z dokumentacją, napisanie programu oraz wystarczające przetestowanie.\\
-			Dlatego podczas tworzenia zaawansowanego układu sprzętowego, wygodnym rozwiązaniem jest użycie gotowego i stabilnego kodu, który obsłuży większość potrzebnych użytkownikowi funkcjonalności. Firmy zajmujące się produkcją nowych urządzeń, np. telefonów komórkowych czy routerów bezprzewodowych, zazwyczaj wykorzystują rozwijane przez siebie aplikacje lub proste systemy operacyjne w celu przyspieszenia wstępnej fazy uruchamiania nowego oprogramowania oraz późniejszego efektywnego zarządzania zasobami. Możliwe jest także zastosowanie gotowych rozwiązań, takich jak zaawansowane systemy operacyjne Windows Embedded i Linux; wadą wbudowanej wersji Windowsa jest niestety to że nie jest to darmowe oprogramowanie, oraz w przeciwieństwie do Linuksa nie posiada ogólnodostępnego kodu źródłowego. Dzięki udostępnieniu plików źródłowych jądra systemu Linux na licencji GNU General Public License 2 \cite{website:gnu_gpl_v2}, każdy programista może dla swoich potrzeb napisać sterownik, a następnie udostępnić go innym - w ten sposób dodawanie nowych funkcjonalności oraz poprawianie ewentualnych błędów jest znacznie uproszczone.\\
+			Dlatego podczas tworzenia zaawansowanego układu sprzętowego, wygodnym rozwiązaniem jest użycie gotowego i stabilnego kodu, który obsłuży większość potrzebnych użytkownikowi funkcjonalności. Firmy zajmujące się produkcją nowych urządzeń, np. telefonów komórkowych czy routerów bezprzewodowych, zazwyczaj wykorzystują rozwijane przez siebie aplikacje lub proste systemy operacyjne w celu przyspieszenia wstępnej fazy uruchamiania nowego oprogramowania oraz późniejszego efektywnego zarządzania zasobami. Możliwe jest także zastosowanie gotowych rozwiązań, takich jak zaawansowane systemy operacyjne Windows Embedded i Linux; wadą wbudowanej wersji Windowsa jest niestety to że nie jest to darmowe oprogramowanie, oraz w przeciwieństwie do Linuksa nie posiada ogólnodostępnego kodu źródłowego. Dzięki udostępnieniu plików źródłowych jądra (ang. kernel) systemu Linux na licencji GNU General Public License 2 \cite{website:gnu_gpl_v2}, każdy programista może dla swoich potrzeb napisać sterownik, a następnie udostępnić go innym - w ten sposób dodawanie nowych funkcjonalności oraz poprawianie ewentualnych błędów jest znacznie uproszczone.\\
 			Dzięki wiedzy o tym w jaki sposób zaprojektować platformę sprzętową, umożliwiającą uruchomienie systemu operacyjnego na prostym układzie mikroprocesorowym, można stworzyć urządzenie które ma bardzo rozbudowane możliwości, porównywalne z tymi dostępnymi w urządzeniach przenośnych.
 		\section{Cel pracy}
 			Celem niniejszej pracy magisterskiej jest konstrukcja platformy sprzętowej dostosowanej do potrzeb wbudowanego systemu Linux (ang. Embedded Linux). Platforma ma mieć mozliwość podłączenia pamięci masowych typu Compact  Flash lub dysk IDE, wyświetlaczy graficznych LCD, urządzeń USB oraz sieci Ethernet.\\
@@ -401,7 +403,7 @@ $_TARGETNAME configure -work-area-virt 0x00200000 -work-area-phys
 				Bardziej szczegółowy opis postępowania podczas programowania znajduje się w sekcji \ref{sec:bootloader2nd}.
 			\subsection{Środowisko do kompilowania}
 				W celu skompilowania kodu źródłowego dla procesora o architekturze ARM należy użyć kompilatora skrośnego (ang. cross compiler). Kompilator taki jest uruchamiany na standardowym komputerze PC, ale zamiast kompilować kod do rozkazów np. procesora x86, potrafi kompilować i optymalizować programy dla architektury ARM. Oczywiście posiadając działający system oparty o mikroprocesor z rodziny ARM, można na nim zainstalować natywny kompilator i przeprowadzać kompilację do właściwej postaci, jednak zazwyczaj, z uwagi na dużą częstotliwość pracy najnowszych procesorów w zwykłych komputerach PC, szybciej i prościej jest przeprowadzić kompilację z użyciem kompilatora skrośnego.\\
-				Podczas wyboru odpowiedniego kompilatora, nie zawsze najlepszym wyjściem jest pobranie najnowszych dostępnych wersji - należy zwrócić uwagę na kompatybilność kompilatora z dodatkowymi bibliotekami i aplikacjami takimi jak np. linker ld i debugger gdb. Kompilator używany do kompilacji programów dla innej architektury można skompilować samemu, jednak najlepiej zastosować stabilne i przetestowane środowisko (tzw. toolchain), które zostało już skompilowane dla danej architektury i posiada spełnione wszystkie wymagane zależności.\\
+				Podczas wyboru odpowiedniego kompilatora, nie zawsze najlepszym wyjściem jest pobranie najnowszych dostępnych wersji - należy zwrócić uwagę na kompatybilność kompilatora z dodatkowymi bibliotekami i aplikacjami takimi jak np. linker ld i debugger gdb. Kompilator używany do kompilacji programów dla innej architektury można zbudować samemu, jednak najlepiej zastosować stabilne i przetestowane środowisko (tzw. toolchain), które zostało już skompilowane dla danej architektury i posiada spełnione wszystkie wymagane zależności.\\
 				W projekcie zastosowano toolchain pobrany ze strony \cite{website:gnuarm}, w którego skład wchodzi kompilator gcc-4.0.2-c-c++, dodatkowe aplikacje binarne binutils-2.16.1, oraz biblioteka C przeznaczona dla systemów wbudowanych newlib-1.14.0.
 
 			\subsection{Eclipse}
@@ -444,7 +446,7 @@ $_TARGETNAME configure -work-area-virt 0x00200000 -work-area-phys
 				
 			\subsection{Bootloader główny}
 				Po analizie dostępnych rozwiązań, zdecydowano że jako główny bootloader zostanie użyty projekt U-Boot autorstwa Wolfganga Denka\cite{website:uboot}. Wybrany projekt został w znacznej mierze oparty na źródłach systemu operacyjnego Linux oraz posiada wsparcie dla mikrokontrolera AT91RM9200.\\
-				Po pobraniu z internetu i poprawnym skompilowaniu za pomocą polecenia \texttt{make} przystąpiono do dostosowywania aplikacji do potrzeb docelowej platformy sprzętowej. W tym celu skopiowano zawartość przykładowego projektu zawartego w katalogu \texttt{board/atmel/at91rm9200dk} do katalogu \texttt{board/atmel/lab\_at91rm9200} i w dalszej kolejności wykonano następujące czynności:
+				Po pobraniu z internetu i poprawnym skompilowaniu za pomocą polecenia \texttt{make} przystąpiono do dostosowywania aplikacji do potrzeb docelowej platformy sprzętowej. W tym celu do katalogu \texttt{board/atmel/lab\_at91rm9200} skopiowano zawartość przykładowego projektu zawartego w \texttt{board/atmel/at91rm9200dk} i w dalszej kolejności wykonano następujące czynności:
 				\begin{enumerate}
 					\item Zmodyfikowano nazwę głównego pliku \texttt{at91rm9200dk.c} na \texttt{lab\_at91rm9200.c} i wszystkie nazwy oraz ścieżki w pliku \texttt{Makefile}.
 					\item W pliku źródłowym \texttt{lab\_at91rm9200.c} usunięto funkcje odpowiedzialne za konfigurację pamięci NAND oraz zmieniono funkcję inicjalizującą interfejs sieciowy.
@@ -460,28 +462,56 @@ $_TARGETNAME configure -work-area-virt 0x00200000 -work-area-phys
 					\item Zmieniono pliki \texttt{drivers/mtd/dataflash.c} i \texttt{include/dataflash.h} pod kątem zastosowanego układu pamięci Serial Dataflash AT45DB041D.
 					\item Dodano plik \texttt{include/asm-arm/arch-at91rm9200/mmc.h}.
 					\item W pliku \texttt{include/configs/lab\_at91rm9200.h} utworzonym na podstawie przykładowego pliku konfiguracyjnego zmodyfikowano wartości takie jak szybkość pracy mikroprocesora, ilość dostępnej pamięci SDRAM oraz opcje dostępne w menu U-Boot.
-					\item Dodano wpis dla platformy \texttt{lab\_at91rm9200} w głównym pliku \texttt{Makefile} projektu U-Boot.
+					\item Dodano wpis dla platformy \texttt{lab\_at91rm9200} w głównym pliku \texttt{Makefile} projektu U-Boot oraz zmieniono ścieżkę dostępu do używanego kompilatora.
 				\end{enumerate}
 				Skompilowany kod w postaci binarnej umieszczono pod adresem 0x00008000 w pamięci Serial Dataflash za pomocą opcji dostępnej w bootloaderze inicjalizującym.\\
 				\subsubsection{Uruchamianie}
 				Pierwsze próby uruchomienia nie powiodły się - po zdebuggowania z użyciem JTAG-u okazało się że procesor wykonuje skok pod zły adres w pamięci. Ponieważ U-Boot jest uruchamiany z poziomu pamięci SDRAM sugerowało to problemy z czasami dostępu. Zewnętrzna magistrala używana podczas dostępu do pamięci była taktowana zegarem o częstotliwości 60MHz, niestety obniżenie szybkości pracy nie poprawiło efektów działania procesora.\\
 				W pewnym stopniu pomogło wyłączenie w procesorze pamięci cache dla instrukcji. Spowodowało to jednak kilkukrotne spowolnienie działania układu, ponieważ kolejne rozkazy dla procesora były za każdym razem pobierane z pamięci SDRAM.\\
-				% memory_test ???
+				W dalszej kolejności postanowiono sprawdzić poprawność działania pamięci SDRAM podczas szybkiego czytania i zapisywania danych. Aby tego dokonać napisano prostą aplikację opartą o bootloader inicjalizujący, której zadaniem było przeprowadzenie szeregu testów opisanych w dalszej części pracy.
+				\begin{itemize}
+ 					\item \textbf{test adresowy} - Ten test zapisuje unikalną wartość w każdej komórce pamięci. Przykładowo moży to być adres tej komórki. Po zapisaniu dane są odczytywane i sprawdzane. 
+					\item \textbf{maszerujący wzorzec} - Algorytm czyści zawartość pamięci, następnie odczytuje zawartość pierwszej komórki i zapisuje do niej wartość 1. Ta procedura odczytu i zapisu jest powtarzana dla wszystkich lokacji w pamięci. W tym momencie cała pamięć powinna być zapełniona liczbami 1. Kolejnym etapem testu jest poruszanie się od końca pamięci, odczyt kolejnych komórek i zamiana ich zawartości na 0. Po osiągnięciu początku pamięci test jest powtarzany z użyciem dopełnionych wartości.
+					\item \textbf{galopujący wzorzec} - Test sprawdzający niepowtarzalność adresów i inne funkcjonalne błędy w pamięci, jak również niektóre dynamiczne przekłamania. Algorytm odwołuje się do każdej komórki pamięci używając po kolei każdego z pozostałych adresów jako miejsca, z którego nastąpi skok do sprawdzanej lokacji. Po wyczyszczeniu pamięci pierwsza komórka staje się adresem testowym - jest ona dopełniana i sprawdzana na zmianę z każdym z pozostałych adresów w całej pamięci. Każda kolejna komórka przyjmuje rolę testowej aż do momentu sprawdzenia całości.\\
+					Z powodu dużej złożoności czasowej tego algorytmu, sprawdzono tylko kilka obszarów wielkości 1kB (czas wykonania takiego testu to ok. 40 minut).
+				\end{itemize}
+				Przeprowadzenie powyższych testów dla słów o długości 1, 2 i 4 bajtów nie wykazało żadnych błędów.\\
 				Jak się okazało, problem stanowiła zbyt duża różnica w czasie dostępu do wbudowanej pamięci cache a zewnętrznej pamięci SDRAM. Rdzeń procesora taktowany zegarem 180MHz działał zbyt szybko podczas próby pobrania rozkazu z zewnętrznej pamięci, która korzystała z zegara o częstotliwości 60MHz. Po podwyższeniu tej wartości do 90MHz uruchomienie bootloadera U-Boot powiodło się.
-		\section{Jądro Linuksa}
-			j
-			\label{sec:linux_kernel}
-			\subsection{Kompilacja}
-				k
-			\subsection{Wybór modułów}
+		\section{Linux}
+			W tym rozdziale zostanie opisany przebieg instalacji systemu operacyjnego Linux na docelowej platformie sprzętowej. Linux jest bardzo rozbudowanym systemem i daje użytkownikowi wiele możliwości konfiguracji, zarówno na etapie kompilacji jądra, jak i po uruchomieniu. Ponieważ celem tej pracy jest uruchomienie wbudowanej wersji Linuksa, na tym etapie należy zwrócić szczególną uwagę na wybór modułów wspieranych przez jądro, używaną dystrybucję (zestaw podstawowych aplikacji) oraz system plików.
+			\subsection{Jądro systemu}
+				\label{sec:linux_kernel}
+				Jądro Linuksa jest w dużym stopniu zgodne ze standardami ANSI i POSIX, obsługuje wielozadaniowość, wielowątkowość, wielobieżność, pamięć wirtualną, biblioteki współdzielone, ładowanie na żądanie, współdzielony kod wykonywalny (ang. copy-on-write), dobre zarządzanie pamięcią i obsługę sieci TCP/IP.\\
+				Poprzez zastosowanie modułowej budowy, można w trakcie konfiguracji zdecydować czy system powinien wspierać wybrane urządzenia, protokoły i inne funkcjonalności. Dzięki temu można dostosować kernel do konkretnych zadań, zmniejszyć ilość zajmowanej przez niego pamięci operacyjnej oraz zoptymalizować jego działanie.
+				\subsubsection{Konfiguracja}
+					W projekcie zdecydowano wykorzystać jądro systemu operacyjnego Linux w wersji 2.6.27.8 - jest to stabilne wydanie kernela, które zostało użyte w jednym z przykładowych projektów zawartych w dodatku \ref{app:przykladowe_projekty}, zatem posiadano pewność że ta wersja powinna działać.\\
+					Spakowane archiwum zawierające źródła systemu operacyjnego należy pobrać ze strony internetowej \url{http://kernel.org/}, natomiast przydatne jest dodatkowo pobranie ze strony \url{http://maxim.org.za/at91_26.html} pliku z drobnymi poprawkami dla mikrokontrolera AT91RM9200 (plik jest dostępny w dołączonych materiałach). Aby go zastosować należy w głównym katalogu ze źródłami Linuksa wykonać polecenie:\\
+					\texttt{patch -p0 < 2.6.27-at91.patch.gz}\\
+					W dalszej kolejności należało wprowadzić modyfikacje niezbędne dla zastosowanej platformy sprzętowej m.in.
+					\begin{itemize}
+						\item Dodanie pliku \texttt{arch/arm/mach-at91/board-lab-at91rm9200.c} zawierającego funkcje używane podczas inicjalizacji płytki sprzętowej.
+						\item Dołączenie w plikach \texttt{arch/arm/mach-at91/Kconfig} i \texttt{arch/arm/mach-at91/Makefile} nowych obiektów potrzebnych podczas konfiguracji i kompilacji.
+						\item Dodanie obsługi warstwy fizycznej dla interfejsu sieciowego STE100P.
+					\end{itemize}
+					Powyższe poprawki są uwzględnione w pliku \texttt{linux-2.6.27.8-lab\_at91rm9200.patch.gz}.\\
+					Po zastosowaniu wszystkich poprawek można przystąpić do wyboru konkretnych opcji konfiguracyjnych kernela - aby w tym celu skorzystać z pomocy graficznego narzędzia, należy wykonać polecenie \texttt{make ARCH=arm xconfig}.\\
+					Uruchomiona w ten sposób aplikacja, zależnie od wybranej architektury sprzętowej procesora, dzieli strukturę kernela na kilkanaście kategorii. Ich opis wraz z objaśnieniem wyboru modułów został przedstawiony poniżej.
+				\subsubsection{Kompilacja}
+					k
+			\subsection{Dystrybucja}
+				f
+				\subsubsection{Buildroot}
+					b
+			\subsection{System plików}
+				s
+			\subsection{Uruchamianie}
+				u
+				% jak u-boot to startuje? wylaczone przerwania, d-cache i i-cache
+			\subsection{Dodatkowe moduły}
+				\label{sec:linux_modules}
 				m
-		\section{Dystrybucja Linuksa}
-			\subsection{Buildroot}
-		\section{System plików}
-		\section{Moduły}
-			\label{sec:linux_modules}
-			\subsection{Ethernet}
-			\subsection{Kontroler LCD}
+				\subsubsection{Ethernet}
+				\subsubsection{Kontroler LCD}
 %		\section{Aplikacja demonstracyjna}
 		
 	\chapter{Podsumowanie}
@@ -579,7 +609,7 @@ $_TARGETNAME configure -work-area-virt 0x00200000 -work-area-phys
 %			\caption{Projekt programatora}
 %			\label{fig:programator}
 %		\end{figure}
-	
+%	
 	
 	\chapter{Przykładowe projekty}
 	\label{app:przykladowe_projekty}
