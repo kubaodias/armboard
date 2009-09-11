@@ -3,13 +3,14 @@
 \usepackage[polish]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage[OT4]{fontenc}
+\usepackage[T1]{fontenc}
 \usepackage{tabularx}
 \usepackage{geometry}
 \usepackage[pdftex]{graphicx}
-\usepackage[T1]{fontenc}
 \usepackage{listings}
 \usepackage{subfigure}
 \usepackage{url}
+\usepackage{textcomp}
 
 \geometry{verbose,a4paper,tmargin=2.5cm,bmargin=2.5cm,lmargin=3cm,rmargin=2.5cm}
 
@@ -571,12 +572,53 @@ $_TARGETNAME configure -work-area-virt 0x00200000 -work-area-phys
 					Przed wykonaniem ostatniego kroku należy się upewnić, czy aplikacja \texttt{mkimage} zawarta w katalogu \texttt{tools} bootloadera U-Boot jest widziana podczas budowania jądra (jeśli nie jest, należy dodać katalog \texttt{tools} do zmiennej środowiskowej \texttt{PATH}). Narzędzie \texttt{mkimage} służy do dodania niedużego nagłówka do zbudowanego obrazu, tak aby U-Boot wiedział spod jakiego adresu należy wystartować jądro systemu operacyjnego Linux.\\
 					Po pomyślnym wykonaniu podanych poleceń w katalogu \texttt{arch/arm/boot/} źródeł Linuksa powinien znaleźć się plik \texttt{uImage} będący skompresowanym obrazem systemu operacyjnego (jego rozmiar dla wybranej konfiguracji to ok. 1MB). Dodatkowo, jeśli użytkownik skompilował niektóre funkcje jako moduły, odpowiednie pliki z rozszerzeniem \texttt{.ko} będą znajdowały się w podkatalogu \texttt{lib/modules/2.6.27.8}. Aby działający system mógł je poprawnie załadować należy skopiować podany katalog do głównego katalogu w docelowym systemie plików. 
 			\subsection{Dystrybucja}
-				f
+				Dystrybucja, czyli zestaw aplikacji i bibliotek tworzących razem z kernelem działający system operacyjny, podobnie jak samo jądro, w wersji dla systemów wbudowanych różni się nieznacznie od tych przeznaczonych dla komputerów biurkowych i serwerów. Różnica polega głównie na przemyślanym doborze wszystkich aplikacji, tak aby zaoszczędzić dostępne miejsce na nośnikach danych i w pamięci operacyjnej oraz zoptymalizować działanie.\\
+				Na rynku jest dostępnych wiele darmowych i komercyjnych rozwiązań, wśród których są standardowe dystrybucje (skompilowane na konkretną platformę sprzętową) oraz środowiska służące do konfigurowania i budowania dystrybucji.
+				\subsubsection{MontaVista}
+					Komercyjne rozwiązanie rozwijane przez firmę MontaVista Software, która ma duży wpływ na dodawanie nowych funkcjonalności i poprawek do jądra Linuksa. Oprogramowanie jest wykorzystywane m.in. w modułach GPS, przenośnych przyrządach medycznych i innych urządzeniach mobilnych.\\
+					Dzięki wieloletnim pracom nad tą dystrybucją, twórcom udało się osiągnąć m.in.:
+					\begin{itemize}
+						\item Szybkie uruchomienie systemu
+						\item Dynamiczne zarządzanie energią co pozwala na wydłużenie czasu pracy z użyciem baterii
+						\item Obsługa żądań w czasie rzeczywistym
+						\item System zajmuje niedużo pamięci
+						\item Aplikacje wspierające wiele protokołów przesyłu danych
+						\item Zaawansowane środowisko programistyczne MontaVista DevRocket
+					\end{itemize}
+				\subsubsection{Android}
+					Zaawansowany system operacyjny tworzony przez firmę Google dla potrzeb urządzeń mobilnych. Spośród cech Androida warte wymienienia są:
+					\begin{itemize}
+						\item Wsparcie dla bibliotek 3D bazujących na OpenGL
+						\item Baza danych SQLite
+						\item Możliwość komunikacji poprzez GSM/EDGE, CDMA, UMTS, Bluetooth i Wi-Fi
+						\item Maszyna wirtualna Javy
+						\item Możliwość odtwarzania plików multimedialnych zapisanych w wielu popularnych formatach
+						\item Android może obsługiwać m.in. aparaty fotograficzne, ekrany dotykowe, moduły GPS i akcelerometry
+					\end{itemize}
+					W chwili pisania tej pracy nie istniała wersja Androida przeznaczona dla mikrokontrolera AT91RM9200, jednak został pomyślnie stworzony wariant dla innego układu firmy Atmel - AT91SAM9261. Jest to bardzo rozbudowana dystrybucja - stworzona platforma sprzętowa nie jest w stanie wykorzystać znacznej większości dostępnych opcji.
+				\subsubsection{OpenWRT}
+					Dystrybucja, zawierająca menadżer pakietów \texttt{opkg}, wykorzystywana głównie przez urządzenia sieciowe m.in. routery WLAN firmy Linksys. Na jej podstawie utworzono kilka cieszących się dobrą opinią użytkowników systemów, takich jak HyperWRT i Tomato.\\
+					Użycie OpenWRT dla potrzeb opisywanej platformy sprzętowej wymagałoby jednak samodzielnego kompilowania wszystkich programów, ponieważ nie istnieje wersja przeznaczona dla architektury ARM.
+				\subsubsection{Emdebian}
+					Oparte o popularny system operacyjny Debian środowisko dostarczające narzędzia do kompilowania aplikacji a następnie ich umieszczania w pakietach \texttt{.deb} oraz tworzenia wymaganego przez Linux głównego systemu plików. W archiwach Debiana znajduje się bardzo duża liczba aplikacji i bibliotek skompilowanych dla architektury ARM, a dzięki narzędziu \texttt{apt-get} możliwe jest ich instalowanie przy wykorzystaniu sieci Internet.\\
+					Wadą tego systemu jest konieczność zainstalowania środowiska budującego na komputerze PC zawierającym system operacyjny Debian GNU/Linux.
+				\subsubsection{OpenEmbedded}
+					Środowisko służące do konfigurowania i budowania własnej dystrybucji. Jego zaletami są m.in.
+					\begin{itemize}
+						\item Wsparcie dla wielu architektur sprzętowych
+						\item Zawiera narzędzia do kompilacji skrośnej
+						\item OpenEmbedded można uruchomić na każdej dystrybucji Linuksa
+						\item Pozwala na skompilowanie pakietów takich jak GTK+, Qt, X.org, Mono i Java
+					\end{itemize}
+					W skład projektu wchodzi zestaw skryptów BitBake, które zawierają ścieżkę URL z kodem źródłowym pakietu, jego zależności i opcje używane podczas kompilacji lub instalacji. Dodatkowo środowisko może zająć się skompilowaniem jądra Linuksa oraz utworzeniem głównego systemu plików, tworząc w ten sposób kompletny obraz partycji zawierającej gotowy do uruchomienia system operacyjny Linux.\\
+					Na podstawie OpenEmbedded zostało opartych wiele dystrybucji m.in. \r{A}ngstr\"{o}m Linux i MontaVista Linux 6.
 				\subsubsection{Buildroot}
 					b
 			\subsection{System plików}
 				\label{sec:filesystem}
-				s
+				Po uruchomieniu jądra systemu operacyjnego na tym etapie użytkownikowi ukaże się komunikat podobny do tego:\\
+				\texttt{Kernel panic – not syncing: VFS: Unable to mount root fs on unknown-\\block(0,0)}\\
+				Jest to informacja o tym, że kernel nie był w stanie zamontować głównego systemu plików, na którym powinny znajdować się wszystkie pliki wchodzące w skład dystrybucji.
 			\subsection{Uruchamianie}
 				u
 				% jak u-boot to startuje? wylaczone przerwania, d-cache i i-cache
