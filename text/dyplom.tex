@@ -443,7 +443,8 @@ $_TARGETNAME configure -work-area-virt 0x00200000 -work-area-phys
 					\item Wyczyszczenie obszaru pamięci Dataflash zajmowanego przez podstawowy program inicjalizujący.
 					\item Informacja o pamięci i bootloaderze.
 				\end{itemize}
-				Skompilowany i zoptymalizowany kod tego bootloadera zajmuje ok. 11kB. Rozmiar ten można jeszcze zmniejszyć ponieważ mikrokontroler AT91RM9200 umożliwia poprzez tzw. Embedded Software Services wykorzystanie funkcji które znajdują się w pamięci ROM i są używane przez bootloader pierwszego poziomu.
+				Skompilowany i zoptymalizowany kod tego bootloadera zajmuje ok. 11kB. Rozmiar ten można jeszcze zmniejszyć ponieważ mikrokontroler AT91RM9200 umożliwia poprzez tzw. Embedded Software Services wykorzystanie funkcji które znajdują się w pamięci ROM i są używane przez bootloader pierwszego poziomu.\\
+				Aby wgrać program inicjalizujący do pamięci Serial Dataflash należy połączyć platformę z komputerem PC za pomocą portu szeregowego DBGU, uruchomić skonfigurowaną aplikację terminala (np. minicom), a następnie zresetować mikrokontroler. Na ekranie terminala powinien zacząć się pojawiać znak 'C' informujący o możliwości zainicjalizowania transmisji danych. Po wybraniu odpowiedniej opcji rozpocznie się przesyłanie kodu binarnego bootloadera do pamięci SRAM mikroprocesora. Po zakończeniu transmisji użytkownik powinien zobaczyć menu programu inicjalizującego, a po jego wstępnym przetestowaniu można zapisać kod aplikacji do pamięci Serial Dataflash (wybór pierwszej opcji w menu). Użytkownik nigdy nie powinien zapisywać niedostatecznie sprawdzonego kodu bootloadera inicjalizującego w pamięci Dataflash - przed zapisaniem nowej wersji oprogramowania najlepiej wykasować starą zawartość pamięci, tak aby nowy kod mógł być najpierw przetestowany z poziomu pamięci SRAM.
 				
 			\subsection{Bootloader główny}
 				Po analizie dostępnych rozwiązań, zdecydowano że jako główny bootloader zostanie użyty projekt U-Boot autorstwa Wolfganga Denka\cite{website:uboot}. Wybrany projekt został w znacznej mierze oparty na źródłach systemu operacyjnego Linux oraz posiada wsparcie dla mikrokontrolera AT91RM9200.\\
@@ -569,10 +570,10 @@ $_TARGETNAME configure -work-area-virt 0x00200000 -work-area-phys
 						\item \texttt{make ARCH=arm CROSS\_COMPILE=/opt/gnuarm-4.0.2/bin/arm-elf-} - skompilowanie jądra dla architektury ARM z użyciem podanego kompilatora skrośnego
 						\item \texttt{make uImage} - utworzenie obrazu binarnego, który może zostać uruchomiony przez bootloader
 					\end{itemize}
-					Przed wykonaniem ostatniego kroku należy się upewnić, czy aplikacja \texttt{mkimage} zawarta w katalogu \texttt{tools} bootloadera U-Boot jest widziana podczas budowania jądra (jeśli nie jest, należy dodać katalog \texttt{tools} do zmiennej środowiskowej \texttt{PATH}). Narzędzie \texttt{mkimage} służy do dodania niedużego nagłówka do zbudowanego obrazu, tak aby U-Boot wiedział spod jakiego adresu należy wystartować jądro systemu operacyjnego Linux.\\
-					Po pomyślnym wykonaniu podanych poleceń w katalogu \texttt{arch/arm/boot/} źródeł Linuksa powinien znaleźć się plik \texttt{uImage} będący skompresowanym obrazem systemu operacyjnego (jego rozmiar dla wybranej konfiguracji to ok. 1MB). Dodatkowo, jeśli użytkownik skompilował niektóre funkcje jako moduły, odpowiednie pliki z rozszerzeniem \texttt{.ko} będą znajdowały się w podkatalogu \texttt{lib/modules/2.6.27.8}. Aby działający system mógł je poprawnie załadować należy skopiować podany katalog do głównego katalogu w docelowym systemie plików. 
+					Przed wykonaniem ostatniego kroku należy się upewnić, czy aplikacja \texttt{mkimage} zawarta w katalogu \texttt{tools} bootloadera U-Boot jest widoczna podczas budowania jądra (jeśli nie jest, należy dodać katalog \texttt{tools} do zmiennej środowiskowej \texttt{PATH}). Narzędzie \texttt{mkimage} służy do dodania niedużego nagłówka do zbudowanego obrazu, tak aby U-Boot wiedział spod jakiego adresu należy wystartować jądro systemu operacyjnego Linux.\\
+					Po pomyślnym wykonaniu podanych poleceń w katalogu \texttt{arch/arm/boot/} źródeł Linuksa powinien znaleźć się plik \texttt{uImage} będący skompresowanym obrazem systemu operacyjnego (jego rozmiar dla wybranej konfiguracji to ok. 1MB). Dodatkowo, jeśli użytkownik skompilował niektóre funkcje jako moduły, odpowiednie pliki z rozszerzeniem \texttt{.ko} będą znajdowały się w podkatalogu \texttt{lib/modules/2.6.27.8}. Aby działający system mógł je poprawnie załadować należy skopiować podany katalog do głównego katalogu w docelowym systemie plików.
 			\subsection{Dystrybucja}
-				Dystrybucja, czyli zestaw aplikacji i bibliotek tworzących razem z kernelem działający system operacyjny, podobnie jak samo jądro, w wersji dla systemów wbudowanych różni się nieznacznie od tych przeznaczonych dla komputerów biurkowych i serwerów. Różnica polega głównie na przemyślanym doborze wszystkich aplikacji, tak aby zaoszczędzić dostępne miejsce na nośnikach danych i w pamięci operacyjnej oraz zoptymalizować działanie.\\
+				Dystrybucja, czyli zestaw aplikacji i bibliotek tworzących razem z kernelem działający system operacyjny, podobnie jak samo jądro, w wersji dla systemów wbudowanych różni się nieznacznie od tych przeznaczonych dla komputerów biurkowych i serwerów. Różnica polega głównie na przemyślanym doborze wszystkich aplikacji, tak aby zaoszczędzić dostępne miejsce na nośnikach danych i w pamięci operacyjnej oraz zoptymalizować działanie. Aby idealnie dostosować system do danej platformy sprzętowej użytkownik może sam skompilować wszystkie wymagane programy, a następnie utworzyć strukturę głównego systemu plików, jednak takie podejście wymaga dużego nakładu pracy.\\
 				Na rynku jest dostępnych wiele darmowych i komercyjnych rozwiązań, wśród których są standardowe dystrybucje (skompilowane na konkretną platformę sprzętową) oraz środowiska służące do konfigurowania i budowania dystrybucji.
 				\subsubsection{MontaVista}
 					Komercyjne rozwiązanie rozwijane przez firmę MontaVista Software, która ma duży wpływ na dodawanie nowych funkcjonalności i poprawek do jądra Linuksa. Oprogramowanie jest wykorzystywane m.in. w modułach GPS, przenośnych przyrządach medycznych i innych urządzeniach mobilnych.\\
@@ -611,14 +612,54 @@ $_TARGETNAME configure -work-area-virt 0x00200000 -work-area-phys
 						\item Pozwala na skompilowanie pakietów takich jak GTK+, Qt, X.org, Mono i Java
 					\end{itemize}
 					W skład projektu wchodzi zestaw skryptów BitBake, które zawierają ścieżkę URL z kodem źródłowym pakietu, jego zależności i opcje używane podczas kompilacji lub instalacji. Dodatkowo środowisko może zająć się skompilowaniem jądra Linuksa oraz utworzeniem głównego systemu plików, tworząc w ten sposób kompletny obraz partycji zawierającej gotowy do uruchomienia system operacyjny Linux.\\
-					Na podstawie OpenEmbedded zostało opartych wiele dystrybucji m.in. \r{A}ngstr\"{o}m Linux i MontaVista Linux 6.
+					Na podstawie OpenEmbedded zostało opartych wiele dystrybucji m.in. MontaVista Linux 6 i \r{A}ngstr\"{o}m Linux.
 				\subsubsection{Buildroot}
-					b
+					Buildroot jest narzędziem podobnym do OpenEmbedded, jednak posiada graficzny konfigurator, który pozwala na łatwiejsze dostosowanie systemu do potrzeb użytkownika. W skład środowiska wchodzi zestaw skryptów Makefile oraz poprawek, które pozwalają na pobranie z sieci, skonfigurowanie i zbudowanie narzędzi do kompilacji skrośnej, jądra Linuksa, aplikacji i bibliotek, a następnie połączenie ich wszystkich w gotowy system plików.\\
+					Najważniejszą cechą Buildroota jest to, że jako biblioteki języka C używa przeznaczonej dla systemów wbudowanych biblioteki $\mu$Clibc. W odróżnieniu od standardowej wersji tej biblioteki, czyli glibc, $\mu$Clibc zajmuje o wiele mniej miejsca i nie posiada zaimplementowanych rzadko używanych funkcji.\\
+					Aby uruchomić aplikację konfiguracyjną należy wykonać polecenie \texttt{make menuconfig}. Oprócz wyboru odpowiedniej architektury sprzętowej i toolchaina wykorzystującego bibliotekę $\mu$Clibc, użytkownik powinien zająć się selekcją programów wchodzących w skład dystrybucji. Spośród ciekawszych aplikacji warte wymienienia są:
+					\begin{itemize}
+						\item \textbf{BusyBox} - Napisana z myślą o systemach wbudowanych aplikacja, która w pojedynczym pliku wykonywalnym mieści funkcjonalność wielu standardowych komend uniksowych takich jak np. \texttt{ls}, \texttt{find}, \texttt{grep}, \texttt{cat}, \texttt{ps}, \texttt{bash}, \texttt{vi}, \texttt{bzip2}.\\
+							Poszczególne aplikacje zawarte w BusyBox są uruchamiane poprzez osobne dowiązania symboliczne do głównego pliku wykonywalnego.
+						\item \textbf{SQLite} - Wydajny system zarządzania bazą danych SQL który bardzo dobrze nadaje się do systemów wbudowanych.
+						\item \textbf{Dropbear} - Nieduża aplikacja serwera i klienta protokołu SSH 2 umożliwiającego bezpieczne połączenia sieciowe.
+						\item \textbf{TFTPd} - Serwer obsługujący oparty o UDP uproszczony protokół przesyłu danych TFTP (Trivial File Transfer Protocol). Przydatny w momencie, gdy użytkownik chce szybko przerzucić jakiś plik na docelową platformę.
+						\item \textbf{Matchbox} - Popularny w systemach wbudowanych menadżer okien. Wymaga skonfigurowanego serwera X.
+						\item \textbf{ipkg} - System zarządzania pakietami. Pozwala na pobranie z sieci i instalację dodatkowego oprogramowania.
+						\item \textbf{microperl} - Okrojona wersja interpretera skryptów napisanych w języku Perl.
+					\end{itemize}
+					Buildroot umożliwia również pobranie z sieci i zbudowanie jądra systemu operacyjnego Linux - opis jak tego dokonać manualnie został przedstawiony w sekcji \ref{sec:linux_kernel}.\\
+					Ostatnią ważną czynnością którą należy wykonać jest wybór odpowiedniego systemu plików z jakiego będzie korzystać zbudowana dystrybucja. Opis dostępnych opcji został przedstawiony w następnym podrozdziale.\\
+					Po ustawieniu wszystkich opcji i zapisaniu konfiguracji użytkownik może wykonać polecenie \texttt{make}, co spowoduje rozpoczęcie kilkugodzinnego procesu pobierania wszystkich potrzebnych plików z sieci i ich kompilacji.
 			\subsection{System plików}
 				\label{sec:filesystem}
 				Po uruchomieniu jądra systemu operacyjnego na tym etapie użytkownikowi ukaże się komunikat podobny do tego:\\
 				\texttt{Kernel panic – not syncing: VFS: Unable to mount root fs on unknown-\\block(0,0)}\\
-				Jest to informacja o tym, że kernel nie był w stanie zamontować głównego systemu plików, na którym powinny znajdować się wszystkie pliki wchodzące w skład dystrybucji.
+				Jest to informacja o tym, że kernel nie był w stanie zamontować głównego systemu plików, na którym powinny znajdować się wszystkie pliki wchodzące w skład dystrybucji.\\
+				Podczas wyboru systemu plików najbardziej odpowiedniego dla zastosowania konkretnej platformy sprzętowej należy kierować się czynnikami takimi jak:
+				\begin{itemize}
+					\item \textbf{Zapis}\\
+						Jeśli żadne dane nie muszą być aktualizowane lub zbierane na urządzeniu, system plików nie musi dawać możliwości zapisu danych.
+					\item \textbf{Trwałość danych}\\
+						Specyfika niektórych urządzeń nie musi gwarantować zapisania danych po ponownym uruchomieniu - zmiany mogą być widoczne  tylko w pamięci operacyjnej.
+					\item \textbf{Odporność na zanik zasilania}\\
+						Niektóre systemy plików np. Ext-2 mogą zostać zepsute i wymagać naprawy w momencie nagłego zaniku napięcia zasilania i ponownego uruchomienia urządzenia. Czasami ważne jest aby system pracujący np. w warunkach przemysłowych był w stanie działać bez interwencji użytkownika w momencie wystąpienia takiego zdarzenia.
+					\item \textbf{Kompresja}\\
+						Jeśli użytkownikowi zależy na ilości miejsca zajmowanego przez zamontowany system, powinien zastanowić się nad użyciem skompresowanego systemu plików. Potrzebne dane są rozkompresowywane w pamięci operacyjnej.
+					\item \textbf{Korzystanie z pamięci RAM}\\
+						System plików może w całości lub częściowo znajdować się w pamięci operacyjnej urządzenia. Nie jest wtedy konieczne użycie trwałego nośnika danych - zawartość systemu plików może być np. pobrana z serwera sieciowego NFS.
+				\end{itemize}
+
+				\begin{table}[h]
+					%\extrarowheight=3pt
+					\begin{tabularx}{\textwidth}{|c|X|X|X|X|X|}
+						\hline \textbf{System plików} & \textbf{Zapis} & \textbf{Trwałość danych} & \textbf{Odporność na zanik zasilania} & \textbf{Kompresja} & \textbf{Korzysta z RAM}\\
+						\hline \textbf{CRAMFS} & nie & - & - & nie & nie \\
+						\hline \textbf{JFFS2} & tak & tak & tak & tak & nie \\
+						\hline
+					\end{tabularx}
+					\caption{Porównanie dostępnych systemów plików}
+					\label{tab:fs_comparison}
+				\end{table}
 			\subsection{Uruchamianie}
 				u
 				% jak u-boot to startuje? wylaczone przerwania, d-cache i i-cache
@@ -626,6 +667,9 @@ $_TARGETNAME configure -work-area-virt 0x00200000 -work-area-phys
 				\label{sec:linux_modules}
 				m
 				\subsubsection{Ethernet}
+					Jako
+				\subsubsection{Sterownik Audio}
+					Ster
 				\subsubsection{Kontroler LCD}
 %		\section{Aplikacja demonstracyjna}
 		
