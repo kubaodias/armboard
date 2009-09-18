@@ -121,7 +121,7 @@
 				Po zapoznaniu z ofertą firmy Atmel, okazało się że jedynie mikrokontrolery AT91RM9200 i AT91SAM9260 spełniają wymagania projektu (są dostępne w Polsce oraz występują w obudowach QFP208). W tabeli \ref{tab:arm_comparison} znajduje się porównanie najważniejszych cech obu układów.
 				
 				\begin{table}[]
-					%\extrarowheight=3pt
+					\extrarowheight=3pt
 					\begin{tabularx}{\textwidth }{|c|X|X|}
 						\hline \textbf{Cecha} &\textbf{AT91RM9200} & \textbf{AT91SAM9260} \\ 
 						\hline Rdzeń & ARM920T & ARM926EJ-S - rozszerzone rozkazy DSP, technologia ARM Jazelle\textsuperscript{\textregistered} dla Javy \\
@@ -399,7 +399,7 @@ $_TARGETNAME configure -work-area-virt 0x00200000 -work-area-phys
 			\subsection{Debug Unit (DBGU)}
 				Debug Unit jest sprzętowym interfejsem mikrokontrolera, który pozwala na szeregowe przesyłanie danych pomiędzy programowanym układem a komputerem PC. Za pomocą jednostki DBGU można w całości zaprogramować platformę, bez potrzeby stosowania interfejsu JTAG.\\
 				Aby komputer klasy PC mógł się poprawnie komunikować z mikrokontrolerem należy użyć szeregowego kabla typu null-modem oraz programu takiego jak HyperTerminal (Windows) lub minicom (Linux) i zastosować następujące parametry transmisji:\\
-				\texttt{szybkość transmisji: 115200,\\ilość bitów danych: 8,\\bit parzystości:brak,\\bity stopu: 1}\\
+				\texttt{szybkość transmisji: 115200,\\liczba bitów danych: 8,\\bit parzystości:brak,\\bity stopu: 1}\\
 				Po uruchomieniu platformy, na ekranie terminala (np. minicom) powinien pojawiać się znak 'C' zachęcający do rozpoczęcia transmisji danych. Niezaprogramowany mikrokontroler oczekuje w ten sposób na przesłanie kodu programu poprzez protokół XModem. Po otrzymaniu kodu binarnego zostaje on skopiowany do wewnętrznej pamięci SRAM, a następnie stamtąd uruchomiony.\\
 				Bardziej szczegółowy opis postępowania podczas programowania znajduje się w sekcji \ref{sec:bootloader2nd}.
 			\subsection{Środowisko do kompilowania}
@@ -638,28 +638,51 @@ $_TARGETNAME configure -work-area-virt 0x00200000 -work-area-phys
 				Podczas wyboru systemu plików najbardziej odpowiedniego dla zastosowania konkretnej platformy sprzętowej należy kierować się czynnikami takimi jak:
 				\begin{itemize}
 					\item \textbf{Zapis}\\
-						Jeśli żadne dane nie muszą być aktualizowane lub zbierane na urządzeniu, system plików nie musi dawać możliwości zapisu danych.
+						Jeśli żadne dane nie muszą być aktualizowane lub zbierane na urządzeniu, system plików nie musi dawać możliwości zapisu danych. Możliwe jest jednak połączenie systemu plików tylko do zapisu z systemem takim jak UnionFS lub aufs, który umożliwia zapis zmienionych danych i uwzględnienie różnic przy ponownym zamontowaniu.
 					\item \textbf{Trwałość danych}\\
 						Specyfika niektórych urządzeń nie musi gwarantować zapisania danych po ponownym uruchomieniu - zmiany mogą być widoczne  tylko w pamięci operacyjnej.
 					\item \textbf{Odporność na zanik zasilania}\\
-						Niektóre systemy plików np. Ext-2 mogą zostać zepsute i wymagać naprawy w momencie nagłego zaniku napięcia zasilania i ponownego uruchomienia urządzenia. Czasami ważne jest aby system pracujący np. w warunkach przemysłowych był w stanie działać bez interwencji użytkownika w momencie wystąpienia takiego zdarzenia.
+						Niektóre systemy plików np. Ext2 mogą zostać zepsute i wymagać naprawy w momencie nagłego zaniku napięcia zasilania i ponownego uruchomienia urządzenia. Czasami ważne jest aby system pracujący np. w warunkach przemysłowych był w stanie działać bez interwencji użytkownika w momencie wystąpienia takiego zdarzenia.
 					\item \textbf{Kompresja}\\
 						Jeśli użytkownikowi zależy na ilości miejsca zajmowanego przez zamontowany system, powinien zastanowić się nad użyciem skompresowanego systemu plików. Potrzebne dane są rozkompresowywane w pamięci operacyjnej.
-					\item \textbf{Korzystanie z pamięci RAM}\\
-						System plików może w całości lub częściowo znajdować się w pamięci operacyjnej urządzenia. Nie jest wtedy konieczne użycie trwałego nośnika danych - zawartość systemu plików może być np. pobrana z serwera sieciowego NFS.
+					%\item \textbf{Korzystanie z pamięci RAM}\\
+					%	System plików może w całości lub częściowo znajdować się w pamięci operacyjnej urządzenia. Nie jest wtedy konieczne użycie trwałego nośnika danych - zawartość systemu plików może być np. pobrana z serwera sieciowego NFS.
 				\end{itemize}
-
+				Spośród wielu systemów plików, które mogą być obsługiwane przez jądro Linuksa, tylko kilka nadaje się do wykorzystania przez systemy wbudowane i mogą być utworzone za pomocą środowiska Buildroot. Poniżej zostaną przedstawione 4 z nich, natomiast w tabeli \ref{tab:fs_comparison} znajduje się krótkie podsumowanie ich właściwości.
+				
+				\begin{itemize}
+					\item \textbf{CRAMFS} - Compressed ROM File System został zaprojektowany z myślą o prostocie i oszczędności miejsca. Każda strona pamięci jest skompresowana osobno za pomocą algorytmów z biblioteki \texttt{zlib}, natomiast dane opisujące rozmieszczenie plików nie są spakowane. CRAMFS nie umożliwia zapisu danych, zatem nie mają znaczenia takie właściwości jak trwałość danych oraz odporność na zaniki zasilania. Maksymalny rozmiar tego systemu plików to ok. 272MB.
+					\item \textbf{JFFS2} - Journalling Flash File System został stworzony specjalnie dla układów pamięciowych Flash. Jest to system plików o strukturze loga. Podczas montowania, zawartość całego nośnika danych musi zostać przeskanowana w celu stworzenia struktury katalogów w pamięci RAM, co dla nośników o dużej pojemności może stanowić problem.
+					\item \textbf{SquashFS} - System plików podobny do CRAMFS, jednak dzięki zastosowaniu algorytmu LZMA umożliwia na uzyskanie stopnia kompresji rzędu 25\%. Posiada kilka usprawnień oraz potrafi obsługiwać pliki o rozmiarach do 2\textasciicircum64 bajtów.
+					\item \textbf{Ext2} - Jeden ze standardowych systemów plików używanych przez system operacyjny Linux. Dane są zapisywane na nośniku przy każdej zmianie, co przy ograniczonej liczbie cyklów zapisu na zastosowanej karcie pamięci jest wadą tego systemu. Dodatkowo system ten nie jest odporny na zaniki napięcia zasilania - wystąpienie takiej sytuacji może doprowadzić do trwałego uszkodzenia systemu.
+				\end{itemize}
 				\begin{table}[h]
-					%\extrarowheight=3pt
+					\extrarowheight=3pt
 					\begin{tabularx}{\textwidth}{|c|X|X|X|X|X|}
-						\hline \textbf{System plików} & \textbf{Zapis} & \textbf{Trwałość danych} & \textbf{Odporność na zanik zasilania} & \textbf{Kompresja} & \textbf{Korzysta z RAM}\\
-						\hline \textbf{CRAMFS} & nie & - & - & nie & nie \\
-						\hline \textbf{JFFS2} & tak & tak & tak & tak & nie \\
+						\hline \textbf{System plików} & \textbf{Zapis} & \textbf{Trwałość danych} & \textbf{Odporność na zanik zasilania} & \textbf{Kompresja} \\
+						\hline \textbf{CRAMFS} & nie & - & - & tak \\
+						\hline \textbf{JFFS2} & tak & tak & tak & tak \\
+						\hline \textbf{SquashFS} & nie & - & - & tak \\
+						\hline \textbf{Ext2} & tak & tak & nie & nie \\
 						\hline
 					\end{tabularx}
-					\caption{Porównanie dostępnych systemów plików}
+					\caption{Porównanie systemów plików}
 					\label{tab:fs_comparison}
 				\end{table}
+				System plików JFFS2 wydaje się najbardziej odpowiedni dla zastosowania w systemie wbudowanym, jednak został on zaprojektowany z myślą o urządzeniach NAND i NOR Flash i pomimo tego że został napisany sterownik dla kart pamięci SD/MMC, nie jest on tak efektywny. Oprócz tego wykorzystanie tego systemu dla nośników danych o dużej pojemności spowodowałoby zużycie znacznej ilości pamięci operacyjnej platformy.\\
+				Pomimo swoich wad, system plików Ext2 wydaje się dobrym kandydatem do przechowywania głównego katalogu używanego przez system operacyjny Linux. Ewentualnie można zastanowić się nad jednoczesnym wykorzystaniem kilku systemów plików, np. Ext2 do przechowywania zainstalowanych aplikacji i bibliotek, natomiast CRAMFS lub TMPFS dla danych tymczasowych.\\
+				W projekcie platformy zdecydowano się na przykładowy podział karty pamięci SD/MMC na dwie partycje przedstawiony na rysunku \ref{fig:sd_mmc}. Pierwsza partycja jest używana tylko przez U-Boot w celu wczytania jądra systemu operacyjnego Linux do pamięci operacyjnej.\\
+				\begin{figure}[h!]
+					\begin{center}
+						\includegraphics[scale=0.6]{img/sd_mmc.jpg}
+						\caption{Podział karty pamięci SD/MMC o pojemności 128MB}
+						\label{fig:sd_mmc}
+					\end{center}
+				\end{figure}\\			
+				Po zbudowaniu Buildroota w katalogu \texttt{binaries} powinien znaleźć się obraz partycji Ext2 zawierającej główny katalog utworzonej dystrybucji. Aby nagrać obraz na utworzoną partycję należy wykonać polecenie:\\
+				\texttt{dd if=rootfs.arm.ext2 of=/dev/sdb2 bs=512}\\
+				gdzie \texttt{/dev/sdb2} to druga partycja karty pamięci SD/MMC.
+			% podział na partycje
 			\subsection{Uruchamianie}
 				u
 				% jak u-boot to startuje? wylaczone przerwania, d-cache i i-cache
@@ -740,7 +763,7 @@ $_TARGETNAME configure -work-area-virt 0x00200000 -work-area-phys
 %				\vspace{20pt}
 %				\subfigure[Górna strona z przylutowanymi elementami]{\label{fig:pcb1-top}\includegraphics[scale=0.25,angle=90]{img/pcb1_top.jpg}}
 %				\hspace{20pt}
-%				\subfigure[Dolna strona z przylutowanymi elementami]{\label{fig:pcb1-bottom}\includegraphics[scale=0.25,angle=90]{img/pcb1_bottom.jpg}}
+%				\subfigure[Dolna strona z przylutowanymi elementami]{\label{fig:pcb1-ready-bottom}\includegraphics[scale=0.25,angle=90]{img/pcb1_ready_bottom.jpg}}
 %			\end{center}
 %			\caption{Główna płytka drukowana}
 %			\label{fig:pcb1}
@@ -751,9 +774,9 @@ $_TARGETNAME configure -work-area-virt 0x00200000 -work-area-phys
 %				\hspace{20pt}
 %				\subfigure[Dolna strona]{\label{fig:pcb2-bottom}\includegraphics[scale=0.25,angle=90]{img/pcb2_bottom.jpg}}\\
 %				\vspace{20pt}
-%				\subfigure[Górna strona z przylutowanymi elementami]{\label{fig:pcb2-top}\includegraphics[scale=0.25,angle=90]{img/pcb2_top.jpg}}
+%				\subfigure[Górna strona z przylutowanymi elementami]{\label{fig:pcb2-ready-top}\includegraphics[scale=0.25,angle=90]{img/pcb2_ready_top.jpg}}
 %				\hspace{20pt}
-%				\subfigure[Dolna strona z przylutowanymi elementami]{\label{fig:pcb2-bottom}\includegraphics[scale=0.25,angle=90]{img/pcb2_bottom.jpg}}
+%				\subfigure[Dolna strona z przylutowanymi elementami]{\label{fig:pcb2-ready-bottom}\includegraphics[scale=0.25,angle=90]{img/pcb2_ready_bottom.jpg}}
 %			\end{center}
 %			\caption{Dodatkowa płytka drukowana}
 %			\label{fig:pcb2}
