@@ -82,9 +82,9 @@ static inline void ssd1906fb_runinit(struct ssd1906fb_par *par,
 static inline void lcd_enable(struct ssd1906fb_par *par)
 {
 	/* disable power saving mode */
-	u8 mode = ssd1906fb_readreg(par, SSD1906REG_PS_CNF);
+	u8 mode = ssd1906fb_readreg(par, SSD1906REG_PS_CONF);
 	mode &= ~0x01;
-	ssd1906fb_writereg(par, SSD1906REG_PS_CNF, mode);
+	ssd1906fb_writereg(par, SSD1906REG_PS_CONF, mode);
 
 	/* wait 20ns */
 	ndelay(100);
@@ -99,14 +99,15 @@ static inline void lcd_enable(struct ssd1906fb_par *par)
 
 static inline void lcd_disable(struct ssd1906fb_par *par)
 {
+	u8 mode;
 	/* TODO: disable LCD bias power */
 
 	/* wait for min. 10 frames (about 0.2s) and enable power saving mode */
 	mdelay(400);
 
-	u8 mode = ssd1906fb_readreg(par, SSD1906REG_PS_CNF);
+	mode = ssd1906fb_readreg(par, SSD1906REG_PS_CONF);
 	mode |= 0x01;
-	ssd1906fb_writereg(par, SSD1906REG_PS_CNF, mode);
+	ssd1906fb_writereg(par, SSD1906REG_PS_CONF, mode);
 
 	/* wait 20ns */
 	ndelay(100);
@@ -165,6 +166,8 @@ static int ssd1906fb_set_par(struct fb_info *info)
 
 	if (ssd1906fb->display & 0x01)
 		val = ssd1906fb_readreg(ssd1906fb, SSD1906REG_DISP_MODE);   /* read colour control */
+	else
+		return -EINVAL;
 
 	val &= ~0x07;
 
@@ -255,9 +258,9 @@ static int ssd1906fb_setcolreg(u_int regno, u_int red, u_int green, u_int blue,
 			break;
 		case FB_VISUAL_PSEUDOCOLOR:
 			ssd1906fb_writereg(ssd1906fb, SSD1906REG_LUT_WRITE_ADDRESS, regno);
-			ssd1906fb_writereg(ssd1906fb, SSD1906REG_LUP_RED_DATA_WRITE, red);
-			ssd1906fb_writereg(ssd1906fb, SSD1906REG_LUP_GREEN_DATA_WRITE, green);
-			ssd1906fb_writereg(ssd1906fb, SSD1906REG_LUP_BLUE_DATA_WRITE, blue);
+			ssd1906fb_writereg(ssd1906fb, SSD1906REG_LUT_RED_DATA_WRITE, red);
+			ssd1906fb_writereg(ssd1906fb, SSD1906REG_LUT_GREEN_DATA_WRITE, green);
+			ssd1906fb_writereg(ssd1906fb, SSD1906REG_LUT_BLUE_DATA_WRITE, blue);
 
 			break;
 		default:
@@ -391,6 +394,7 @@ static void __devinit ssd1906fb_fetch_hw_state(struct fb_info *info)
 	struct fb_fix_screeninfo *fix = &info->fix;
 	struct ssd1906fb_par *par = info->par;
 	u8 panel, display;
+	u16 offset;
 	u32 xres, yres;
 	int bpp;
 	int is_color;
@@ -427,6 +431,7 @@ static void __devinit ssd1906fb_fetch_hw_state(struct fb_info *info)
 	yres = (ssd1906fb_readreg(par, SSD1906REG_VDISP_PERIOD0) +
 		((ssd1906fb_readreg(par, SSD1906REG_VDISP_PERIOD1) & 0x03) << 8) + 1);
 
+	/* TODO: what is this offset for? */
 	/*offset = (ssd1906fb_readreg(par, S1DREG_LCD_MEM_OFF0) +
 		((ssd1906fb_readreg(par, S1DREG_LCD_MEM_OFF1) & 0x7) << 8));
 
@@ -506,7 +511,7 @@ static int __devinit ssd1906fb_probe(struct platform_device *pdev)
 	}
 
 	/* resource[0] is RAM, resource[1] is registers */
-	if ((dev->resource[0].flags != IORESOURCE_MEM) || (dev->resource[1].flags != IORESOURCE_MEM))
+	if ((pdev->resource[0].flags != IORESOURCE_MEM) || (pdev->resource[1].flags != IORESOURCE_MEM))
 	{
 		dev_err(&pdev->dev, "invalid resource type\n");
 		ssd1906fb_remove(pdev);
