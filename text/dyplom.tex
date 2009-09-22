@@ -474,7 +474,7 @@ $_TARGETNAME configure -work-area-virt 0x00200000 -work-area-phys
 				\begin{itemize}
  					\item \textbf{test adresowy} - Ten test zapisuje unikalną wartość w każdej komórce pamięci. Przykładowo moży to być adres tej komórki. Po zapisaniu dane są odczytywane i sprawdzane. 
 					\item \textbf{maszerujący wzorzec} - Algorytm czyści zawartość pamięci, następnie odczytuje zawartość pierwszej komórki i zapisuje do niej wartość 1. Ta procedura odczytu i zapisu jest powtarzana dla wszystkich lokacji w pamięci. W tym momencie cała pamięć powinna być zapełniona liczbami 1. Kolejnym etapem testu jest poruszanie się od końca pamięci, odczyt kolejnych komórek i zamiana ich zawartości na 0. Po osiągnięciu początku pamięci test jest powtarzany z użyciem dopełnionych wartości.
-					\item \textbf{galopujący wzorzec} - Test sprawdzający niepowtarzalność adresów i inne funkcjonalne błędy w pamięci, jak również niektóre dynamiczne przekłamania. Algorytm odwołuje się do każdej komórki pamięci używając po kolei każdego z pozostałych adresów jako miejsca, z którego nastąpi skok do sprawdzanej lokacji. Po wyczyszczeniu pamięci pierwsza komórka staje się adresem testowym - jest ona dopełniana i sprawdzana na zmianę z każdym z pozostałych adresów w całej pamięci. Każda kolejna komórka przyjmuje rolę testowej aż do momentu sprawdzenia całości.\\
+					\item \textbf{galopujący wzorzec} - Test sprawdzający niepowtarzalność adresów i inne funkcjonalne błędy w pamięci, jak również niektóre dynamiczne przekłamania. Algorytm odwołuje się do każdej komórki pamięci używając po kolei każdego z pozostałych adresw jako miejsca, z którego nastąpi skok do sprawdzanej lokacji. Po wyczyszczeniu pamięci pierwsza komórka staje się adresem testowym - jest ona dopełniana i sprawdzana na zmianę z każdym z pozostałych adresów w całej pamięci. Każda kolejna komórka przyjmuje rolę testowej aż do momentu sprawdzenia całości.\\
 					Z powodu dużej złożoności czasowej tego algorytmu, sprawdzono tylko kilka obszarów wielkości 1kB (czas wykonania takiego testu to ok. 40 minut).
 				\end{itemize}
 				Przeprowadzenie powyższych testów dla słów o długości 1, 2 i 4 bajtów nie wykazało żadnych błędów.\\
@@ -670,7 +670,7 @@ $_TARGETNAME configure -work-area-virt 0x00200000 -work-area-phys
 					\label{tab:fs_comparison}
 				\end{table}
 				System plików JFFS2 wydaje się najbardziej odpowiedni dla zastosowania w systemie wbudowanym, jednak został on zaprojektowany z myślą o urządzeniach NAND i NOR Flash i pomimo tego że został napisany sterownik dla kart pamięci SD/MMC, nie jest on tak efektywny. Oprócz tego wykorzystanie tego systemu dla nośników danych o dużej pojemności spowodowałoby zużycie znacznej ilości pamięci operacyjnej platformy.\\
-				Pomimo swoich wad, system plików Ext2 wydaje się dobrym kandydatem do przechowywania głównego katalogu używanego przez system operacyjny Linux. Ewentualnie można zastanowić się nad jednoczesnym wykorzystaniem kilku systemów plików, np. Ext2 do przechowywania zainstalowanych aplikacji i bibliotek, natomiast CRAMFS lub TMPFS dla danych tymczasowych.\\
+				Pomimo swoich wad, system plików Ext2 wydaje się dobrym kandydatem do przechowywania głównego katalogu używanego przez system operacyjny Linux. Ewentualnie można zastanowić się nad jednoczesnym wykorzystaniem kilku systemów plików, np. Ext2 do przechowywania plików konfiguracyjnych, SquashFS dla zainstalowanych aplikacji i bibliotek, natomiast TMPFS dla danych tymczasowych.\\
 				W projekcie platformy zdecydowano się na przykładowy podział karty pamięci SD/MMC na dwie partycje przedstawiony na rysunku \ref{fig:sd_mmc}. Pierwsza partycja jest używana tylko przez U-Boot w celu wczytania jądra systemu operacyjnego Linux do pamięci operacyjnej.\\
 				\begin{figure}[h!]
 					\begin{center}
@@ -681,19 +681,52 @@ $_TARGETNAME configure -work-area-virt 0x00200000 -work-area-phys
 				\end{figure}\\			
 				Po zbudowaniu Buildroota w katalogu \texttt{binaries} powinien znaleźć się obraz partycji Ext2 zawierającej główny katalog utworzonej dystrybucji. Aby nagrać obraz na utworzoną partycję należy wykonać polecenie:\\
 				\texttt{dd if=rootfs.arm.ext2 of=/dev/sdb2 bs=512}\\
-				gdzie \texttt{/dev/sdb2} to druga partycja karty pamięci SD/MMC.
-			% podział na partycje
+				gdzie \texttt{/dev/sdb2} to druga partycja karty pamięci SD/MMC.\\
+				W dalszej kolejności należy wyedytować plik \texttt{/etc/fstab} aby ustawić prawidłowy punkt montowania głównej partycji docelowej dystrybucji. Przykładowa zawartość tego pliku została przedstawiona na poniższym listingu.
+				\begin{lstlisting}[basicstyle={\footnotesize\ttfamily}]
+# /etc/fstab: static file system information.
+# <file system> <mount pt> <type> <options>               <dump> <pass>
+/dev/mmcblk0p2  /          ext2   defaults,rw,noatime     0      1
+proc            /proc      proc   defaults                0      0
+devpts          /dev/pts   devpts defaults,gid=5,mode=620 0      0
+tmpfs           /tmp       tmpfs  defaults                0      0
+sysfs           /sys       sysfs  defaults                0      0	
+
+				\end{lstlisting}
 			\subsection{Uruchamianie}
-				u
+				W celu uruchomienia systemu operacyjnego Linux na zbudowanej platformie sprzętowej podzielono kartę pamięci SD/MMC na partycje w sposób podany na rysunku \ref{fig:sd_mmc}. Po nagraniu jądra Linuksa i dystrybucji Buildroot podłączono napięcie zasilania co spowodowało wystartowanie przez mikrokontroler programu inicjalizującego LAB Bootloader. Po odczekaniu odpowiedniego czasu lub wybraniu odpowiedniej opcji został uruchomiony bootloader U-Boot. Aby zmusić U-Boot do wczytania jądra systemu operacyjnego Linux należy wykonać ciąg instrukcji przedstawionych poniżej (czynność tą można zautomatyzować poprzez ustawienie odpowiednich zmiennych środowiskowych i zapisanie ich w pamięci Serial Dataflash).
+				\begin{enumerate}
+					\item \texttt{mmcinit} - Inicjalizacja dostępnych kart pamięci SD/MMC.
+					\item \texttt{fatls mmc 0} - Wyświetlenie zawartości pierwszej karty pamięci.
+					\item \texttt{fatload mmc 0 0x21000000 uImage} - Wczytanie pliku binarnego \texttt{uImage}, zawierającego obraz kernela, z głównego katalogu pierwszej karty pamięci pod adres \texttt{0x21000000} pamięci operacyjnej platformy.
+					\item \texttt{bootm 0x21000000} - Uruchomienie jądra systemu operacyjnego spod podanego adresu pamięci.
+				\end{enumerate}
+				Po wykonaniu powyższych czynności rozpocznie się wczytywanie obrazu Linuksa:
+				\begin{lstlisting}[basicstyle={\footnotesize\ttfamily}]
+## Booting kernel from Legacy Image at 21000000 ...
+   Image Name:   Linux-2.6.27.8
+   Image Type:   ARM Linux Kernel Image (uncompressed)
+   Data Size:    1199916 Bytes =  1.1 MB
+   Load Address: 20008000
+   Entry Point:  20008000
+   Verifying Checksum ... OK
+   Loading Kernel Image ... OK
+OK
+Starting kernel ...
+Uncompressing Linux.....................................................
+done, booting the kernel.
+				\end{lstlisting}
+				
 				% jak u-boot to startuje? wylaczone przerwania, d-cache i i-cache
 			\subsection{Dodatkowe moduły}
 				\label{sec:linux_modules}
 				m
 				\subsubsection{Ethernet}
-					Jako
+					eth
 				\subsubsection{Sterownik Audio}
-					Ster
+					audio
 				\subsubsection{Kontroler LCD}
+					ssd
 %		\section{Aplikacja demonstracyjna}
 		
 	\chapter{Podsumowanie}
@@ -759,9 +792,9 @@ $_TARGETNAME configure -work-area-virt 0x00200000 -work-area-phys
 %			\begin{center}
 %				\subfigure[Górna strona]{\label{fig:pcb1-top}\includegraphics[scale=0.25,angle=90]{img/pcb1_top.jpg}}
 %				\hspace{20pt}
-%				\subfigure[Dolna strona]{\label{fig:pcb1-bottom}\includegraphics[scale=0.25,angle=90]{img/pcb1_bottom.jpg}}\\
+%				\subfigure[Górna strona z przylutowanymi elementami]{\label{fig:pcb1-top}\includegraphics[scale=0.25,angle=90]{img/pcb1_top.jpg}}\\
 %				\vspace{20pt}
-%				\subfigure[Górna strona z przylutowanymi elementami]{\label{fig:pcb1-top}\includegraphics[scale=0.25,angle=90]{img/pcb1_top.jpg}}
+%				\subfigure[Dolna strona]{\label{fig:pcb1-bottom}\includegraphics[scale=0.25,angle=90]{img/pcb1_bottom.jpg}}
 %				\hspace{20pt}
 %				\subfigure[Dolna strona z przylutowanymi elementami]{\label{fig:pcb1-ready-bottom}\includegraphics[scale=0.25,angle=90]{img/pcb1_ready_bottom.jpg}}
 %			\end{center}
@@ -772,9 +805,9 @@ $_TARGETNAME configure -work-area-virt 0x00200000 -work-area-phys
 %			\begin{center}
 %				\subfigure[Górna strona]{\label{fig:pcb2-top}\includegraphics[scale=0.25,angle=90]{img/pcb2_top.jpg}}
 %				\hspace{20pt}
-%				\subfigure[Dolna strona]{\label{fig:pcb2-bottom}\includegraphics[scale=0.25,angle=90]{img/pcb2_bottom.jpg}}\\
+%				\subfigure[Górna strona z przylutowanymi elementami]{\label{fig:pcb2-ready-top}\includegraphics[scale=0.25,angle=90]{img/pcb2_ready_top.jpg}}\\
 %				\vspace{20pt}
-%				\subfigure[Górna strona z przylutowanymi elementami]{\label{fig:pcb2-ready-top}\includegraphics[scale=0.25,angle=90]{img/pcb2_ready_top.jpg}}
+%				\subfigure[Dolna strona]{\label{fig:pcb2-bottom}\includegraphics[scale=0.25,angle=90]{img/pcb2_bottom.jpg}}
 %				\hspace{20pt}
 %				\subfigure[Dolna strona z przylutowanymi elementami]{\label{fig:pcb2-ready-bottom}\includegraphics[scale=0.25,angle=90]{img/pcb2_ready_bottom.jpg}}
 %			\end{center}
