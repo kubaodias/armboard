@@ -25,6 +25,7 @@
 #include <linux/init.h>
 #include <linux/mm.h>
 #include <linux/module.h>
+#include <linux/dma-mapping.h>
 #include <linux/platform_device.h>
 #include <linux/spi/spi.h>
 #include <linux/mtd/physmap.h>
@@ -37,6 +38,7 @@
 #include <asm/mach/map.h>
 #include <asm/mach/irq.h>
 
+#include <mach/hardware.h>
 #include <mach/board.h>
 #include <mach/gpio.h>
 #include <mach/at91rm9200_mc.h>
@@ -161,7 +163,7 @@ static const struct ssd1906fb_regval lab_ssd1906fb_initregs[] = {
 	{SSD1906REG_LLINE_PSTART0,	0x01},	/* LLINE Pulse Start Position Register 0 */
 	{SSD1906REG_LLINE_PSTART1,	0x00},	/* LLINE Pulse Start Position Register 1 */
 	/* LFRAME Pulse Width should be 10 lines, but framebuffer allows max value of 8 */
-	{SSD1906REG_LFRAME_PWIDTH	0x07},	/* LFRAME Pulse Width Register 
+	{SSD1906REG_LFRAME_PWIDTH,	0x07},	/* LFRAME Pulse Width Register 
 							VSYNC signal is active low
 							Vertical Pulse Width = 8 lines */
 	/* LFRAME Pulse Start Position = 2 */
@@ -202,7 +204,7 @@ static struct resource lab_ssd1906fb_resource[] = {
 	[1] = {	/* video registers */
 		.name   = "ssd1906 registers",
 		.start  = LAB_FB_REG_BASE,
-		.end    = LAB_FB_REG_BASE + SZ_256 + SZ_64 -1,
+		.end    = LAB_FB_REG_BASE + SZ_256 + 4*SZ_16 -1,
 		.flags  = IORESOURCE_MEM,
 	},
 };
