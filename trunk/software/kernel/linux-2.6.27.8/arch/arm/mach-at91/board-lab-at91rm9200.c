@@ -112,8 +112,11 @@ static void lab_set_programmable_clocks(void)
 
 	clk_set_parent(pck0, pllb);
 
-	/* PCK0 rate = PLLB rate/4 = 96MHz/4 = 24MHz */
-	clk_set_rate(pck0, 240000000);
+	/* PCK0 rate = 24MHz */
+	clk_set_rate(pck0, 24000000);
+
+	clk_put(pck0);
+	clk_put(pllb);
 }
 
 /* SSD1906 FB */
