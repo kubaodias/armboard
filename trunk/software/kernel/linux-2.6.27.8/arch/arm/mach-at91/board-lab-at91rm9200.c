@@ -98,6 +98,24 @@ static struct spi_board_info lab_spi_devices[] = {
 #if defined(CONFIG_FB_SSD1906) || defined(CONFIG_FB_SSD1906_MODULE)
 #include <video/ssd1906fb.h>
 
+/* Set PCK0 for SSD1906 */
+static void lab_set_programmable_clocks(void)
+{
+	struct clk *pck0;
+	struct clk *pllb;
+
+	pck0 = clk_get(NULL, "pck0");
+	pllb = clk_get(NULL, "pllb");
+
+	/* PCK0 */
+	at91_set_A_periph(AT91_PIN_PB27, 0);
+
+	clk_set_parent(pck0, pllb);
+
+	/* PCK0 rate = PLLB rate/4 = 96MHz/4 = 24MHz */
+	clk_set_rate(pck0, 240000000);
+}
+
 /* SSD1906 FB */
 static void lab_init_video(void)
 {
@@ -228,6 +246,7 @@ static void __init lab_add_device_video(void)
 	platform_device_register(&lab_ssd1906fb_device);
 }
 #else
+static void __init lab_set_programmable_clocks(void) {}
 static void __init lab_add_device_video(void) {}
 #endif
 
@@ -241,6 +260,8 @@ static void __init lab_board_init(void)
 	at91_add_device_usbh(&lab_usbh_data);
 	/* SPI */
 	at91_add_device_spi(lab_spi_devices, ARRAY_SIZE(lab_spi_devices));
+	/* PCK for SSD1906 */
+	lab_set_programmable_clocks();
 	/* VGA */
 	lab_add_device_video();
 }
