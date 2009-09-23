@@ -310,7 +310,6 @@ static void enable_phyirq(struct net_device *dev)
 	}
 	else if (lp->phy_type == MII_STE100P_ID) {	/* for STE100P PHY */
 		read_phy(lp->phy_address, MII_STE100P_XIE_REG, &dsintr);
-
 		dsintr |= 0x007F;
 		write_phy(lp->phy_address, MII_STE100P_XIE_REG, dsintr);
 	}
