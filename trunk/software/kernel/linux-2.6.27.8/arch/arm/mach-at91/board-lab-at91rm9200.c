@@ -29,6 +29,7 @@
 #include <linux/platform_device.h>
 #include <linux/spi/spi.h>
 #include <linux/mtd/physmap.h>
+#include <linux/clk.h>
 
 #include <asm/setup.h>
 #include <asm/mach-types.h>
