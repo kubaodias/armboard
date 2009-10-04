@@ -229,7 +229,7 @@ mmc_bread(int dev, unsigned long start, lbaint_t blkcnt,
 				data = swab32(mmci_readl(RDR));
 				/* pr_debug("%x\n", data); */
 				*buffer++ = data;
-+				wordcount++;
+				wordcount++;
 			}
 		} while(wordcount < (mmc_blkdev.blksz / 4));
 

@@ -85,8 +85,11 @@
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_MMC
+#define CONFIG_CMD_FAT
 // #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_PING
+#define CONFIG_CMD_FLASH
+// #define CONFIG_CMD_USB
 
 #undef CONFIG_CMD_BDI
 #undef CONFIG_CMD_IMI
@@ -145,13 +148,9 @@
 #define CFG_FLASH_WRITE_TOUT		(2*CFG_HZ) /* Timeout for Flash Write */
 
 #define	CFG_ENV_IS_IN_DATAFLASH
-
-#ifdef CFG_ENV_IS_IN_DATAFLASH
 #define CFG_ENV_OFFSET			0x4000
 #define CFG_ENV_ADDR			(CFG_DATAFLASH_LOGIC_ADDR_CS0 + CFG_ENV_OFFSET)
 #define CFG_ENV_SIZE			0x4000
-#endif	/* CFG_ENV_IS_IN_DATAFLASH */
-
 
 #define CFG_LOAD_ADDR		0x21000000  /* default load address */
 
