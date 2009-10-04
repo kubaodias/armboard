@@ -84,7 +84,7 @@ static void PhyReset(AT91PS_EMAC p_mac)
 	
 	at91rm9200_EmacReadPhy (p_mac, STE100P_XIE_REG, &IntValue);
 	udelay(10000);
-	/* disable all interrypts from STE100P */
+	/* disable all interrupts from STE100P */
 
 	IntValue &= ~(STE100P_XIE_ANCE | STE100P_XIE_RFE | STE100P_XIE_LDE |
 		STE100P_XIE_ANAE | STE100P_XIE_PDFE | STE100P_XIE_ANPE | STE100P_XIE_REFE);
@@ -175,7 +175,12 @@ unsigned int ste100p_IsPhyConnected (AT91PS_EMAC p_mac)
 	} while ((!result) && (tries > 0));
 	
 	if (tries == 0)
+	{
+#ifdef DEBUG_ETHER
+		printf("Exceeded maximum number of tries while checking if PHY is connected (PID1: 0x%4x, PID2: 0x%4x)\r\n", Id1, Id2);
+#endif
 		return FALSE;
+	}
 
 	at91rm9200_EmacDisableMDIO (p_mac);		
 #ifdef DEBUG_ETHER	
@@ -204,18 +209,26 @@ UCHAR ste100p_GetLinkSpeed (AT91PS_EMAC p_mac)
 	result = at91rm9200_EmacReadPhy (p_mac, STE100P_XSR_REG, &stat);
 
 	if (!result)
+	{
+		printf("couldn't read STE100P_XSR_REG\n");
 		return FALSE;
+	}
 
 	if (!(stat & STE100P_XSR_LINK))	/* link status up? */
-	{ //last link failure is latched so reread STE100P_XSR_REG for new value
+	{ 
+		//last link failure is latched so reread STE100P_XSR_REG for new value
 		result = at91rm9200_EmacReadPhy (p_mac, STE100P_XSR_REG, &stat);
 		if (!result || !(stat & STE100P_XSR_LINK))
+		{
+			printf("no link, XSR_REG: 0x%x\n", stat);
 			return FALSE;
+		}
 	}
 
         if (stat & STE100P_XSR_100TX_FULL) {
                 /*set Emac for 100BaseTX and Full Duplex  */
                 p_mac->EMAC_CFG |= AT91C_EMAC_SPD | AT91C_EMAC_FD;
+		printf("100 BaseTX and Full Duplex\n");
                 return TRUE;
         }
 
@@ -224,6 +237,7 @@ UCHAR ste100p_GetLinkSpeed (AT91PS_EMAC p_mac)
                 p_mac->EMAC_CFG = (p_mac->EMAC_CFG &
                                 ~(AT91C_EMAC_SPD | AT91C_EMAC_FD))
                                 | AT91C_EMAC_SPD;
+		printf("100 BaseTX and Half Duplex\n");
                 return TRUE;
         }
 
@@ -232,15 +246,18 @@ UCHAR ste100p_GetLinkSpeed (AT91PS_EMAC p_mac)
                 p_mac->EMAC_CFG = (p_mac->EMAC_CFG &
                                 ~(AT91C_EMAC_SPD | AT91C_EMAC_FD))
                                 | AT91C_EMAC_FD;
+		printf("10 BaseT and Full Duplex\n");
                 return TRUE;
         }
 
         if (stat & STE100P_XSR_10T) {
                 /*set MII for 10BaseT and Half Duplex  */
                 p_mac->EMAC_CFG &= ~(AT91C_EMAC_SPD | AT91C_EMAC_FD);
+		printf("10 BaseT and Half Duplex\n");
                 return TRUE;
         }
 
+	printf("unknown error\n");
 	return FALSE;
 }
 
@@ -351,15 +368,15 @@ UCHAR ste100p_InitPhy (AT91PS_EMAC p_mac)
 
 	if (!ret)
 	{
-	    ste100p_AutoNegotiate(p_mac, &aneg_status);
+	    ret = ste100p_AutoNegotiate(p_mac, &aneg_status);
 #ifdef DEBUG_ETHER
 	    if (aneg_status)
 	    {
-		    printf("link speed autonegotiated\n");
+		    printf("link speed autonegotiated: ");
 		    ret = ste100p_GetLinkSpeed (p_mac);
 	    }
 	    else
-		    printf("auto-neogtiation failed\n");
+		    printf("auto-negotiation failed\n");
 #endif //DEBUG_ETHER		    
 	}
 
@@ -367,7 +384,7 @@ UCHAR ste100p_InitPhy (AT91PS_EMAC p_mac)
 	
 	at91rm9200_EmacReadPhy (p_mac, STE100P_XIE_REG, &IntValue);
 	udelay(1000);
-	/* disable all interrypts from SE100P */
+	/* disable all interrypts from STE100P */
 
 	IntValue &= ~(STE100P_XIE_ANCE | STE100P_XIE_RFE | STE100P_XIE_LDE |
 		STE100P_XIE_ANAE | STE100P_XIE_PDFE | STE100P_XIE_ANPE | STE100P_XIE_REFE);
