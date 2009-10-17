@@ -131,8 +131,8 @@
 						\hline Wbudowana pamięć & 16kB SRAM, 128kB ROM & 4kB SRAM, 32 kB ROM \\
 						\hline Ethernet & kontroler MAC 10/100T z interfejsem MII & kontroler MAC 10/100T z interfejsem MII \\
 						\hline USB & USB 2.0 - tryb urządzenia i gospodarza & USB 2.0 - tryb urządzenia i gospodarza \\
-						\hline Możliwość podłączenia & SDRAM, pamięć statyczna, Dataflash & SDRAM, pamięć statyczna, Dataflash \\
-							zewn. pamięci & & \\
+						\hline Możliwość podłączenia & SDRAM, pamięć statyczna, & SDRAM, pamięć statyczna, \\
+							zewn. pamięci & Dataflash & Dataflash \\
 						\hline Interfejs MMC & tak & tak \\
 						\hline Debug Unit & tak & tak \\
 						\hline JTAG & tak & tak \\
@@ -545,6 +545,7 @@ $_TARGETNAME configure -work-area-virt 0x00200000 -work-area-phys
 								\item \textbf{Input device support} - Obsługa urządzeń wskazujących, w tym klawiatur i myszek.
 								\item \textbf{Character devices} - Wsparcie dla urządzeń znakowych.
 									\begin{itemize}
+										\item \texttt{Legacy (BSD) PTY support} - Włączenie tej opcji powodowało częste błędy podczas startowania systemu Linux. Nowe aplikacji linuksowe nie powinny używać pseudoterminali BSD, dlatego bezpieczne jest wyłączenie tej opcji.
 										\item \texttt{SPI driver (legacy) for AT91RM9200 processors} - W czasie działania systemu protokół SPI będzie używany tylko do obsługi dodatkowej karty pamięci SD/MMC.
 										\item \texttt{Serial drivers} - W celu debuggowania układu ważne jest zezwolenie na używanie portu szeregowego jako konsoli poprzez opcję \texttt{Support for console on AT91/AT32 serial port}.
 									\end{itemize}
@@ -628,7 +629,7 @@ $_TARGETNAME configure -work-area-virt 0x00200000 -work-area-phys
 							Poszczególne aplikacje zawarte w BusyBox są uruchamiane poprzez osobne dowiązania symboliczne do głównego pliku wykonywalnego.
 						\item \textbf{SQLite} - Wydajny system zarządzania bazą danych SQL który bardzo dobrze nadaje się do systemów wbudowanych.
 						\item \textbf{Dropbear} - Nieduża aplikacja serwera i klienta protokołu SSH 2 umożliwiającego bezpieczne połączenia sieciowe.
-						\item \textbf{TFTPd} - Serwer obsługujący oparty o UDP uproszczony protokół przesyłu danych TFTP (Trivial File Transfer Protocol). Przydatny w momencie, gdy użytkownik chce szybko przerzucić jakiś plik na docelową platformę.
+						\item \textbf{TFTPd} - Serwer obsługujący oparty o UDP uproszczony protokół przesyłu danych TFTP (Trivial File Transfer Protocol). Przydatny w momencie, gdy użytkownik chce szybko skopiować jakiś plik na docelową platformę.
 						\item \textbf{Matchbox} - Popularny w systemach wbudowanych menadżer okien. Wymaga skonfigurowanego serwera X.
 						\item \textbf{ipkg} - System zarządzania pakietami. Pozwala na pobranie z sieci i instalację dodatkowego oprogramowania.
 						\item \textbf{microperl} - Okrojona wersja interpretera skryptów napisanych w języku Perl.
@@ -709,18 +710,101 @@ sysfs           /sys       sysfs  defaults                0      0
 				\end{enumerate}
 				Po wykonaniu powyższych czynności rozpocznie się wczytywanie obrazu Linuksa:
 				\begin{lstlisting}[basicstyle={\footnotesize\ttfamily}]
-## Booting kernel from Legacy Image at 21000000 ...
-   Image Name:   Linux-2.6.27.8
-   Image Type:   ARM Linux Kernel Image (uncompressed)
-   Data Size:    1199916 Bytes =  1.1 MB
-   Load Address: 20008000
-   Entry Point:  20008000
-   Verifying Checksum ... OK
-   Loading Kernel Image ... OK
-OK
-Starting kernel ...
-Uncompressing Linux.....................................................
-done, booting the kernel.
+## Booting kernel from Legacy Image at 21000000 ...                             
+   Image Name:   Linux-2.6.27.8                                                 
+   Image Type:   ARM Linux Kernel Image (uncompressed)                          
+   Data Size:    1135352 Bytes =  1.1 MB                                        
+   Load Address: 20008000                                                       
+   Entry Point:  20008000                                                       
+   Verifying Checksum ... OK                                                    
+   Loading Kernel Image ... OK                                                  
+OK                                                                              
+                                                                                
+Starting kernel ...                                                             
+                                                                                
+Uncompressing Linux.............................................................
+Linux version 2.6.27.8 (odi@debian) (gcc version 4.0.2) #41 Mon Oct 12 22:56:209
+CPU: ARM920T [41129200] revision 0 (ARMv4T), cr=c0006173                        
+Machine: Linux ARM Board                                                        
+Memory policy: ECC disabled, Data cache buffered                                
+Clocks: CPU 179 MHz, master 89 MHz, main 18.432 MHz                             
+CPU0: D VIVT write-back cache                                                   
+CPU0: I cache: 16384 bytes, associativity 64, 32 byte lines, 8 sets             
+CPU0: D cache: 16384 bytes, associativity 64, 32 byte lines, 8 sets             
+Built 1 zonelists in Zone order, mobility grouping on.  Total pages: 16256      
+Kernel command line: mem=64M console=ttyS0,115200 rootfstype=ext2 root=/dev/mmct
+AT91: 96 gpio irqs in 3 banks                                                   
+PID hash table entries: 256 (order: 8, 1024 bytes)                              
+Console: colour dummy device 80x30                                              
+console [ttyS0] enabled                                                         
+Dentry cache hash table entries: 8192 (order: 3, 32768 bytes)                   
+Inode-cache hash table entries: 4096 (order: 2, 16384 bytes)                    
+Memory: 64MB = 64MB total                                                       
+Memory: 62548KB available (2040K code, 180K data, 96K init)                     
+Calibrating delay loop... 89.79 BogoMIPS (lpj=16384)                             
+Mount-cache hash table entries: 512                                             
+CPU: Testing write buffer coherency: ok                                         
+net_namespace: 288 bytes                                                        
+NET: Registered protocol family 16                                              
+usbcore: registered new interface driver usbfs                                  
+usbcore: registered new interface driver hub                                    
+usbcore: registered new device driver usb                                       
+NET: Registered protocol family 2                                               
+IP route cache hash table entries: 1024 (order: 0, 4096 bytes)
+TCP established hash table entries: 2048 (order: 2, 16384 bytes)
+TCP bind hash table entries: 2048 (order: 1, 8192 bytes)
+TCP: Hash tables configured (established 2048 bind 2048)
+TCP reno registered
+NET: Registered protocol family 1
+NetWinder Floating Point Emulator V0.97 (double precision)
+msgmni has been set to 122
+io scheduler noop registered (default)
+at91_spi: Baud rate set to 5616000
+AT91 SPI driver loaded
+atmel_usart.0: ttyS0 at MMIO 0xfefff200 (irq = 1) is a ATMEL_SERIAL
+atmel_usart.1: ttyS1 at MMIO 0xfffc4000 (irq = 7) is a ATMEL_SERIAL
+atmel_usart.2: ttyS2 at MMIO 0xfffc8000 (irq = 8) is a ATMEL_SERIAL
+brd: module loaded
+eth0: Link down.
+eth0: AT91 ethernet at 0xfefbc000 int=24 10-HalfDuplex (00:25:73:01:23:45)
+eth0: STE100P PHY
+at91_ohci at91_ohci: AT91 OHCI
+at91_ohci at91_ohci: new USB bus registered, assigned bus number 1
+at91_ohci at91_ohci: irq 23, io mem 0x00300000
+usb usb1: configuration #1 chosen from 1 choice
+hub 1-0:1.0: USB hub found
+hub 1-0:1.0: 1 port detected
+usb usb1: New USB device found, idVendor=1d6b, idProduct=0001
+usb usb1: New USB device strings: Mfr=3, Product=2, SerialNumber=1
+usb usb1: Product: AT91 OHCI
+usb usb1: Manufacturer: Linux 2.6.27.8 ohci_hcd
+usb usb1: SerialNumber: at91
+mice: PS/2 mouse device common for all mice
+at91_rtc at91_rtc: rtc core: registered at91_rtc as rtc0
+AT91 Real Time Clock driver.
+AT91 Watchdog Timer enabled (5 seconds, nowayout)
+usbcore: registered new interface driver usbhid
+usbhid: v2.6:USB HID core driver
+TCP cubic registered
+NET: Registered protocol family 17
+at91_rtc at91_rtc: setting system clock to 1998-01-01 00:00:27 UTC (883612827)
+Waiting 3sec before mounting root device...
+mmc0: new MMC card at address 0001
+mmcblk0: mmc0:0001 128M   125440KiB 
+ mmcblk0: p1 p2
+EXT2-fs warning: mounting unchecked fs, running e2fsck is recommended
+VFS: Mounted root (ext2 filesystem).
+Freeing init memory: 96K
+Populating /dev using udev: done
+Initializing random number generator... read-only file system detected...done
+Starting network...
+ifup: interface lo already configured
+Starting HPA's tftpd: done
+
+Welcome to Linux ARM Board
+lab login: root
+Dec 31 17:00:48 login[258]: root login on 'ttyS0'
+# 
 				\end{lstlisting}
 				
 				% jak u-boot to startuje? wylaczone przerwania, d-cache i i-cache
@@ -798,7 +882,7 @@ done, booting the kernel.
 %			\begin{center}
 %				\subfigure[Górna strona]{\label{fig:pcb1-top}\includegraphics[scale=0.25,angle=90]{img/pcb1_top.jpg}}
 %				\hspace{20pt}
-%				\subfigure[Górna strona z przylutowanymi elementami]{\label{fig:pcb1-top}\includegraphics[scale=0.25,angle=90]{img/pcb1_top.jpg}}\\
+%				\subfigure[Górna strona z przylutowanymi elementami]{\label{fig:pcb1-ready-top}\includegraphics[scale=0.25,angle=90]{img/pcb1_ready_top.jpg}}\\
 %				\vspace{20pt}
 %				\subfigure[Dolna strona]{\label{fig:pcb1-bottom}\includegraphics[scale=0.25,angle=90]{img/pcb1_bottom.jpg}}
 %				\hspace{20pt}
@@ -821,6 +905,16 @@ done, booting the kernel.
 %			\label{fig:pcb2}
 %		\end{figure}
 %	
+%		\begin{figure}[]
+%			\begin{center}
+%				\subfigure[Zdjęcie 1]{\label{fig:project-ready1}\includegraphics[scale=0.25]{img/project_ready1.jpg}}\\
+%				\vspace{30pt}
+%				\subfigure[Zdjęcie 2]{\label{fig:project-ready2}\includegraphics[scale=0.25]{img/project_ready2.jpg}}
+%			\end{center}
+%			\caption{Gotowy projekt razem z wyświetlaczem LCD}
+%			\label{fig:project-ready}
+%		\end{figure}
+%		
 %		\begin{figure}[]
 %			\begin{center}
 %				\subfigure[Schemat ideowy programatora wykonany w programie Eagle]{\label{fig:programator_sch}\includegraphics[scale=0.55]{img/programator_sch.png}}\\
