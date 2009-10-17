@@ -488,7 +488,7 @@ $_TARGETNAME configure -work-area-virt 0x00200000 -work-area-phys
 				\subsubsection{Konfiguracja}
 					W projekcie zdecydowano wykorzystać jądro systemu operacyjnego Linux w wersji 2.6.27.8 - jest to stabilne wydanie kernela, które zostało użyte w jednym z przykładowych projektów zawartych w dodatku \ref{app:przykladowe_projekty}, zatem posiadano pewność że ta wersja powinna działać.\\
 					Spakowane archiwum zawierające źródła systemu operacyjnego należy pobrać ze strony internetowej \url{http://kernel.org/}, natomiast przydatne jest dodatkowo pobranie ze strony \url{http://maxim.org.za/at91_26.html} pliku z drobnymi poprawkami dla mikrokontrolera AT91RM9200 (plik jest dostępny w dołączonych materiałach). Aby go zastosować należy w głównym katalogu ze źródłami Linuksa wykonać polecenie:\\
-					\texttt{patch -p0 < 2.6.27-at91.patch.gz}\\
+					\texttt{zcat 2.6.27-at91.patch.gz | patch -p1}\\
 					W dalszej kolejności należało wprowadzić modyfikacje niezbędne dla zastosowanej platformy sprzętowej m.in.
 					\begin{itemize}
 						\item Dodanie pliku \texttt{arch/arm/mach-at91/board-lab-at91rm9200.c} zawierającego funkcje używane podczas inicjalizacji płytki sprzętowej.
@@ -565,13 +565,19 @@ $_TARGETNAME configure -work-area-virt 0x00200000 -work-area-phys
 				\subsubsection{Kompilacja}
 					W celu zbudowania nowego jądra systemu operacyjnego Linux należy wykonać serię wymienionych poniżej poleceń:
 					\begin{itemize}
-						\item \texttt{make dep} - utworzenie wszystkich zależności
-						\item \texttt{make clean} - wyczyszczenie pozostałości po poprzednio budowanym kernelu
+						\item \texttt{make ARCH=arm dep} - utworzenie wszystkich zależności
+						\item \texttt{make ARCH=arm clean} - wyczyszczenie pozostałości po poprzednio budowanym kernelu
 						\item \texttt{make ARCH=arm CROSS\_COMPILE=/opt/gnuarm-4.0.2/bin/arm-elf-} - skompilowanie jądra dla architektury ARM z użyciem podanego kompilatora skrośnego
-						\item \texttt{make uImage} - utworzenie obrazu binarnego, który może zostać uruchomiony przez bootloader
+						\item \texttt{make ARCH=arm CROSS\_COMPILE=/opt/gnuarm-4.0.2/bin/arm-elf- uImage} - \\utworzenie obrazu binarnego, który może zostać uruchomiony przez bootloader
 					\end{itemize}
 					Przed wykonaniem ostatniego kroku należy się upewnić, czy aplikacja \texttt{mkimage} zawarta w katalogu \texttt{tools} bootloadera U-Boot jest widoczna podczas budowania jądra (jeśli nie jest, należy dodać katalog \texttt{tools} do zmiennej środowiskowej \texttt{PATH}). Narzędzie \texttt{mkimage} służy do dodania niedużego nagłówka do zbudowanego obrazu, tak aby U-Boot wiedział spod jakiego adresu należy wystartować jądro systemu operacyjnego Linux.\\
-					Po pomyślnym wykonaniu podanych poleceń w katalogu \texttt{arch/arm/boot/} źródeł Linuksa powinien znaleźć się plik \texttt{uImage} będący skompresowanym obrazem systemu operacyjnego (jego rozmiar dla wybranej konfiguracji to ok. 1MB). Dodatkowo, jeśli użytkownik skompilował niektóre funkcje jako moduły, odpowiednie pliki z rozszerzeniem \texttt{.ko} będą znajdowały się w podkatalogu \texttt{lib/modules/2.6.27.8}. Aby działający system mógł je poprawnie załadować należy skopiować podany katalog do głównego katalogu w docelowym systemie plików.
+					Po pomyślnym wykonaniu podanych poleceń w katalogu \texttt{arch/arm/boot/} źródeł Linuksa powinien znaleźć się plik \texttt{uImage} będący skompresowanym obrazem systemu operacyjnego (jego rozmiar dla wybranej konfiguracji to ok. 1MB).\\
+					Dodatkowo, jeśli użytkownik wybrał kompilację niektórych funkcji jako modułów należy wykonać polecenia:
+					\begin{itemize}
+						\item \texttt{make ARCH=arm CROSS\_COMPILE=/opt/gnuarm-4.0.2/bin/arm-elf- modules}
+						\item \texttt{make ARCH=arm CROSS\_COMPILE=/opt/gnuarm-4.0.2/bin/arm-elf- \\INSTALL\_MOD\_PATH=. modules\_install}
+					\end{itemize}
+					Odpowiednie pliki z rozszerzeniem \texttt{.ko}, zawierające skompilowane moduły linuksowe, będą znajdowały się w podkatalogu \texttt{lib/modules/2.6.27.8}. Aby działający system mógł je poprawnie załadować należy skopiować podany katalog do głównego katalogu w docelowym systemie plików, lub posiadając zamontowany system plików stosowany na platformie zmienić wartość zmiennej \texttt{INSTALL\_MOD\_PATH}.
 			\subsection{Dystrybucja}
 				Dystrybucja, czyli zestaw aplikacji i bibliotek tworzących razem z kernelem działający system operacyjny, podobnie jak samo jądro, w wersji dla systemów wbudowanych różni się nieznacznie od tych przeznaczonych dla komputerów biurkowych i serwerów. Różnica polega głównie na przemyślanym doborze wszystkich aplikacji, tak aby zaoszczędzić dostępne miejsce na nośnikach danych i w pamięci operacyjnej oraz zoptymalizować działanie. Aby idealnie dostosować system do danej platformy sprzętowej użytkownik może sam skompilować wszystkie wymagane programy, a następnie utworzyć strukturę głównego systemu plików, jednak takie podejście wymaga dużego nakładu pracy.\\
 				Na rynku jest dostępnych wiele darmowych i komercyjnych rozwiązań, wśród których są standardowe dystrybucje (skompilowane na konkretną platformę sprzętową) oraz środowiska służące do konfigurowania i budowania dystrybucji.
@@ -674,7 +680,7 @@ $_TARGETNAME configure -work-area-virt 0x00200000 -work-area-phys
 				W projekcie platformy zdecydowano się na przykładowy podział karty pamięci SD/MMC na dwie partycje przedstawiony na rysunku \ref{fig:sd_mmc}. Pierwsza partycja jest używana tylko przez U-Boot w celu wczytania jądra systemu operacyjnego Linux do pamięci operacyjnej.\\
 				\begin{figure}[h!]
 					\begin{center}
-						\includegraphics[scale=0.6]{img/sd_mmc.jpg}
+						\includegraphics[scale=0.7]{img/sd_mmc.jpg}
 						\caption{Podział karty pamięci SD/MMC o pojemności 128MB}
 						\label{fig:sd_mmc}
 					\end{center}
