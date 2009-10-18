@@ -56,7 +56,7 @@
 			\large{Kierujący pracą: dr inż. Krzysztof Tokarz}\\
 
 			\vspace{105pt}
-			\normalsize{Gliwice, sierpień 2009}
+			\normalsize{Gliwice, październik 2009}
 		\end{flushleft}
 	\end{titlepage}}
 
@@ -71,7 +71,7 @@
 	\chapter{Wstęp}
 		\section{Wprowadzenie}
 			Wraz z rozwojem informatyki pojawia się coraz więcej układów sprzętowych, różnorodnych protokołów oraz użytecznych aplikacji i bibliotek. Aby napisać sterownik urządzenia lub programową obsługę dla danego protokołu, należy zazwyczaj poświęcić dużo czasu i zasobów na zapoznanie się z dokumentacją, napisanie programu oraz wystarczające przetestowanie.\\
-			Dlatego podczas tworzenia zaawansowanego układu sprzętowego, wygodnym rozwiązaniem jest użycie gotowego i stabilnego kodu, który obsłuży większość potrzebnych użytkownikowi funkcjonalności. Firmy zajmujące się produkcją nowych urządzeń, np. telefonów komórkowych czy routerów bezprzewodowych, zazwyczaj wykorzystują rozwijane przez siebie aplikacje lub proste systemy operacyjne w celu przyspieszenia wstępnej fazy uruchamiania nowego oprogramowania oraz późniejszego efektywnego zarządzania zasobami. Możliwe jest także zastosowanie gotowych rozwiązań, takich jak zaawansowane systemy operacyjne Windows Embedded i Linux; wadą wbudowanej wersji Windowsa jest niestety to że nie jest to darmowe oprogramowanie, oraz w przeciwieństwie do Linuksa nie posiada ogólnodostępnego kodu źródłowego. Dzięki udostępnieniu plików źródłowych jądra (ang. kernel) systemu Linux na licencji GNU General Public License 2 \cite{website:gnu_gpl_v2}, każdy programista może dla swoich potrzeb napisać sterownik, a następnie udostępnić go innym - w ten sposób dodawanie nowych funkcjonalności oraz poprawianie ewentualnych błędów jest znacznie uproszczone.\\
+			Dlatego podczas tworzenia zaawansowanego układu sprzętowego, wygodnym rozwiązaniem jest użycie gotowego i stabilnego kodu, który obsłuży większość potrzebnych użytkownikowi funkcjonalności. Firmy zajmujące się produkcją nowych urządzeń, np. telefonów komórkowych czy routerów bezprzewodowych, zazwyczaj wykorzystują rozwijane przez siebie aplikacje lub proste systemy operacyjne w celu przyspieszenia wstępnej fazy uruchamiania nowego oprogramowania oraz późniejszego efektywnego zarządzania zasobami. Możliwe jest także zastosowanie gotowych rozwiązań, takich jak zaawansowane systemy operacyjne Windows Embedded i Linux; wadą wbudowanej wersji Windowsa jest niestety to że nie jest to darmowe oprogramowanie, oraz w przeciwieństwie do Linuksa nie posiada ogólnodostępnego kodu źródłowego. Dzięki udostępnieniu plików źródłowych jądra (ang. kernel) systemu Linux na licencji GNU General Public License 2, każdy programista może dla swoich potrzeb napisać sterownik, a następnie udostępnić go innym - w ten sposób dodawanie nowych funkcjonalności oraz poprawianie ewentualnych błędów jest znacznie uproszczone.\\
 			Dzięki wiedzy o tym w jaki sposób zaprojektować platformę sprzętową, umożliwiającą uruchomienie systemu operacyjnego na prostym układzie mikroprocesorowym, można stworzyć urządzenie które ma bardzo rozbudowane możliwości, porównywalne z tymi dostępnymi w urządzeniach przenośnych.
 		\section{Cel pracy}
 			Celem niniejszej pracy magisterskiej jest konstrukcja platformy sprzętowej dostosowanej do potrzeb wbudowanego systemu Linux (ang. Embedded Linux). Platforma ma mieć mozliwość podłączenia pamięci masowych typu Compact  Flash lub dysk IDE, wyświetlaczy graficznych LCD, urządzeń USB oraz sieci Ethernet.\\
@@ -116,7 +116,7 @@
 				\end{itemize}
 			\subsection{Porównanie dostępnych układów}
 				Na rynku jest dostępnych wiele procesorów o architekturach spełniających wymagania projektu m.in. x86, PowerPC, MIPS, ARM i AVR32, jednak jedynie 2 ostatnie z nich są łatwo dostępne w ilościach detalicznych.\\
-				Zarówno ARM jak i AVR32 są wspierane przez jądro systemu Linux, jednak kod dla 32-bitowej architektury mikrokontrolerów AVR został udostępniony stosunkowo niedawno, bo dopiero w wersji 2.6.19. W związku z tym zdecydowano się na wykorzystanie jednego z procesorów zawierających rdzeń firmy ARM\cite{website:arm}, które już od dłuższego czasu posiadają stabilne sterowniki w źródłach kernela.\\
+				Zarówno ARM jak i AVR32 są wspierane przez jądro systemu Linux, jednak kod dla 32-bitowej architektury mikrokontrolerów AVR został udostępniony stosunkowo niedawno, bo dopiero w wersji 2.6.19. W związku z tym zdecydowano się na wykorzystanie jednego z procesorów zawierających rdzeń firmy ARM, które już od dłuższego czasu posiadają stabilne sterowniki w źródłach kernela.\\
 				Układy oparte o rdzenie ARM są produkowane przez różne firmy np. Philips zajmuje się wytwarzaniem mikrokontrolerów ARM7TDMI, niestety nie są one wyposażone w jednostkę MMU, natomiast firma Atmel jest uznanym producentem układów m.in. z rodzin ARM9TDMI i ARM9E. Mikroprocesory z nowszymi rdzeniami, takimi jak XScale i Cortex, są trudno dostępne do zakupu oraz występują zazwyczaj w obudowach BGA.\\
 				Po zapoznaniu z ofertą firmy Atmel, okazało się że jedynie mikrokontrolery AT91RM9200 i AT91SAM9260 spełniają wymagania projektu (są dostępne w Polsce oraz występują w obudowach QFP208). W tabeli \ref{tab:arm_comparison} znajduje się porównanie najważniejszych cech obu układów.
 				
@@ -851,110 +851,134 @@ Dec 31 17:00:48 login[258]: root login on 'ttyS0'
 %		\section{Aplikacja demonstracyjna}
 		
 	\chapter{Podsumowanie}
-
+		Wszystkie założenia postawione we wstępie pracy zostały w pełni zrealizowane.\\
+		Okazało się, że przy znajomości podstaw elektroniki, techniki układów cyfrowych oraz konfiguracji i działania systemu operacyjnego Linux, możliwe jest wykonanie prostego urządzenia posiadającego możliwości zbliżone do tych, spotykanych w dostępnych na rynku urządzeniach przenośnych.\\
+		Podczas realizacji pracy natrafiono na szereg problemów, wymagających zapoznania się m.in. z zasadami projektowania obwodów drukowanych działających dla częstotliwości wyższych niż 60MHz, procesem uruchamiania mikroprocesora ARM oraz niskopoziomowej konfiguracji systemu operacyjnego Linux.\\
+		Dzięki podziałowi platformy sprzętowej na dwie części - główną, posiadającą podstawową funkcjonalność, oraz dodatkową, umożliwiającą przykładowe podłączenie wyświetlacza oraz przetwornika audio - możliwa jest stosunkowo łatwa zmiana konfiguracji sprzętowej.Przykładowym zastosowaniem stworzonego projektu jest proste urządzenie multimedialne, będące w stanie odtwarzać dźwięk i obraz, którego sterowanie odbywać się może za pośrednictwem łącza Ethernet lub klawiatury USB. Kolejnym celem podczas prac nad projektem może być utworzenie interfejsu sieciowego uruchamianego na prostym serwerze HTTP, umożliwienie przechowywania plików na dodatkowej karcie pamięci lub dołączanym dysku USB oraz zastosowanie wyświetlacza LCD z panelem dotykowym.\\
+		Systemy wbudowane oparte na Linuksie cieszą się coraz większym powodzeniem, ze względu na koszty wprowadzenia na rynek, otwartość kodu źródłowego oraz stabilność dostępnych aplikacji. Po skonfigurowaniu systemu operacyjnego do własnych potrzeb, użytkownik może od razu korzystać z bardzo rozbudowanej funkcjonalności, bez potrzeby pisania dodatkowego kodu.
+		
 	\bibliographystyle{plain}
 	\bibliography{bibliography}
 	
+	%\cite{ldd3}
+	%\cite{building_embedded}
 	
 	
 	\appendix
 	
 	\chapter{Gotowy projekt}
 	\label{app:gotowy_projekt}
-%		\begin{figure}[h]
-%			\begin{center}
-%				\label{fig:cpu_sch}
-%				\includegraphics[scale=1.0]{img/cpu_sch.png}
-%				\caption{Schemat podłączenia mikrokontrolera}
-%			\end{center}
-%		\end{figure}
-%		
-%		\begin{figure}[h]
-%			\begin{center}
-%				\label{fig:main_sch}
-%				\includegraphics[scale=1.0,angle=90]{img/main_sch.png}
-%				\caption{Schemat podłączenia dodatkowych układów do głównej części projektu}
-%			\end{center}
-%		\end{figure}
-%		
-%		\begin{figure}[h]
-%			\begin{center}
-%				\label{fig:ext_sch_lcd}
-%				\includegraphics[scale=1.0,angle=90]{img/ext_sch1.png}
-%				\caption{Schemat podłączenia wyświetlacza i kontrolera LCD}
-%			\end{center}
-%		\end{figure}
-%		
-%		\begin{figure}[h]
-%			\begin{center}
-%				\label{fig:ext_sch_rest}
-%				\includegraphics[scale=1.0]{img/ext_sch2.png}
-%				\caption{Schemat podłączenia dodatkowych elementów rozszerzających możliwości projektu}
-%			\end{center}
-%		\end{figure}
-%		
-%		\begin{figure}[]
-%			\begin{center}
-%				\label{fig:main_brd}
-%				\includegraphics[scale=1.25]{img/main_brd.png}
-%				\caption{Plik .brd programu Eagle dla głównej płytki}
-%			\end{center}
-%		\end{figure}
-%		
-%		\begin{figure}[]
-%			\begin{center}
-%				\label{fig:ext_brd}
-%				\includegraphics[scale=1.25]{img/ext_brd.png}
-%				\caption{Plik .brd programu Eagle dla dodatkowej płytki}
-%			\end{center}
-%		\end{figure}
-%		
-%		\begin{figure}[]
-%			\begin{center}
-%				\subfigure[Górna strona]{\label{fig:pcb1-top}\includegraphics[scale=0.25,angle=90]{img/pcb1_top.jpg}}
-%				\hspace{20pt}
-%				\subfigure[Górna strona z przylutowanymi elementami]{\label{fig:pcb1-ready-top}\includegraphics[scale=0.25,angle=90]{img/pcb1_ready_top.jpg}}\\
-%				\vspace{20pt}
-%				\subfigure[Dolna strona]{\label{fig:pcb1-bottom}\includegraphics[scale=0.25,angle=90]{img/pcb1_bottom.jpg}}
-%				\hspace{20pt}
-%				\subfigure[Dolna strona z przylutowanymi elementami]{\label{fig:pcb1-ready-bottom}\includegraphics[scale=0.25,angle=90]{img/pcb1_ready_bottom.jpg}}
-%			\end{center}
-%			\caption{Główna płytka drukowana}
-%			\label{fig:pcb1}
-%		\end{figure}
-%		\begin{figure}[]
-%			\begin{center}
-%				\subfigure[Górna strona]{\label{fig:pcb2-top}\includegraphics[scale=0.25,angle=90]{img/pcb2_top.jpg}}
-%				\hspace{20pt}
-%				\subfigure[Górna strona z przylutowanymi elementami]{\label{fig:pcb2-ready-top}\includegraphics[scale=0.25,angle=90]{img/pcb2_ready_top.jpg}}\\
-%				\vspace{20pt}
-%				\subfigure[Dolna strona]{\label{fig:pcb2-bottom}\includegraphics[scale=0.25,angle=90]{img/pcb2_bottom.jpg}}
-%				\hspace{20pt}
-%				\subfigure[Dolna strona z przylutowanymi elementami]{\label{fig:pcb2-ready-bottom}\includegraphics[scale=0.25,angle=90]{img/pcb2_ready_bottom.jpg}}
-%			\end{center}
-%			\caption{Dodatkowa płytka drukowana}
-%			\label{fig:pcb2}
-%		\end{figure}
-%	
-%		\begin{figure}[]
-%			\begin{center}
-%				\subfigure[Zdjęcie 1]{\label{fig:project-ready1}\includegraphics[scale=0.25]{img/project_ready1.jpg}}\\
-%				\vspace{30pt}
-%				\subfigure[Zdjęcie 2]{\label{fig:project-ready2}\includegraphics[scale=0.25]{img/project_ready2.jpg}}
-%			\end{center}
-%			\caption{Gotowy projekt razem z wyświetlaczem LCD}
-%			\label{fig:project-ready}
-%		\end{figure}
-%		
-%		\begin{figure}[]
-%			\begin{center}
-%				\subfigure[Schemat ideowy programatora wykonany w programie Eagle]{\label{fig:programator_sch}\includegraphics[scale=0.55]{img/programator_sch.png}}\\
-%				\vspace{40pt}
-%				\subfigure[Plik .brd programu Eagle dla programaora]{\label{fig:programator_brd}\includegraphics[scale=1.4]{img/programator_brd.png}}
-%			\end{center}
-%			\caption{Projekt programatora}
-%			\label{fig:programator}
-%		\end{figure}
+		\begin{figure}[h!]
+			\begin{center}
+				\label{fig:cpu_sch}
+				\includegraphics[scale=1.0]{img/cpu_sch.png}
+				\caption{Schemat podłączenia mikrokontrolera}
+			\end{center}
+		\end{figure}
+		
+		\begin{figure}[h!]
+			\begin{center}
+				\label{fig:main_sch}
+				\includegraphics[scale=1.0,angle=90]{img/main_sch.png}
+				\caption{Schemat podłączenia dodatkowych układów do głównej części projektu}
+			\end{center}
+		\end{figure}
+		
+		\begin{figure}[]
+			\begin{center}
+				\label{fig:ext_sch_lcd}
+				\includegraphics[scale=1.0,angle=90]{img/ext_sch1.png}
+				\caption{Schemat podłączenia wyświetlacza i kontrolera LCD}
+			\end{center}
+		\end{figure}
+		
+		\begin{figure}[]
+			\begin{center}
+				\label{fig:ext_sch_rest}
+				\includegraphics[scale=1.0]{img/ext_sch2.png}
+				\caption{Schemat podłączenia dodatkowych elementów rozszerzających możliwości projektu}
+			\end{center}
+		\end{figure}
+				
+		\begin{figure}[]
+			\begin{center}
+				\label{fig:main_brd}
+				\includegraphics[scale=1.25]{img/main_brd.png}
+				\caption{Plik .brd programu Eagle dla głównej płytki}
+			\end{center}
+		\end{figure}
+		
+		\begin{figure}[]
+			\begin{center}
+				\label{fig:ext_brd}
+				\includegraphics[scale=1.25]{img/ext_brd.png}
+				\caption{Plik .brd programu Eagle dla dodatkowej płytki}
+			\end{center}
+		\end{figure}
+		
+		\newpage
+		\makebox{}
+		\newpage
+		
+		\begin{figure}[h!]
+			\begin{center}
+				\subfigure[Górna strona]{\label{fig:pcb1-top}\includegraphics[scale=0.25,angle=90]{img/pcb1_top.jpg}}
+				\hspace{20pt}
+				\subfigure[Górna strona z przylutowanymi elementami]{\label{fig:pcb1-ready-top}\includegraphics[scale=0.25,angle=90]{img/pcb1_ready_top.jpg}}\\
+				\vspace{20pt}
+				\subfigure[Dolna strona]{\label{fig:pcb1-bottom}\includegraphics[scale=0.25,angle=90]{img/pcb1_bottom.jpg}}
+				\hspace{20pt}
+				\subfigure[Dolna strona z przylutowanymi elementami]{\label{fig:pcb1-ready-bottom}\includegraphics[scale=0.25,angle=90]{img/pcb1_ready_bottom.jpg}}
+			\end{center}
+			\caption{Główna płytka drukowana}
+			\label{fig:pcb1}
+		\end{figure}
+		
+		\newpage
+		\makebox{}
+		\newpage
+		
+		\begin{figure}[h!]
+			\begin{center}
+				\subfigure[Górna strona]{\label{fig:pcb2-top}\includegraphics[scale=0.25,angle=90]{img/pcb2_top.jpg}}
+				\hspace{20pt}
+				\subfigure[Górna strona z przylutowanymi elementami]{\label{fig:pcb2-ready-top}\includegraphics[scale=0.25,angle=90]{img/pcb2_ready_top.jpg}}\\
+				\vspace{20pt}
+				\subfigure[Dolna strona]{\label{fig:pcb2-bottom}\includegraphics[scale=0.25,angle=90]{img/pcb2_bottom.jpg}}
+				\hspace{20pt}
+				\subfigure[Dolna strona z przylutowanymi elementami]{\label{fig:pcb2-ready-bottom}\includegraphics[scale=0.25,angle=90]{img/pcb2_ready_bottom.jpg}}
+			\end{center}
+			\caption{Dodatkowa płytka drukowana}
+			\label{fig:pcb2}
+		\end{figure}
+	
+		\newpage
+		\makebox{}
+		\newpage
+		
+		\begin{figure}[h!]
+			\begin{center}
+				\subfigure[Zdjęcie 1]{\label{fig:project-ready1}\includegraphics[scale=0.25]{img/project_ready1.jpg}}\\
+				\vspace{30pt}
+				\subfigure[Zdjęcie 2]{\label{fig:project-ready2}\includegraphics[scale=0.25]{img/project_ready2.jpg}}
+			\end{center}
+			\caption{Gotowy projekt razem z wyświetlaczem LCD}
+			\label{fig:project-ready}
+		\end{figure}
+		
+		\newpage
+		\makebox{}
+		\newpage
+		
+		\begin{figure}[h!]
+			\begin{center}
+				\subfigure[Schemat ideowy programatora wykonany w programie Eagle]{\label{fig:programator_sch}\includegraphics[scale=0.55]{img/programator_sch.png}}\\
+				\vspace{40pt}
+				\subfigure[Plik .brd programu Eagle dla programaora]{\label{fig:programator_brd}\includegraphics[scale=1.4]{img/programator_brd.png}}
+			\end{center}
+			\caption{Projekt programatora}
+			\label{fig:programator}
+		\end{figure}
 
 	
 	\chapter{Przykładowe projekty}
