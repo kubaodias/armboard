@@ -701,7 +701,9 @@ sysfs           /sys       sysfs  defaults                0      0
 
 				\end{lstlisting}
 			\subsection{Uruchamianie}
-				W celu uruchomienia systemu operacyjnego Linux na zbudowanej platformie sprzętowej podzielono kartę pamięci SD/MMC na partycje w sposób podany na rysunku \ref{fig:sd_mmc}. Po nagraniu jądra Linuksa i dystrybucji Buildroot podłączono napięcie zasilania co spowodowało wystartowanie przez mikrokontroler programu inicjalizującego LAB Bootloader. Po odczekaniu odpowiedniego czasu lub wybraniu odpowiedniej opcji został uruchomiony bootloader U-Boot. Aby zmusić U-Boot do wczytania jądra systemu operacyjnego Linux należy wykonać ciąg instrukcji przedstawionych poniżej (czynność tą można zautomatyzować poprzez ustawienie odpowiednich zmiennych środowiskowych i zapisanie ich w pamięci Serial Dataflash).
+				W celu uruchomienia systemu operacyjnego Linux na zbudowanej platformie sprzętowej podzielono kartę pamięci SD/MMC na partycje w sposób podany na rysunku \ref{fig:sd_mmc}. Po nagraniu jądra Linuksa i dystrybucji Buildroot podłączono napięcie zasilania co spowodowało wystartowanie przez mikrokontroler programu inicjalizującego LAB Bootloader. Po odczekaniu odpowiedniego czasu lub wybraniu odpowiedniej opcji został uruchomiony bootloader U-Boot.\\
+				W momencie uruchamiania systemu operacyjnego Linux, procesor powinien znajdować się w takim stanie, jak gdyby został dopiero uruchomiony. W związku z tym ostatnią czynnością wykonywaną przez bootloader przed wystartowaniem Linuksa jest uruchomienie funkcji \texttt{cleanup\_before\_linux}, która jest odpowiedzialna za wyłączenie przerwań oraz pamięci cache dla instrukcji i danych. Szybkość pracy procesora oraz konfiguracja pamięci SDRAM i innych układów powinny zostać niezmienione.\\
+				Aby zmusić U-Boot do wczytania jądra systemu operacyjnego Linux należy wykonać ciąg instrukcji przedstawionych poniżej (czynność tą można zautomatyzować poprzez ustawienie odpowiednich zmiennych środowiskowych i zapisanie ich w pamięci Serial Dataflash).
 				\begin{enumerate}
 					\item \texttt{mmcinit} - Inicjalizacja dostępnych kart pamięci SD/MMC.
 					\item \texttt{fatls mmc 0} - Wyświetlenie zawartości pierwszej karty pamięci.
@@ -722,8 +724,10 @@ OK
                                                                                 
 Starting kernel ...                                                             
                                                                                 
-Uncompressing Linux.............................................................
-Linux version 2.6.27.8 (odi@debian) (gcc version 4.0.2) #41 Mon Oct 12 22:56:209
+Uncompressing Linux................................................
+.............
+Linux version 2.6.27.8 (odi@debian) (gcc version 4.0.2) #41 Mon Oct 
+12 22:56:209
 CPU: ARM920T [41129200] revision 0 (ARMv4T), cr=c0006173                        
 Machine: Linux ARM Board                                                        
 Memory policy: ECC disabled, Data cache buffered                                
@@ -731,8 +735,10 @@ Clocks: CPU 179 MHz, master 89 MHz, main 18.432 MHz
 CPU0: D VIVT write-back cache                                                   
 CPU0: I cache: 16384 bytes, associativity 64, 32 byte lines, 8 sets             
 CPU0: D cache: 16384 bytes, associativity 64, 32 byte lines, 8 sets             
-Built 1 zonelists in Zone order, mobility grouping on.  Total pages: 16256      
-Kernel command line: mem=64M console=ttyS0,115200 rootfstype=ext2 root=/dev/mmct
+Built 1 zonelists in Zone order, mobility grouping on.  Total pages: 
+16256      
+Kernel command line: mem=64M console=ttyS0,115200 rootfstype=ext2 
+root=/dev/mmcblk0p2 rootdelay=3 init=/sbin/init
 AT91: 96 gpio irqs in 3 banks                                                   
 PID hash table entries: 256 (order: 8, 1024 bytes)                              
 Console: colour dummy device 80x30                                              
@@ -787,7 +793,8 @@ usbcore: registered new interface driver usbhid
 usbhid: v2.6:USB HID core driver
 TCP cubic registered
 NET: Registered protocol family 17
-at91_rtc at91_rtc: setting system clock to 1998-01-01 00:00:27 UTC (883612827)
+at91_rtc at91_rtc: setting system clock to 1998-01-01 00:00:27 UTC 
+(883612827)
 Waiting 3sec before mounting root device...
 mmc0: new MMC card at address 0001
 mmcblk0: mmc0:0001 128M   125440KiB 
@@ -796,7 +803,8 @@ EXT2-fs warning: mounting unchecked fs, running e2fsck is recommended
 VFS: Mounted root (ext2 filesystem).
 Freeing init memory: 96K
 Populating /dev using udev: done
-Initializing random number generator... read-only file system detected...done
+Initializing random number generator... read-only file system 
+detected...done
 Starting network...
 ifup: interface lo already configured
 Starting HPA's tftpd: done
@@ -807,16 +815,39 @@ Dec 31 17:00:48 login[258]: root login on 'ttyS0'
 # 
 				\end{lstlisting}
 				
-				% jak u-boot to startuje? wylaczone przerwania, d-cache i i-cache
 			\subsection{Dodatkowe moduły}
 				\label{sec:linux_modules}
-				m
+				Każdy z dodatkowych układów wchodzących w skład projektu, wymaga specjalizowanego modułu programowego umożliwiającego komunikację między rejestrami takiego układu, a warstwami systemu operacyjnego Linux. Dzięki zmodularyzowanej budowie Linuksa, w celu utworzenia kodu odpowiadającego za komunikację z niewspieranym jeszcze układem, w większości przypadków wystarczy napisać obsługę kilku funkcji odpowiadających za niskopoziomową komunikację (np. zapis i odczyt z rejestrów), natomiast resztą pracy zajmą się wyższe warstwy aplikacji odpowiadające za większą część funkcjonalności.\\
+				W dostępnych źródłach systemu operacyjnego nie została zaimplementowana obsługa układów opisanych w trzech kolejnych podpunktach.
+				
 				\subsubsection{Ethernet}
-					eth
-				\subsubsection{Sterownik Audio}
-					audio
+					Aby móc korzystać z interfejsu sieciowego platformy, konieczna była implementacja obsługi sterownika wartwy fizycznej STE100P. W projekcie wykorzystano kod napisany przez Grzegorza Rajtara (p. załącznik \ref{app:przykladowe_projekty}).\\
+					 Procesor komunikuje się z układem scalonym STE100P za pomocą interfejsu MII (Media Independent Interface), którego implementacja znajduje się w jądrze Linuksa, dlatego nie ma potrzeby zajmowania się obsługą wymiany danych pomiędzy obydwoma układami.\\
+					 Sam moduł składa się z funkcji odpowiedzialnych za następujące działania:
+					 \begin{itemize}
+					 	\item inicjalizacja układu
+					 	\item obsługa przerwań
+					 	\item autonegocjacja parametrów transmisji
+					 	\item zawieszenie i wznowienie pracy układu
+					 \end{itemize}
+					 Pozostałą funkcjonalnością niezbędną do korzystania z sieci Ethernet zajmują się wyższe warstwy aplikacyjne modelu ISO/OSI. Są one niezależne od zastosowanej konfiguracji sprzętowej oraz bardzo dobrze przetestowane.
 				\subsubsection{Kontroler LCD}
-					ssd
+					Jednym z założeń projektu była możliwość podłączenia kolorowego wyświetlacza LCD. Aby w znacznym stopniu odciążyć procesor od konieczności odświeżania obrazu zastosowano specjalizowany kontroler LCD - układ SSD1906 firmy Solomon, który dzięki odpowiedniej konfiguracji umożliwia podłączenie paneli STN, TFT i HR-TFT. Komunikuje się on z procesorem za pomocą magistrali równoległej, która jest używana również do komunikacji z pamięcią SDRAM platformy. Rejestry i 256kB wewnętrznej pamięci SRAM układu SSD1906 są widziane przez procesor pod adresem 0x40000000.\\
+					Linuksowy moduł jądra, potrafiący obsłużyć sterownik wyświetlacza opiera się na idei tzw. bufora ramki (ang. framebuffer). Aplikacje wyświetlające obraz komunikują się z urządzeniem \texttt{/dev/fb0}, które jest zależne od niskopoziomowej implementacji sprzętowej sterownika, natomiast sam kontroler LCD jest widziany przez kernel i sterownik framebuffera jako obszar pamięci do którego można zapisać obraz.\\
+					Zadania linuksowego modułu układu SSD1906 są następujące:
+					\begin{itemize}
+						\item inicjalizacja układu
+						\item zarezerwowanie wymaganej przez moduł pamięci
+						\item odczyt i zapis rejestrów
+						\item ustawienie trybu pracy m.in. żądanej liczby kolorów
+						\item zarządzanie rejestrami LUT (Look-Up Table)
+						\item regulacja podświetlenia wyświetlacza
+					\end{itemize}
+					Dzięki zastosowaniu bufora ramki, możliwe jest wyświetlanie obrazu już podczas ładowania systemu Linux. Niektóre aplikacje i biblioteki linuksowe, takie jak odtwarzacz multimedialny MPlayer czy biblioteka SDL, potrafią korzystać bezpośrednio z framebuffera, bez potrzeby używania serwera graficznego X, co jest szczególnie przydatne w systemach wbudowanych.\\
+					W momencie oddawania tej pracy, moduł kontrolera LCD został napisany lecz niedostatecznie przetestowany.
+				\subsubsection{Sterownik Audio}
+					Komunikacja z układem scalonym TLV320DAC23 odbywa się za pośrednictwem interfejsów TWI i SSC. Moduł tego sterownika powinien zajmować się głównie ustawianiem trybu pracy m.in. częstotliwości próbkowania, natomiast pozostała część pracy należy do systemu ALSA (Advanced Linux Sound Architecture), z którym komunikują się aplikacje użytkownika mogące odtwarzać dźwięk.\\
+					W chwili oddawania tej pracy, programowy sterownik układu TLV320DAC23 nie został jeszcze zaimplementowany.
 %		\section{Aplikacja demonstracyjna}
 		
 	\chapter{Podsumowanie}
