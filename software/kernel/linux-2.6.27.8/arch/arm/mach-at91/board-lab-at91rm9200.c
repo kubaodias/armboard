@@ -84,8 +84,9 @@ static struct at91_usbh_data __initdata lab_usbh_data = {
 
 static struct at91_mmc_data __initdata lab_mmc_data = {
 	.slot_b		= 0,
-	.wire4		= 1,
-	.det_pin	= AT91_PIN_PB27,
+	// 4-wire bus is not supported
+	.wire4		= 0,
+	//.det_pin	= AT91_PIN_PB27,
 };
 
 static struct spi_board_info lab_spi_devices[] = {
@@ -262,6 +263,8 @@ static void __init lab_board_init(void)
 	at91_add_device_eth(&lab_eth_data);
 	/* USB Host */
 	at91_add_device_usbh(&lab_usbh_data);
+	/* MMC */
+	at91_add_device_mmc(0, &lab_mmc_data);
 	/* SPI */
 	at91_add_device_spi(lab_spi_devices, ARRAY_SIZE(lab_spi_devices));
 	/* PCK for SSD1906 */
