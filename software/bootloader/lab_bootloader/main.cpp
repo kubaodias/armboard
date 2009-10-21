@@ -352,7 +352,7 @@ int main(void)
 	AT91F_DataflashInit ();
 
 	// start tempo to start Uboot in a delay of 1 sec if no key pressed
-	svcUbootTempo.Start(&svcUbootTempo, 1000, 0, AT91F_StartUboot, (void *)0);
+	svcUbootTempo.Start(&svcUbootTempo, 300, 0, AT91F_StartUboot, (void *)0);
 
 	printf("press any key to enter bootloader... ");
 	getc();
@@ -361,7 +361,7 @@ int main(void)
 	svcUbootTempo.Stop(&svcUbootTempo);
 
 	while(1)
-    {
+    	{
 		while(command == 0)
 		{
 			download_address = AT91C_DOWNLOAD_BASE_ADDRESS;

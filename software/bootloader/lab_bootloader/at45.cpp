@@ -19,7 +19,7 @@
 #include "dataflash.h"
 #include "main.h"
 
-#define AT91C_SPI_CLK 8000000
+#define AT91C_SPI_CLK 5000000
 #define AT91C_SPI_PCS0_SERIAL_DATAFLASH	0xE     /* Chip Select 0 : NPCS0 %1110 */
 
 /*----------------------------------------------------------------------------*/
