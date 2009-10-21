@@ -25,7 +25,7 @@
 #ifdef CONFIG_HAS_DATAFLASH
 #include <dataflash.h>
 
-#define AT91C_SPI_CLK	10000000	/* Max Value = 10MHz to be compliant to
+#define AT91C_SPI_CLK	5000000		/* Max Value = 10MHz to be compliant to
 					the Continuous Array Read function */
 
 /* AC Characteristics */

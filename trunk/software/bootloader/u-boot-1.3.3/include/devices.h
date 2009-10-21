@@ -91,6 +91,9 @@ extern char *stdio_names[MAX_FILES];
  */
 int	device_register (device_t * dev);
 int	devices_init (void);
+#ifdef CONFIG_SYS_DEVICE_DEREGISTER
+int	device_deregister(char *devname);
+#endif
 int	devices_done (void);
 int	device_deregister(char *devname);
 #ifdef CONFIG_LCD
