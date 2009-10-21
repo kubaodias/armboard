@@ -117,8 +117,8 @@ void AT91F_SetClocks(void)
 	tmp = 0;
 	while(!(pPmc->PMC_SR & AT91C_PMC_LOCKB) && (tmp++ < DELAY_MAIN_FREQ));
 
-	// processor clock is a PLLA clock, MCK is 2 timer slower
-	pPmc->PMC_MCKR = AT91C_PMC_CSS_PLLA_CLK | AT91C_PMC_PRES_CLK | AT91C_PMC_MDIV_2;
+	// processor clock is a PLLA clock, MCK is 3 times slower
+	pPmc->PMC_MCKR = AT91C_PMC_CSS_PLLA_CLK | AT91C_PMC_PRES_CLK | AT91C_PMC_MDIV_3;
 }
 
 //*----------------------------------------------------------------------------

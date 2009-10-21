@@ -27,40 +27,47 @@ void AT91F_InitSdram()
 	/* 9 columns, 13 rows, 2 CAS, 4 banks, 32 bits,
 	 * 2 TWR, 7 TRC, 2 TRP, 2 TRCD, 5 TRAS, 8 TXSR
 	 */
-	pSdrc->SDRC_CR = 0x42913959;
+	//pSdrc->SDRC_CR = 0x42913959;
 
+	/* default values
+	 * 9 columns, 13 rows, 2 CAS, 4 banks, 32 bits,
+	 * 2 TWR, 8 TRC, 3 TRP, 3 TRCD, 5 TRAS, 5 TXSR
+	 */
+	pSdrc->SDRC_CR = 0x2A99C159;
+
+	// sleep for a while
 	for (i =0; i< 1000;i++);
 
 	// precharge all
-	pSdrc->SDRC_MR = AT91C_SDRC_MODE_PRCGALL_CMD;
+  	pSdrc->SDRC_MR = AT91C_SDRC_MODE_PRCGALL_CMD;
+	pRegister = (int *)(AT91C_SDRAM_BASE_ADDRESS);
+	*pRegister = 0; 
 
-	pRegister = (int *)AT91C_SDRAM_BASE_ADDRESS;
-	*pRegister = 0;
+	// sleep for a while
+	for (i =0; i< 1000;i++);
 
-	for (i =0; i< 10000;i++);
-
+	// 8 auto refresh cycles
+  	pSdrc->SDRC_MR = AT91C_SDRC_MODE_RFSH_CMD;
+	pRegister = (int *)(AT91C_SDRAM_BASE_ADDRESS);
 	for (i = 0; i < 8; i++)
-	{
-		// refresh command
-		pSdrc->SDRC_MR = AT91C_SDRC_MODE_RFSH_CMD;
-		pRegister = (int *)(AT91C_SDRAM_BASE_ADDRESS + i * 4);
-		*pRegister = i;
-	}
+		*pRegister = 0;
 
 	// load mode register
-	pSdrc->SDRC_MR = AT91C_SDRC_MODE_LMR_CMD;
-
-	pRegister = (int *)(AT91C_SDRAM_BASE_ADDRESS + 0x24);
-	*pRegister = 0xcafedede;	// Perform LMR burst=1, lat=2
-
-	// MCK * 7 / 1000000
-	pSdrc->SDRC_TR = 0x1a4;
+  	pSdrc->SDRC_MR = AT91C_SDRC_MODE_LMR_CMD;
+	// mode is 0x20, but has to be shifted 2 bits left for 32-bit data bus width
+	// CAS latency = 2, (mode register bits 6:4)
+	pRegister = (int *)(AT91C_SDRAM_BASE_ADDRESS + 0x80);
+	*pRegister = 0; 
 
 	// normal mode
-	pSdrc->SDRC_MR = AT91C_SDRC_MODE_NORMAL_CMD;
+  	pSdrc->SDRC_MR = AT91C_SDRC_MODE_NORMAL_CMD;
+	pRegister = (int *)(AT91C_SDRAM_BASE_ADDRESS);
+	*pRegister = 0; 
 
-	pRegister = (int *)AT91C_SDRAM_BASE_ADDRESS;
-	*pRegister = 0;
+	// program refresh rate
+	// 8192 rows have to be refreshed each 64ms which gives refresh cycle every 7.8 microseconds
+	// 468 = 7.8us * MASTER_CLOCK / 1000000
+	pSdrc->SDRC_TR = 0x1D4;
 }
 
 /* Clear whole SDRAM memory */

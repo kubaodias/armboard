@@ -22,11 +22,18 @@
 // crystal= 18.432MHz
 // MULA = 38, DIVA = 4, (MULA + 1) / DIV = 9.75
 #define AT91C_PLLA_VALUE 				  0x2026BE04 // -> 179.712MHz
+
+// MULA = 25, DIVA = 4, (MULA + 1) / DIV = 6.5
+//#define AT91C_PLLA_VALUE 				  0x20193E04 // -> 119.808MHz
+
+// MULA = 82, DIVA = 17, (MULA + 1) / DIV = 4.88
+//#define AT91C_PLLA_VALUE 				  0x20523E11 // -> 90MHz
+
 #define AT91C_PLLB_VALUE 				  0x10483E0E
 
 #define DELAY_MAIN_FREQ				  1000
 
-#define AT91C_MASTER_CLOCK              90000000
+#define AT91C_MASTER_CLOCK              60000000
 #define AT91C_BAUD_RATE                 115200
 
 #define AT91C_SDRAM_BASE_ADDRESS        0x20000000
