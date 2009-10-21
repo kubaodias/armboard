@@ -372,7 +372,7 @@ UCHAR ste100p_InitPhy (AT91PS_EMAC p_mac)
 #ifdef DEBUG_ETHER
 	    if (aneg_status)
 	    {
-		    printf("link speed autonegotiated: ");
+		    printf("link speed autonegotiated (%d): ", ret);
 		    ret = ste100p_GetLinkSpeed (p_mac);
 	    }
 	    else

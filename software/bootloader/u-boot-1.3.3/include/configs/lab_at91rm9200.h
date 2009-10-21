@@ -28,7 +28,7 @@
 
 /* ARM asynchronous clock */
 #define AT91C_MAIN_CLOCK	179712000	/* from 18.432 MHz crystal (18432000 / 4 * 39) */
-#define AT91C_MASTER_CLOCK	89856000	/* peripheral clock (AT91C_MASTER_CLOCK / 2) */
+#define AT91C_MASTER_CLOCK	59904000	/* peripheral clock (AT91C_MASTER_CLOCK / 3) */
 
 #define AT91_SLOW_CLOCK		32768	/* slow clock */
 
@@ -41,6 +41,8 @@
 #define CONFIG_CMDLINE_TAG	1	/* enable passing of ATAGs	*/
 #define CONFIG_SETUP_MEMORY_TAGS 1
 #define CONFIG_INITRD_TAG	1
+
+#define CFG_NO_FLASH
 
 /*
  * Size of malloc() pool
@@ -64,17 +66,28 @@
 #undef	CONFIG_MODEM_SUPPORT		/* disable modem initialization stuff */
 
 #define CONFIG_BOOTDELAY      3
-/* #define CONFIG_ENV_OVERWRITE	1 */
+#define CONFIG_ENV_OVERWRITE  1
+
+/*
+ * USB
+ */
+#define CONFIG_USB_OHCI_NEW
+//#define CONFIG_USB_STORAGE
+#define CONFIG_USB_KEYBOARD
+#define CFG_USB_OHCI_MAX_ROOT_PORTS 15
+#define CFG_USB_OHCI_SLOT_NAME "at91rm9200"
+#define CFG_USB_OHCI_REGS_BASE AT91_USB_HOST_BASE
 
 
 /*
  * BOOTP options
  */
+/*
 #define CONFIG_BOOTP_BOOTFILESIZE
 #define CONFIG_BOOTP_BOOTPATH
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
-
+*/
 
 /*
  * Command line configuration.
@@ -88,8 +101,7 @@
 #define CONFIG_CMD_FAT
 // #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_PING
-#define CONFIG_CMD_FLASH
-// #define CONFIG_CMD_USB
+#define CONFIG_CMD_USB
 
 #undef CONFIG_CMD_BDI
 #undef CONFIG_CMD_IMI
@@ -97,6 +109,7 @@
 #undef CONFIG_CMD_FPGA
 #undef CONFIG_CMD_MISC
 #undef CONFIG_CMD_LOADS
+#undef CONFIG_CMD_IMLS
 
 #define SECTORSIZE 512
 
@@ -130,7 +143,7 @@
 #define CONFIG_NEW_PARTITION 		1
 #define	CONFIG_NEW_DF_PARTITION 	1
 #define CONFIG_DOS_PARTITION        	1
-#define CONFIG_ISO_PARTITION        	1
+//#define CONFIG_ISO_PARTITION        	1
 
 
 #define CFG_SPI_WRITE_TOUT		(5*CFG_HZ)
@@ -150,19 +163,9 @@
 #define	CFG_ENV_IS_IN_DATAFLASH
 #define CFG_ENV_OFFSET			0x4000
 #define CFG_ENV_ADDR			(CFG_DATAFLASH_LOGIC_ADDR_CS0 + CFG_ENV_OFFSET)
-#define CFG_ENV_SIZE			0x4000
+#define CFG_ENV_SIZE			0x1000
 
 #define CFG_LOAD_ADDR		0x21000000  /* default load address */
-
-#ifdef CONFIG_SKIP_LOWLEVEL_INIT
-#define CFG_BOOT_SIZE		0x6000 /* 24 KBytes */
-#define CFG_U_BOOT_BASE		(PHYS_FLASH_1 + 0x10000)
-#define CFG_U_BOOT_SIZE		0x10000 /* 64 KBytes */
-#else
-#define CFG_BOOT_SIZE		0x00 /* 0 KBytes */
-#define CFG_U_BOOT_BASE		PHYS_FLASH_1
-#define CFG_U_BOOT_SIZE		0x60000 /* 384 KBytes */
-#endif	/* CONFIG_SKIP_LOWLEVEL_INIT */
 
 #define CFG_BAUDRATE_TABLE	{ 115200, 19200, 38400, 57600, 9600 }
 
