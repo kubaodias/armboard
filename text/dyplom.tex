@@ -474,11 +474,12 @@ $_TARGETNAME configure -work-area-virt 0x00200000 -work-area-phys
 				\begin{itemize}
  					\item \textbf{test adresowy} - Ten test zapisuje unikalną wartość w każdej komórce pamięci. Przykładowo moży to być adres tej komórki. Po zapisaniu dane są odczytywane i sprawdzane. 
 					\item \textbf{maszerujący wzorzec} - Algorytm czyści zawartość pamięci, następnie odczytuje zawartość pierwszej komórki i zapisuje do niej wartość 1. Ta procedura odczytu i zapisu jest powtarzana dla wszystkich lokacji w pamięci. W tym momencie cała pamięć powinna być zapełniona liczbami 1. Kolejnym etapem testu jest poruszanie się od końca pamięci, odczyt kolejnych komórek i zamiana ich zawartości na 0. Po osiągnięciu początku pamięci test jest powtarzany z użyciem dopełnionych wartości.
-					\item \textbf{galopujący wzorzec} - Test sprawdzający niepowtarzalność adresów i inne funkcjonalne błędy w pamięci, jak również niektóre dynamiczne przekłamania. Algorytm odwołuje się do każdej komórki pamięci używając po kolei każdego z pozostałych adresw jako miejsca, z którego nastąpi skok do sprawdzanej lokacji. Po wyczyszczeniu pamięci pierwsza komórka staje się adresem testowym - jest ona dopełniana i sprawdzana na zmianę z każdym z pozostałych adresów w całej pamięci. Każda kolejna komórka przyjmuje rolę testowej aż do momentu sprawdzenia całości.\\
+					\item \textbf{galopujący wzorzec} - Test sprawdzający niepowtarzalność adresów i inne funkcjonalne błędy w pamięci, jak również niektóre dynamiczne przekłamania. Algorytm odwołuje się do każdej komórki pamięci używając po kolei każdego z pozostałych adresów jako miejsca, z którego nastąpi skok do sprawdzanej lokacji. Po wyczyszczeniu pamięci pierwsza komórka staje się adresem testowym - jest ona dopełniana i sprawdzana na zmianę z każdym z pozostałych adresów w całej pamięci. Każda kolejna komórka przyjmuje rolę testowej aż do momentu sprawdzenia całości.\\
 					Z powodu dużej złożoności czasowej tego algorytmu, sprawdzono tylko kilka obszarów wielkości 1kB (czas wykonania takiego testu to ok. 40 minut).
 				\end{itemize}
 				Przeprowadzenie powyższych testów dla słów o długości 1, 2 i 4 bajtów nie wykazało żadnych błędów.\\
-				Jak się okazało, problem stanowiła zbyt duża różnica w czasie dostępu do wbudowanej pamięci cache a zewnętrznej pamięci SDRAM. Rdzeń procesora taktowany zegarem 180MHz działał zbyt szybko podczas próby pobrania rozkazu z zewnętrznej pamięci, która korzystała z zegara o częstotliwości 60MHz. Po podwyższeniu tej wartości do 90MHz uruchomienie bootloadera U-Boot powiodło się.
+				Częściowy problem stanowiła zbyt duża różnica w czasie dostępu do wbudowanej pamięci cache a zewnętrznej pamięci SDRAM. Rdzeń procesora taktowany zegarem 180MHz działał zbyt szybko podczas próby pobrania rozkazu z zewnętrznej pamięci, która korzystała z zegara o częstotliwości 60MHz. Po podwyższeniu tej wartości do 90MHz uruchomienie bootloadera U-Boot powiodło się, jednak ciągle pojawiały się sporadyczne błędy, szczególnie widoczne po późniejszym uruchomieniu systemu Linux. Jak się okazało problemem była błędna inicjalizacja pamięci - podczas normalnej pracy procesor potrzebuje kilku taktów w celu pobrania danych z zewnętrznej pamięci SDRAM, jednak przy włączonym sekwencyjnym transferze danych (tzw. burst), po pobraniu pierwszej porcji danych procesor może pobierać kolejne dane w odstępach jednotaktowych. Zewnętrzna magistrala pamięci nie była w stanie obsłużyć tak szybkiego przesyłu danych - po wyłączeniu transferów sekwencyjnych problem całkowicie zniknął.
+		\newpage
 		\section{Linux}
 			W tym rozdziale zostanie opisany przebieg instalacji systemu operacyjnego Linux na docelowej platformie sprzętowej. Linux jest bardzo rozbudowanym systemem i daje użytkownikowi wiele możliwości konfiguracji, zarówno na etapie kompilacji jądra, jak i po uruchomieniu. Ponieważ celem tej pracy jest uruchomienie wbudowanej wersji Linuksa, na tym etapie należy zwrócić szczególną uwagę na wybór modułów wspieranych przez jądro, używaną dystrybucję (zestaw podstawowych aplikacji) oraz system plików.
 			\subsection{Jądro systemu}
@@ -527,7 +528,7 @@ $_TARGETNAME configure -work-area-virt 0x00200000 -work-area-phys
 						\item \textit{\textbf{Boot options}} - Opcje ważne przy starcie Linuksa.
 							\begin{itemize}
 								\item \textbf{Default kernel command string} - Parametry przekazywane do jądra podczas ładowania głównego systemu plików. Przykład:\\
-								\texttt{mem=64M console=ttyS0,115200 rootfstype=ext2 root=/dev/mmcblk0p2 rootdelay=4 init=/sbin/init}
+								\texttt{mem=64M console=ttyS0,115200 rootfstype=ext2 root=/dev/mmcblk0p2 rootdelay=1 init=/sbin/init}
 							\end{itemize}
 						\item \textit{\textbf{Networking support}} - Umożliwia użycie rozmaitych protokołów sieciowych, dla zbudowanej platformy sprzętowej ważne jest włączenie obsługi stosu TCP/IP oraz ew. modułów filtrujących pakiety (firewall Netfilter).
 						\item \textit{\textbf{Device drivers}} - sterowniki wszystkich urządzeń wspieranych przez Linuksa
@@ -540,6 +541,10 @@ $_TARGETNAME configure -work-area-virt 0x00200000 -work-area-phys
 								\item \textbf{Misc devices} - Różne urządzenia.
 									\begin{itemize}
 										\item \texttt{Device driver for Atmel SSC peripheral} - Włączenie obsługi interfejsu SSC (Synchronous Serial Communication) używanego przez przetwornik Audio TLV320DAC23.
+									\end{itemize}
+								\item \textbf{SCSI devices} - Urządzenia korzystające z magistrali SCSI.
+									\begin{itemize}
+										\item \texttt{SCSI disk support} - Ta opcja jest niezbędna w celu podłączenia pamięci masowych poprzez port USB.
 									\end{itemize}								
 								\item \textbf{Network device support} - W tym menu należy wybrać wsparcie dla sterownika warstwy fizycznej \texttt{STE100P} oraz warstwy łącza danych (opcja \texttt{AT91RM9200 Ethernet support}). Jeśli używane są sieciowe urządzenia USB należy dodatkowo wybrać odpowiednią opcję.
 								\item \textbf{Input device support} - Obsługa urządzeń wskazujących, w tym klawiatur i myszek.
@@ -551,7 +556,12 @@ $_TARGETNAME configure -work-area-virt 0x00200000 -work-area-phys
 									\end{itemize}
 								\item \textbf{SPI support} - W tym menu należy wybrać właściwy kontroler dla protokołu SPI (\texttt{Atmel SPI Controller}).
 								\item \textbf{Watchdog timer support} - Jeśli użytkownik chce używać układu resetującego działanie procesora w przypadku bezczynności (w celu wykrywania błędów w aplikacjach) powinien włączyć tą opcję.
-								% TODO: framebuffer?
+								\item \textbf{Graphics support} - Urządzenia graficzne.
+									\begin{itemize}
+										\item \texttt{Support for frame buffer devices} - Wsparcie dla rozmaitych urządzeń z buforem ramki - w tym menu należy wybrać sterownik Solomon Systech Limited SSD1906.
+										\item \texttt{Console display driver support} - Aby sterownik framebuffera mógł wyświetlać konsolę należy włączyć niskopoziomowy sterownik \texttt{Framebuffer Console support}
+									\end{itemize}
+								\item \textbf{Sound card support} - W tym menu należy wybrać system dźwiękowy ALSA (Advanced Linux Sound Architecture) i odpowiedni sterownik dla urządzenia TLV320DAC23.
 								\item \textbf{USB support} - Wsparcie dla rozmaitych urządzeń USB.
 								\item \textbf{MMC/SD card support} - Obsługa protokołów MMC i SD.
 									\begin{itemize}
@@ -579,6 +589,7 @@ $_TARGETNAME configure -work-area-virt 0x00200000 -work-area-phys
 						\item \texttt{make ARCH=arm CROSS\_COMPILE=/opt/gnuarm-4.0.2/bin/arm-elf- \\INSTALL\_MOD\_PATH=. modules\_install}
 					\end{itemize}
 					Odpowiednie pliki z rozszerzeniem \texttt{.ko}, zawierające skompilowane moduły linuksowe, będą znajdowały się w podkatalogu \texttt{lib/modules/2.6.27.8}. Aby działający system mógł je poprawnie załadować należy skopiować podany katalog do głównego katalogu w docelowym systemie plików, lub posiadając zamontowany system plików stosowany na platformie zmienić wartość zmiennej \texttt{INSTALL\_MOD\_PATH}.
+
 			\subsection{Dystrybucja}
 				Dystrybucja, czyli zestaw aplikacji i bibliotek tworzących razem z kernelem działający system operacyjny, podobnie jak samo jądro, w wersji dla systemów wbudowanych różni się nieznacznie od tych przeznaczonych dla komputerów biurkowych i serwerów. Różnica polega głównie na przemyślanym doborze wszystkich aplikacji, tak aby zaoszczędzić dostępne miejsce na nośnikach danych i w pamięci operacyjnej oraz zoptymalizować działanie. Aby idealnie dostosować system do danej platformy sprzętowej użytkownik może sam skompilować wszystkie wymagane programy, a następnie utworzyć strukturę głównego systemu plików, jednak takie podejście wymaga dużego nakładu pracy.\\
 				Na rynku jest dostępnych wiele darmowych i komercyjnych rozwiązań, wśród których są standardowe dystrybucje (skompilowane na konkretną platformę sprzętową) oraz środowiska służące do konfigurowania i budowania dystrybucji.
