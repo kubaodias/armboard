@@ -35,7 +35,7 @@
 
 #define PFX "ssd1906fb: "
 
-#if 0
+#if 1
 #define dbg(fmt, args...) do { printk(KERN_INFO fmt, ## args); } while(0)
 #else
 #define dbg(fmt, args...) do { } while (0)
@@ -73,7 +73,7 @@ static inline void ssd1906fb_runinit(struct ssd1906fb_par *par,
 	for (i = 0; i < size; i++) 
 	{
 		ssd1906fb_writereg(par, initregs[i].addr, initregs[i].value);
-        }
+	}
 
 	/* make sure the hardware can cope with us */
 	mdelay(1);
@@ -95,12 +95,16 @@ static inline void lcd_enable(struct ssd1906fb_par *par)
 
 	/* TODO: wait for min. 0.5ms and enable LCD bias power */
 	udelay(1000);
+	/* enable PWM clock circuitry */
+	ssd1906fb_writereg(par, SSD1906REG_PWM_CTL, 0x10);
 }
 
 static inline void lcd_disable(struct ssd1906fb_par *par)
 {
 	u8 mode;
-	/* TODO: disable LCD bias power */
+
+	/* disable LCD bias power */
+	ssd1906fb_writereg(par, SSD1906REG_PWM_CTL, 0x00);
 
 	/* wait for min. 10 frames (about 0.2s) and enable power saving mode */
 	mdelay(400);
@@ -164,11 +168,7 @@ static int ssd1906fb_set_par(struct fb_info *info)
 
 	dbg("ssd1906fb_set_par: bpp=%d\n", info->var.bits_per_pixel);
 
-	if (ssd1906fb->display & 0x01)
-		val = ssd1906fb_readreg(ssd1906fb, SSD1906REG_DISP_MODE);   /* read colour control */
-	else
-		return -EINVAL;
-
+	val = ssd1906fb_readreg(ssd1906fb, SSD1906REG_DISP_MODE);   /* read colour control */
 	val &= ~0x07;
 
 	switch (info->var.bits_per_pixel) {
@@ -195,8 +195,7 @@ static int ssd1906fb_set_par(struct fb_info *info)
 
 	dbg("writing %02x to display mode register\n", val);
 
-	if (ssd1906fb->display & 0x01)
-		ssd1906fb_writereg(ssd1906fb, SSD1906REG_DISP_MODE, val);
+	ssd1906fb_writereg(ssd1906fb, SSD1906REG_DISP_MODE, val);
 
 	info->fix.line_length  = info->var.xres * info->var.bits_per_pixel;
 	info->fix.line_length /= 8;
@@ -257,10 +256,10 @@ static int ssd1906fb_setcolreg(u_int regno, u_int red, u_int green, u_int blue,
 			((u32 *)info->pseudo_palette)[regno] = pseudo_val;
 			break;
 		case FB_VISUAL_PSEUDOCOLOR:
-			ssd1906fb_writereg(ssd1906fb, SSD1906REG_LUT_WRITE_ADDRESS, regno);
 			ssd1906fb_writereg(ssd1906fb, SSD1906REG_LUT_RED_DATA_WRITE, red);
 			ssd1906fb_writereg(ssd1906fb, SSD1906REG_LUT_GREEN_DATA_WRITE, green);
 			ssd1906fb_writereg(ssd1906fb, SSD1906REG_LUT_BLUE_DATA_WRITE, blue);
+			ssd1906fb_writereg(ssd1906fb, SSD1906REG_LUT_WRITE_ADDRESS, regno);
 
 			break;
 		default:
@@ -296,8 +295,7 @@ static int ssd1906fb_blank(int blank_mode, struct fb_info *info)
 	switch (blank_mode) {
 		case FB_BLANK_UNBLANK:
 		case FB_BLANK_NORMAL:
-			if ((par->display & 0x01) != 0)
-				lcd_enable(par);
+			lcd_enable(par);
 			break;
 		case FB_BLANK_VSYNC_SUSPEND:
 		case FB_BLANK_HSYNC_SUSPEND:
@@ -341,17 +339,9 @@ static int ssd1906fb_pan_display(struct fb_var_screeninfo *var, struct fb_info *
 
 	start = (info->fix.line_length >> 1) * var->yoffset;
 
-	if ((par->display & 0x01)) 
-	{
-		ssd1906fb_writereg(par, SSD1906REG_DISP_START0, (start & 0xff));
-		ssd1906fb_writereg(par, SSD1906REG_DISP_START1, ((start >> 8) & 0xff));
-		ssd1906fb_writereg(par, SSD1906REG_DISP_START2, ((start >> 16) & 0x0f));
-	}
-	else
-	{
-		printk(KERN_WARNING PFX "Warning: Display is not LCD (par->display=0x%x)\n", par->display); 
-		return -EINVAL;
-	}
+	ssd1906fb_writereg(par, SSD1906REG_DISP_START0, (start & 0xff));
+	ssd1906fb_writereg(par, SSD1906REG_DISP_START1, ((start >> 8) & 0xff));
+	ssd1906fb_writereg(par, SSD1906REG_DISP_START2, ((start >> 16) & 0x0f));
 
 	return 0;
 }
@@ -402,8 +392,6 @@ static void __devinit ssd1906fb_fetch_hw_state(struct fb_info *info)
 	fix->type = FB_TYPE_PACKED_PIXELS;
 
 	/* general info */
-	par->display = ssd1906fb_readreg(par, SSD1906REG_DISP_MODE);
-
 	display = ssd1906fb_readreg(par, SSD1906REG_DISP_MODE);
 
 	bpp = display & 0x07;
@@ -419,7 +407,7 @@ static void __devinit ssd1906fb_fetch_hw_state(struct fb_info *info)
 			ssd1906fb_setup_truecolour(info);
 			break;
 		default:
-			dbg("bpp: %i\n", bpp);
+			dbg("bpp: %i (Display Mode Register = 0x%02x\n", bpp, display);
 	}
 	fb_alloc_cmap(&info->cmap, 256, 0);
 
@@ -431,20 +419,19 @@ static void __devinit ssd1906fb_fetch_hw_state(struct fb_info *info)
 	yres = (ssd1906fb_readreg(par, SSD1906REG_VDISP_PERIOD0) +
 		((ssd1906fb_readreg(par, SSD1906REG_VDISP_PERIOD1) & 0x03) << 8) + 1);
 
-	/* TODO: what is this offset for? */
-	/*offset = (ssd1906fb_readreg(par, S1DREG_LCD_MEM_OFF0) +
-		((ssd1906fb_readreg(par, S1DREG_LCD_MEM_OFF1) & 0x7) << 8));
+	offset = (ssd1906fb_readreg(par, SSD1906REG_LOFFSET0) +
+		((ssd1906fb_readreg(par, SSD1906REG_LOFFSET1) & 0x3) << 8));
 
-	xres_virtual = offset * 16 / var->bits_per_pixel;
+	/*xres_virtual = offset * 16 / var->bits_per_pixel;
 	yres_virtual = fix->smem_len / (offset * 2);*/
 
 	var->xres		= xres;
 	var->yres		= yres;
-	/*var->xres_virtual	= xres_virtual;
-	var->yres_virtual	= yres_virtual;*/
+	var->xres_virtual	= xres;
+	var->yres_virtual	= yres;
 	var->xoffset		= var->yoffset = 0;
 
-	fix->line_length	= offset * 2;
+	fix->line_length	= offset * 32 / var->bits_per_pixel;
 
 	var->grayscale		= !is_color;
 

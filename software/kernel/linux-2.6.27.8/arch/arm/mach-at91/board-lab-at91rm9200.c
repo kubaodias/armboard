@@ -47,7 +47,6 @@
 #include "generic.h"
 
 
-
 static void __init lab_map_io(void)
 {
 	/* Initialize processor: 18.432 MHz crystal */
@@ -112,11 +111,11 @@ static void lab_set_programmable_clocks(void)
 	/* PCK0 */
 	at91_set_A_periph(AT91_PIN_PB27, 0);
 
+	/* set PCK0 rate to 24MHz and enable it */
 	clk_set_parent(pck0, pllb);
-
-	/* PCK0 rate = 24MHz */
 	clk_set_rate(pck0, 24000000);
-
+	clk_enable(pck0);
+	
 	clk_put(pck0);
 	clk_put(pllb);
 }
@@ -128,9 +127,17 @@ static void lab_init_video(void)
 	at91_set_A_periph(AT91_PIN_PC6, 0);
 
 	/* Initialization of the Static Memory Controller for Chip Select 3 */
+	//at91_sys_write(AT91_SMC_CSR(3), AT91_SMC_DBW_16			/* 16 bit */
+	//			| AT91_SMC_WSEN | AT91_SMC_NWS_(4)	/* wait states */
+	//			| AT91_SMC_TDF_(1)			/* float time */
+	//);
 	at91_sys_write(AT91_SMC_CSR(3), AT91_SMC_DBW_16			/* 16 bit */
-				| AT91_SMC_WSEN | AT91_SMC_NWS_(4)	/* wait states */
-				| AT91_SMC_TDF_(1)			/* float time */
+				| AT91_SMC_WSEN | AT91_SMC_NWS_(100)	/* wait states */
+				| AT91_SMC_TDF_(10)			/* float time */
+				| AT91_SMC_BAT				/* CS line is connected to 16-bit device */
+				| AT91_SMC_ACSS_3			/* ACSS 3 */
+				// | AT91_SMC_RWSETUP_(3)	// hanged when this was on - it is not recommended 
+				// | AT91_SMC_RWHOLD_(3)	// as stated in AT91RM9200 documentation
 	);
 }
 
@@ -179,6 +186,10 @@ static const struct ssd1906fb_regval lab_ssd1906fb_initregs[] = {
 							VDPS bits [7:0] = 0x0A */
 	{SSD1906REG_VDISP_PERIOD_START1,0x00},	/* Vertical Display Period Start Position Register 1
 							VDPS bits [9:8] = 0x00 */
+	/* Main Window Line Address Offset Register = 480 / (32 / 16bpp) = 240 */
+	{SSD1906REG_LOFFSET0,		0xF0},
+	{SSD1906REG_LOFFSET1,		0x00},
+
 	{SSD1906REG_LLINE_PWIDTH,	0x28},	/* LLINE Pulse Width Register 
 							HSYNC signal is active low
 							Horizontal Pulse Width = 41 clocks */
